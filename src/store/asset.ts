@@ -1,181 +1,120 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 
 export interface Asset {
   id: string
   name: string
-  type: 'video' | 'image' | 'audio' | 'other'
+  type: 'image' | 'video' | 'audio' | 'document'
+  size: number
+  url: string
   thumbnail?: string
-  size: string
-  duration?: string
-  uploadTime: number
-  folderId: string
-  tags: string[]
+  uploadTime: string
+  folderId?: string
 }
 
 export interface Folder {
   id: string
   name: string
-  parentId: string | null
-  children: Folder[]
+  parentId?: string
+  children?: Folder[]
+  assets?: Asset[]
 }
 
 export const useAssetStore = defineStore('asset', () => {
-  const assets = ref<Asset[]>([
-    // 示例数据
-    {
-      id: '1',
-      name: '示例视频1.mp4',
-      type: 'video',
-      size: '12.5 MB',
-      duration: '00:30',
-      uploadTime: Date.now() - 86400000,
-      folderId: 'root',
-      tags: ['旅行', '风景']
-    },
-    {
-      id: '2',
-      name: '示例视频2.mp4',
-      type: 'video',
-      size: '8.3 MB',
-      duration: '00:15',
-      uploadTime: Date.now() - 172800000,
-      folderId: 'root',
-      tags: ['美食']
-    },
-    {
-      id: '3',
-      name: '背景音乐.mp3',
-      type: 'audio',
-      size: '4.2 MB',
-      duration: '03:45',
-      uploadTime: Date.now() - 259200000,
-      folderId: 'root',
-      tags: ['音乐']
-    }
-  ])
-
+  const showAssetManager = ref(false)
+  const currentFolder = ref<string | null>(null)
+  const selectedAssets = ref<string[]>([])
+  
+  // 示例文件夹结构
   const folders = ref<Folder[]>([
     {
-      id: 'root',
+      id: '1',
       name: '我的素材',
-      parentId: null,
       children: [
         {
-          id: 'videos',
-          name: '视频',
-          parentId: 'root',
-          children: []
+          id: '2',
+          name: '视频素材',
+          parentId: '1',
+          children: [],
+          assets: []
         },
         {
-          id: 'images',
-          name: '图片',
-          parentId: 'root',
-          children: []
+          id: '3',
+          name: '图片素材',
+          parentId: '1',
+          children: [],
+          assets: []
         },
         {
-          id: 'music',
-          name: '音乐',
-          parentId: 'root',
-          children: []
+          id: '4',
+          name: '音频素材',
+          parentId: '1',
+          children: [],
+          assets: []
         }
       ]
     }
   ])
 
-  const selectedFolderId = ref('root')
-  const selectedAssetIds = ref<string[]>([])
-  const showAssetManager = ref(false)
-  const searchQuery = ref('')
-  const viewMode = ref<'grid' | 'list'>('grid')
-
-  // 获取当前文件夹的资源
-  const currentAssets = computed(() => {
-    let filtered = assets.value.filter(asset => 
-      selectedFolderId.value === 'root' || asset.folderId === selectedFolderId.value
-    )
-
-    if (searchQuery.value) {
-      filtered = filtered.filter(asset =>
-        asset.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        asset.tags.some(tag => tag.toLowerCase().includes(searchQuery.value.toLowerCase()))
-      )
+  // 示例素材数据
+  const assets = ref<Asset[]>([
+    {
+      id: '1',
+      name: 'sample-video-1.mp4',
+      type: 'video',
+      size: 1024000,
+      url: '/assets/sample-video-1.mp4',
+      thumbnail: '/assets/thumbnails/video-1.jpg',
+      uploadTime: '2024-01-15 10:30:00',
+      folderId: '2'
+    },
+    {
+      id: '2',
+      name: 'sample-image-1.jpg',
+      type: 'image',
+      size: 512000,
+      url: '/assets/sample-image-1.jpg',
+      thumbnail: '/assets/thumbnails/image-1.jpg',
+      uploadTime: '2024-01-15 11:00:00',
+      folderId: '3'
     }
+  ])
 
-    return filtered
-  })
-
-  // 添加资源
-  const addAsset = (asset: Asset) => {
-    assets.value.unshift(asset)
+  const toggleAssetManager = () => {
+    showAssetManager.value = !showAssetManager.value
   }
 
-  // 删除资源
-  const deleteAsset = (assetId: string) => {
-    const index = assets.value.findIndex(a => a.id === assetId)
-    if (index !== -1) {
-      assets.value.splice(index, 1)
-    }
-    selectedAssetIds.value = selectedAssetIds.value.filter(id => id !== assetId)
+  const setCurrentFolder = (folderId: string | null) => {
+    currentFolder.value = folderId
   }
 
-  // 删除多个资源
-  const deleteAssets = (assetIds: string[]) => {
-    assets.value = assets.value.filter(a => !assetIds.includes(a.id))
-    selectedAssetIds.value = []
+  const getCurrentAssets = () => {
+    return assets.value.filter(asset => asset.folderId === currentFolder.value)
   }
 
-  // 选择文件夹
-  const selectFolder = (folderId: string) => {
-    selectedFolderId.value = folderId
-  }
-
-  // 切换资源选择
-  const toggleAssetSelection = (assetId: string) => {
-    const index = selectedAssetIds.value.indexOf(assetId)
-    if (index === -1) {
-      selectedAssetIds.value.push(assetId)
+  const selectAsset = (assetId: string) => {
+    const index = selectedAssets.value.indexOf(assetId)
+    if (index > -1) {
+      selectedAssets.value.splice(index, 1)
     } else {
-      selectedAssetIds.value.splice(index, 1)
+      selectedAssets.value.push(assetId)
     }
   }
 
-  // 全选/取消全选
-  const toggleSelectAll = () => {
-    if (selectedAssetIds.value.length === currentAssets.value.length) {
-      selectedAssetIds.value = []
-    } else {
-      selectedAssetIds.value = currentAssets.value.map(a => a.id)
-    }
-  }
-
-  // 打开/关闭素材管理器
-  const openAssetManager = () => {
-    showAssetManager.value = true
-  }
-
-  const closeAssetManager = () => {
-    showAssetManager.value = false
-    selectedAssetIds.value = []
+  const clearSelection = () => {
+    selectedAssets.value = []
   }
 
   return {
-    assets,
-    folders,
-    selectedFolderId,
-    selectedAssetIds,
     showAssetManager,
-    searchQuery,
-    viewMode,
-    currentAssets,
-    addAsset,
-    deleteAsset,
-    deleteAssets,
-    selectFolder,
-    toggleAssetSelection,
-    toggleSelectAll,
-    openAssetManager,
-    closeAssetManager
+    currentFolder,
+    selectedAssets,
+    folders,
+    assets,
+    toggleAssetManager,
+    setCurrentFolder,
+    getCurrentAssets,
+    selectAsset,
+    clearSelection
   }
 })
-

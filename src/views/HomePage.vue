@@ -7,7 +7,7 @@
           <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center">
             <Video :size="24" class="text-white" />
           </div>
-          <span class="text-xl font-bold text-gray-50">AI视频混剪</span>
+          <span class="text-xl font-bold text-gray-50">智策营销</span>
         </div>
         <button class="btn-secondary" @click="handleLogin">
           登录 / 注册
@@ -22,10 +22,10 @@
         <!-- 标题动画 -->
         <div class="mb-8">
           <h1 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 to-purple-400 mb-4 animate-pulse">
-            AI驱动的视频创作平台
+            智策营销 - 社会化营销智能体平台
           </h1>
           <p class="text-xl text-gray-400">
-            一句话生成精彩视频，让创意触手可及
+            AI智能体驱动的全链路营销解决方案，让创意与策略完美结合
           </p>
         </div>
 
@@ -196,42 +196,42 @@ const examplePrompts = [
 // 智能体列表
 const agents = [
   {
-    id: 'video-slicer',
+    id: 'video-mixer',
     icon: 'Scissors',
-    title: 'AI视频切片',
-    description: '智能识别视频亮点，自动生成精彩片段，节省80%剪辑时间',
+    title: '视频混剪智能体',
+    description: '批量素材生成批量视频，智能识别亮点，自动剪辑成片',
     badge: '热门'
   },
   {
-    id: 'subtitle-gen',
+    id: 'content-rewrite',
     icon: 'Type',
-    title: '智能字幕生成',
-    description: '语音识别+NLP技术，自动生成精准字幕，支持多语言翻译',
+    title: '知识库仿写智能体',
+    description: '基于知识库智能仿写营销文案，保持品牌调性统一',
   },
   {
-    id: 'music-match',
-    icon: 'Music',
-    title: 'AI智能配乐',
-    description: '根据视频情绪和节奏，智能匹配背景音乐，提升观看体验',
+    id: 'social-media',
+    icon: 'Share2',
+    title: '社媒运营智能体',
+    description: '全平台内容分发，智能配图配乐，提升社媒传播效果',
     badge: '新功能'
   },
   {
-    id: 'effects',
+    id: 'brand-design',
     icon: 'Wand2',
-    title: '特效滤镜',
-    description: '一键添加专业级视频特效，电影感滤镜，让作品更出彩',
+    title: '品牌设计智能体',
+    description: '一键生成品牌视觉素材，LOGO、海报、包装设计全覆盖',
   },
   {
-    id: 'cover-design',
-    icon: 'ImageIcon',
-    title: '封面生成器',
-    description: 'AI自动设计吸睛视频封面，提升点击率和播放量',
+    id: 'data-analysis',
+    icon: 'BarChart3',
+    title: '数据分析智能体',
+    description: '营销数据深度分析，用户画像洞察，ROI优化建议',
   },
   {
-    id: 'batch-process',
-    icon: 'Layers',
-    title: '批量处理',
-    description: '同时处理多个视频项目，企业级效率，适合专业创作者',
+    id: 'campaign-manager',
+    icon: 'Target',
+    title: '营销策划智能体',
+    description: '全链路营销策划，从策略制定到执行落地一站式服务',
   }
 ]
 

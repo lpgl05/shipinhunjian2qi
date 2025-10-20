@@ -26,30 +26,30 @@
             leave-from="opacity-100 scale-100"
             leave-to="opacity-0 scale-95"
           >
-            <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-700 border border-gray-600 p-8 shadow-2xl transition-all">
+            <DialogPanel class="w-full max-w-sm transform overflow-hidden rounded-xl bg-gray-700 border border-gray-600 p-6 shadow-2xl transition-all">
               <!-- 关闭按钮 -->
               <button
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors"
+                class="absolute top-3 right-3 text-gray-400 hover:text-gray-200 transition-colors"
                 @click="authStore.closeAuthModal"
               >
-                <X :size="24" />
+                <X :size="20" />
               </button>
 
               <!-- Logo和标题 -->
-              <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-violet-500 rounded-2xl mb-4">
-                  <Video :size="32" class="text-white" />
+              <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-violet-500 rounded-xl mb-3">
+                  <Video :size="24" class="text-white" />
                 </div>
-                <DialogTitle class="text-2xl font-bold text-gray-50 mb-2">
-                  欢迎来到AI视频混剪
+                <DialogTitle class="text-xl font-bold text-gray-50 mb-2">
+                  欢迎来到智策营销
                 </DialogTitle>
-                <p class="text-sm text-gray-400">
+                <p class="text-xs text-gray-400">
                   登录以解锁所有功能
                 </p>
               </div>
 
               <!-- Tab切换 -->
-              <div class="mb-6">
+              <div class="mb-4">
                 <div class="flex gap-2 p-1 bg-gray-800 rounded-lg">
                   <button
                     class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200"
@@ -77,7 +77,7 @@
               </div>
 
               <!-- 登录表单 -->
-              <form v-if="activeTab === 'login'" @submit.prevent="handleLogin" class="space-y-4">
+              <form v-if="activeTab === 'login'" @submit.prevent="handleLogin" class="space-y-3">
                 <!-- 手机号输入 -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">
@@ -131,15 +131,15 @@
                 <!-- 登录按钮 -->
                 <button
                   type="submit"
-                  class="btn-primary w-full mt-6"
+                  class="btn-primary w-full mt-4"
                   :disabled="isLoading || !isLoginFormValid"
                 >
-                  <Loader2 v-if="isLoading" :size="20" class="animate-spin" />
+                  <Loader2 v-if="isLoading" :size="18" class="animate-spin" />
                   <span v-else>登录</span>
                 </button>
 
                 <!-- 其他登录方式 -->
-                <div class="mt-6">
+                <div class="mt-4">
                   <div class="relative">
                     <div class="absolute inset-0 flex items-center">
                       <div class="w-full border-t border-gray-600"></div>
@@ -174,7 +174,7 @@
               </form>
 
               <!-- 注册表单 -->
-              <form v-else @submit.prevent="handleSignup" class="space-y-4">
+              <form v-else @submit.prevent="handleSignup" class="space-y-3">
                 <!-- 手机号输入 -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-2">
@@ -247,15 +247,15 @@
                 <!-- 注册按钮 -->
                 <button
                   type="submit"
-                  class="btn-primary w-full mt-6"
+                  class="btn-primary w-full mt-4"
                   :disabled="isLoading || !isSignupFormValid"
                 >
-                  <Loader2 v-if="isLoading" :size="20" class="animate-spin" />
+                  <Loader2 v-if="isLoading" :size="18" class="animate-spin" />
                   <span v-else>注册</span>
                 </button>
 
                 <!-- 服务条款 -->
-                <p class="mt-4 text-xs text-gray-400 text-center">
+                <p class="mt-3 text-xs text-gray-400 text-center">
                   注册即表示同意
                   <a href="#" class="text-blue-400 hover:text-blue-300">用户协议</a>
                   和
