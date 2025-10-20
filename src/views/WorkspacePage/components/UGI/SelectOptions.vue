@@ -23,7 +23,7 @@ interface Props {
   title?: string
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 const emit = defineEmits<{
   select: [option: string, index: number]
 }>()

@@ -144,7 +144,7 @@ const totalDuration = computed(() => {
   let totalSeconds = 0
   localClips.value.forEach(clip => {
     const match = clip.duration.match(/(\d+)/)
-    if (match) {
+    if (match && match[1]) {
       totalSeconds += parseInt(match[1])
     }
   })

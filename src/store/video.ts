@@ -44,14 +44,19 @@ export const useVideoStore = defineStore('video', () => {
   // 移动片段
   const moveClip = (fromIndex: number, toIndex: number) => {
     const clip = currentTimeline.value.splice(fromIndex, 1)[0]
-    currentTimeline.value.splice(toIndex, 0, clip)
+    if (clip) {
+      currentTimeline.value.splice(toIndex, 0, clip)
+    }
   }
 
   // 更新片段
   const updateClip = (clipId: string, updates: Partial<VideoClip>) => {
     const index = currentTimeline.value.findIndex(c => c.id === clipId)
     if (index !== -1) {
-      currentTimeline.value[index] = { ...currentTimeline.value[index], ...updates }
+      const currentClip = currentTimeline.value[index]
+      if (currentClip) {
+        currentTimeline.value[index] = { ...currentClip, ...updates }
+      }
     }
   }
 

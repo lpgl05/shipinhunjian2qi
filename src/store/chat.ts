@@ -47,7 +47,10 @@ export const useChatStore = defineStore('chat', () => {
   const updateMessage = (id: string, updates: Partial<Message>) => {
     const index = messages.value.findIndex(m => m.id === id)
     if (index !== -1) {
-      messages.value[index] = { ...messages.value[index], ...updates }
+      const currentMessage = messages.value[index]
+      if (currentMessage) {
+        messages.value[index] = { ...currentMessage, ...updates }
+      }
     }
   }
 
