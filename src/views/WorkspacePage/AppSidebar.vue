@@ -61,7 +61,7 @@
       <!-- 用户头像 -->
       <Tooltip text="个人中心">
         <button class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors">
-          <User :size="20} class="text-gray-400" />
+          <User :size="20" class="text-gray-400" />
         </button>
       </Tooltip>
     </div>

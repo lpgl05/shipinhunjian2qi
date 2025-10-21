@@ -35,7 +35,7 @@
             class="icon-btn"
             @click="toggleFullscreen"
           >
-            <Maximize2 v-if="!isFullscreen" :size="20} />
+            <Maximize2 v-if="!isFullscreen" :size="20" />
             <Minimize2 v-else :size="20" />
           </button>
         </Tooltip>

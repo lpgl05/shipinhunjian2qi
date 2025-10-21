@@ -15,7 +15,7 @@
               class="tab-button"
               :class="{ 'active': selected }"
             >
-              <Video :size="18} />
+              <Video :size="18" />
               <span>视频/图片</span>
             </button>
           </Tab>
@@ -103,7 +103,7 @@
                       class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                       @click="removeFile(file.id)"
                     >
-                      <X :size="14} />
+                      <X :size="14" />
                     </button>
                   </div>
                 </div>

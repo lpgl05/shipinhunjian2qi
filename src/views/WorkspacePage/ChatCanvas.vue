@@ -77,7 +77,7 @@
                 <Paperclip :size="20" />
               </button>
               <button class="icon-btn" title="插入图片" @click="handleInsertImage">
-                <ImageIcon :size="20} />
+                <ImageIcon :size="20" />
               </button>
             </div>
 
@@ -102,7 +102,7 @@
                 :disabled="!inputText.trim() || chatStore.isAiTyping"
                 @click="handleSend"
               >
-                <Send :size="20} class="text-white" />
+                <Send :size="20" class="text-white" />
               </button>
             </div>
           </div>

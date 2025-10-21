@@ -277,7 +277,7 @@ const handleAgentClick = (agent: any) => {
 
 // 处理登录
 const handleLogin = () => {
-  authStore.toggleAuthModal(true)
+  authStore.toggleAuthModal()
 }
 </script>
 

@@ -18,7 +18,7 @@
           class="px-5 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-all flex items-center gap-2"
           @click="$emit('backToEdit')"
         >
-          <Edit :size="18} />
+          <Edit :size="18" />
           <span>返回修改</span>
         </button>
 
@@ -27,7 +27,7 @@
           class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg font-medium hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2"
           @click="downloadAll"
         >
-          <Download :size="18} />
+          <Download :size="18" />
           <span>下载全部</span>
         </button>
       </div>
@@ -56,7 +56,7 @@
           </div>
           <div class="flex items-center gap-2">
             <button class="icon-btn" title="分享">
-              <Share2 :size="20} />
+              <Share2 :size="20" />
             </button>
             <button class="icon-btn" title="编辑">
               <Edit :size="20" />
@@ -121,7 +121,7 @@
               title="下载"
               @click.stop="downloadVideo(video)"
             >
-              <Download :size="16} />
+              <Download :size="16" />
             </button>
           </div>
         </div>
@@ -132,7 +132,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import draggable from 'vuedraggable'
 import { 
   Check,
   Edit,
@@ -182,7 +181,7 @@ const videos = [
 ]
 
 // 当前视频
-const currentVideo = computed(() => videos[currentVideoIndex.value])
+const currentVideo = computed(() => videos[currentVideoIndex.value] || videos[0])
 
 // 选择视频
 const selectVideo = (index: number) => {

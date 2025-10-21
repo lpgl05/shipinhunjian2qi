@@ -64,14 +64,14 @@
           @click="nextStep"
         >
           <span>下一步</span>
-          <ChevronRight :size="20} />
+          <ChevronRight :size="20" />
         </button>
         <button
           v-else
           class="btn-primary flex items-center gap-2"
           @click="handleComplete"
         >
-          <Sparkles :size="20} />
+          <Sparkles :size="20" />
           <span>完成创作</span>
         </button>
       </div>

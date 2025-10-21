@@ -43,7 +43,7 @@
       <Disclosure v-slot="{ open }" defaultOpen>
         <DisclosureButton class="accordion-header">
           <div class="flex items-center gap-2">
-            <Settings :size="18} class="text-blue-400" />
+            <Settings :size="18" class="text-blue-400" />
             <span>基本信息</span>
           </div>
           <ChevronDown 
@@ -288,10 +288,6 @@ const selectTemplate = (template: 'vertical' | 'horizontal') => {
     config.style = 'cinematic'
   }
 }
-</script>
-
-<script setup lang="ts">
-import { ref } from 'vue'
 </script>
 
 <style scoped>
