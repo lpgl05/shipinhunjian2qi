@@ -31,13 +31,14 @@
           </div>
         </div>
 
-        <!-- 消息列表 -->
-        <div v-else class="space-y-6">
-          <ChatMessage
-            v-for="message in chatStore.messages"
-            :key="message.id"
-            :message="message"
-          />
+            <!-- 消息列表 -->
+            <div v-else class="space-y-6">
+              <ChatMessage
+                v-for="message in chatStore.messages"
+                :key="message.id"
+                :message="message"
+                @ugi-event="handleUgiEvent"
+              />
 
           <!-- AI思考中 -->
           <div v-if="chatStore.isAiTyping" class="flex gap-3 justify-start animate-fade-in">
@@ -204,10 +205,20 @@ const handleNewLine = (event: KeyboardEvent) => {
 
 // 处理快捷提示词
 const handleQuickPrompt = (prompt: string) => {
-  inputText.value = prompt
-  nextTick(() => {
-    textareaRef.value?.focus()
-  })
+  // 根据提示词类型自动激活对应的智能体
+  if (prompt.includes('视频') || prompt.includes('混剪')) {
+    // 发送消息并激活视频混剪智能体
+    chatStore.sendMessage(prompt)
+    setTimeout(() => {
+      workspaceStore.enterCreationMode('video-mixer')
+    }, 500) // 延迟500ms让消息先发送
+  } else {
+    // 普通提示词，只填入输入框
+    inputText.value = prompt
+    nextTick(() => {
+      textareaRef.value?.focus()
+    })
+  }
 }
 
 // 处理上传
@@ -218,6 +229,35 @@ const handleUpload = () => {
 // 处理插入图片
 const handleInsertImage = () => {
   console.log('插入图片')
+}
+
+// 处理UGI组件事件
+const handleUgiEvent = (type: string, data: any) => {
+  console.log('UGI事件:', type, data)
+  
+  // 根据事件类型处理不同的逻辑
+  switch (type) {
+    case 'select':
+      // 选择智能体，进入创作模式
+      if (data.agentId) {
+        workspaceStore.enterCreationMode(data.agentId)
+      }
+      break
+    case 'reorder':
+      // 重新排序
+      console.log('重新排序:', data)
+      break
+    case 'replace':
+      // 替换内容
+      console.log('替换内容:', data)
+      break
+    case 'delete':
+      // 删除内容
+      console.log('删除内容:', data)
+      break
+    default:
+      console.log('未知UGI事件:', type, data)
+  }
 }
 
 // 监听消息变化
