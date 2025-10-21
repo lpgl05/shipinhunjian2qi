@@ -106,7 +106,7 @@ const getAssetIcon = (type: string) => {
   }
 }
 
-const formatDate = (timestamp: number) => {
+const formatDate = (timestamp: string) => {
   const date = new Date(timestamp)
   const now = new Date()
   const diff = now.getTime() - date.getTime()

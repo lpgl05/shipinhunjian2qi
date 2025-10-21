@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface Asset {
   id: string
@@ -10,6 +10,8 @@ export interface Asset {
   thumbnail?: string
   uploadTime: string
   folderId?: string
+  duration?: string
+  tags: string[]
 }
 
 export interface Folder {
@@ -69,7 +71,9 @@ export const useAssetStore = defineStore('asset', () => {
       url: '/assets/sample-video-1.mp4',
       thumbnail: '/assets/thumbnails/video-1.jpg',
       uploadTime: '2024-01-15 10:30:00',
-      folderId: '2'
+      folderId: '2',
+      duration: '2:30',
+      tags: ['产品展示', '营销视频']
     },
     {
       id: '2',
@@ -79,7 +83,8 @@ export const useAssetStore = defineStore('asset', () => {
       url: '/assets/sample-image-1.jpg',
       thumbnail: '/assets/thumbnails/image-1.jpg',
       uploadTime: '2024-01-15 11:00:00',
-      folderId: '3'
+      folderId: '3',
+      tags: ['品牌素材', '宣传图']
     }
   ])
 
@@ -153,7 +158,7 @@ export const useAssetStore = defineStore('asset', () => {
   }
 
   const deleteAssets = (assetIds: string[]) => {
-    assetIds.forEach(assetId => {
+    assetIds.forEach((assetId: string) => {
       deleteAsset(assetId)
     })
   }
