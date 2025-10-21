@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Video, Plus, Home, Folder, Clock, Settings, User, Cloud, ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import { useAssetStore } from '../../store/asset'
+import { useAssetStore } from '../../../store/asset'
 
 const assetStore = useAssetStore()
 const isCollapsed = ref(false)

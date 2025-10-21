@@ -24,6 +24,9 @@ export const useAssetStore = defineStore('asset', () => {
   const showAssetManager = ref(false)
   const currentFolder = ref<string | null>(null)
   const selectedAssets = ref<string[]>([])
+  const selectedFolderId = ref<string | null>(null)
+  const viewMode = ref<'grid' | 'list'>('grid')
+  const searchQuery = ref('')
   
   // 示例文件夹结构
   const folders = ref<Folder[]>([
@@ -80,11 +83,35 @@ export const useAssetStore = defineStore('asset', () => {
     }
   ])
 
+  // 计算属性
+  const currentAssets = computed(() => {
+    let filteredAssets = assets.value.filter(asset => asset.folderId === selectedFolderId.value)
+    
+    if (searchQuery.value) {
+      filteredAssets = filteredAssets.filter(asset => 
+        asset.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
+    }
+    
+    return filteredAssets
+  })
+
+  const selectedAssetIds = computed(() => selectedAssets.value)
+
   const toggleAssetManager = () => {
     showAssetManager.value = !showAssetManager.value
   }
 
+  const closeAssetManager = () => {
+    showAssetManager.value = false
+  }
+
   const setCurrentFolder = (folderId: string | null) => {
+    currentFolder.value = folderId
+  }
+
+  const selectFolder = (folderId: string) => {
+    selectedFolderId.value = folderId
     currentFolder.value = folderId
   }
 
@@ -101,6 +128,36 @@ export const useAssetStore = defineStore('asset', () => {
     }
   }
 
+  const toggleAssetSelection = (assetId: string) => {
+    selectAsset(assetId)
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedAssets.value.length === currentAssets.value.length) {
+      selectedAssets.value = []
+    } else {
+      selectedAssets.value = currentAssets.value.map(asset => asset.id)
+    }
+  }
+
+  const deleteAsset = (assetId: string) => {
+    const index = assets.value.findIndex(asset => asset.id === assetId)
+    if (index !== -1) {
+      assets.value.splice(index, 1)
+      // 从选中列表中移除
+      const selectedIndex = selectedAssets.value.indexOf(assetId)
+      if (selectedIndex !== -1) {
+        selectedAssets.value.splice(selectedIndex, 1)
+      }
+    }
+  }
+
+  const deleteAssets = (assetIds: string[]) => {
+    assetIds.forEach(assetId => {
+      deleteAsset(assetId)
+    })
+  }
+
   const clearSelection = () => {
     selectedAssets.value = []
   }
@@ -109,12 +166,23 @@ export const useAssetStore = defineStore('asset', () => {
     showAssetManager,
     currentFolder,
     selectedAssets,
+    selectedFolderId,
+    viewMode,
+    searchQuery,
     folders,
     assets,
+    currentAssets,
+    selectedAssetIds,
     toggleAssetManager,
+    closeAssetManager,
     setCurrentFolder,
+    selectFolder,
     getCurrentAssets,
     selectAsset,
+    toggleAssetSelection,
+    toggleSelectAll,
+    deleteAsset,
+    deleteAssets,
     clearSelection
   }
 })
