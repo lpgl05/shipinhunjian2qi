@@ -102,16 +102,29 @@
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-          <AgentCard
+        <!-- 圆形智能体图标 - 参考截图2布局 -->
+        <div class="flex flex-wrap items-center justify-center gap-8 pb-20">
+          <button
             v-for="agent in agents"
             :key="agent.id"
-            :icon="agent.icon"
-            :title="agent.title"
-            :description="agent.description"
-            :badge="agent.badge"
             @click="handleAgentClick(agent)"
-          />
+            class="group flex flex-col items-center gap-3 p-6 rounded-2xl hover:bg-gray-800/30 transition-all duration-300 hover:scale-105"
+          >
+            <!-- 圆形图标 -->
+            <div class="relative">
+              <div class="w-20 h-20 bg-gradient-to-r rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg" :class="getAgentColor(agent.id)">
+                <component :is="agent.icon" :size="32" class="text-white" />
+              </div>
+              <!-- 新功能标签 -->
+              <div v-if="agent.badge" class="absolute -top-2 -right-2 px-2 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full">
+                {{ agent.badge }}
+              </div>
+            </div>
+            <!-- 智能体名称 -->
+            <span class="text-sm font-medium text-gray-200 group-hover:text-blue-400 transition-colors text-center max-w-24">
+              {{ agent.title }}
+            </span>
+          </button>
         </div>
       </section>
 
@@ -275,6 +288,19 @@ const handleAgentClick = (agent: any) => {
 // 处理登录按钮点击
 const handleLogin = () => {
   authStore.openAuthModal()
+}
+
+// 获取智能体颜色
+const getAgentColor = (agentId: string) => {
+  const colorMap: Record<string, string> = {
+    'video-mixer': 'from-blue-500 to-cyan-500',
+    'content-rewrite': 'from-purple-500 to-pink-500',
+    'social-media': 'from-green-500 to-emerald-500',
+    'brand-design': 'from-orange-500 to-red-500',
+    'data-analysis': 'from-indigo-500 to-blue-500',
+    'campaign-manager': 'from-violet-500 to-purple-500'
+  }
+  return colorMap[agentId] || 'from-gray-500 to-gray-600'
 }
 </script>
 

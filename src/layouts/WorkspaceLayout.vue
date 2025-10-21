@@ -55,12 +55,12 @@ import ChatCanvas from '../views/WorkspacePage/components/ChatCanvas.vue'
 import RightPanel from '../views/WorkspacePage/components/RightPanel.vue'
 import AssetManager from '../views/WorkspacePage/components/AssetManager.vue'
 
-const isRightPanelCollapsed = ref(false)
+const isRightPanelCollapsed = ref(true)
 const isFullscreen = ref(false)
 
 // 动态宽度计算
 const sidebarWidth = computed(() => {
-  return isRightPanelCollapsed.value && isFullscreen.value ? 'w-16' : 'w-64'
+  return isRightPanelCollapsed.value && isFullscreen.value ? 'w-16' : 'w-80'
 })
 
 const chatWidth = computed(() => {
@@ -71,12 +71,17 @@ const chatWidth = computed(() => {
   } else if (isRightPanelCollapsed.value) {
     return 'flex-1'
   } else {
-    return 'w-96'
+    return 'w-80'
   }
 })
 
 const rightPanelWidth = computed(() => {
-  return isFullscreen.value ? 'w-1/2' : 'w-96'
+  if (isFullscreen.value) {
+    return 'w-full'
+  } else if (!isRightPanelCollapsed.value) {
+    return 'w-2/3' // 智能体页面时右侧画布更大
+  }
+  return 'w-96'
 })
 
 const toggleRightPanel = () => {

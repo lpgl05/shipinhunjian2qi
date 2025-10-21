@@ -2,7 +2,7 @@
   <div class="chat-canvas h-full flex flex-col bg-gray-950">
     <!-- 消息列表区域 -->
     <div ref="messagesContainer" class="flex-1 overflow-y-auto scrollbar-thin p-6">
-      <div class="max-w-5xl mx-auto">
+      <div class="max-w-6xl mx-auto">
         <!-- 欢迎消息 -->
         <div v-if="chatStore.messages.length === 0" class="text-center py-20">
           <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-violet-500 rounded-3xl mb-6 animate-pulse-slow">
@@ -83,7 +83,7 @@
 
     <!-- 底部输入区 - Tunee风格 -->
     <div class="border-t border-gray-800 bg-gray-900/80 backdrop-blur-xl">
-      <div class="max-w-5xl mx-auto p-6">
+      <div class="max-w-6xl mx-auto p-6">
         <div class="relative">
           <!-- 输入框容器 -->
           <div 

@@ -49,6 +49,29 @@
       </button>
     </nav>
 
+    <!-- 视频混剪路径提示 -->
+    <div v-show="!isCollapsed" class="px-3 py-4 border-t border-gray-800">
+      <h3 class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+        <Video :size="16" class="text-blue-400" />
+        视频混剪路径
+      </h3>
+      <div class="space-y-3">
+        <div
+          v-for="step in videoMixSteps"
+          :key="step.step"
+          class="flex items-start gap-3 p-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors"
+        >
+          <div class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+            {{ step.step }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-gray-200">{{ step.title }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ step.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 底部用户信息 -->
     <div class="p-4 border-t border-gray-800">
       <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer transition-colors" :class="{ 'justify-center': isCollapsed }" :title="isCollapsed ? '用户名 - 免费版' : ''">
@@ -82,6 +105,14 @@ const menuItems = [
   { name: '云盘', icon: Cloud, active: false, action: () => assetStore.showAssetManager = true },
   { name: '历史记录', icon: Clock, active: false },
   { name: '设置', icon: Settings, active: false },
+]
+
+// 视频混剪路径步骤
+const videoMixSteps = [
+  { step: 1, title: '添加视频素材', description: '从云盘选择或直接上传', icon: 'Video' },
+  { step: 2, title: '添加BGM背景音乐', description: 'AI自动生成匹配或手动选择', icon: 'Music' },
+  { step: 3, title: '添加字幕', description: 'AI自动生成或手动填写', icon: 'Type' },
+  { step: 4, title: '添加配音', description: 'AI自动生成或上传音频', icon: 'Mic' }
 ]
 </script>
 

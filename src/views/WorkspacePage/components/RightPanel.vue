@@ -2,13 +2,18 @@
   <div class="right-panel h-full flex flex-col bg-gray-800">
     <!-- 标题栏 -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
-      <h3 class="text-sm font-semibold text-gray-50 flex items-center gap-2">
-        <Film :size="18" class="text-blue-400" />
-        <span>预览与编辑</span>
+      <h3 class="text-lg font-semibold text-gray-50 flex items-center gap-2">
+        <Film :size="20" class="text-blue-400" />
+        <span>智能体画布</span>
       </h3>
-      <button class="icon-btn" title="更多选项">
-        <MoreVertical :size="18" />
-      </button>
+      <div class="flex items-center gap-2">
+        <button class="icon-btn" title="画布设置">
+          <Settings :size="18" />
+        </button>
+        <button class="icon-btn" title="更多选项">
+          <MoreVertical :size="18" />
+        </button>
+      </div>
     </div>
 
     <!-- 视频预览区 -->
@@ -90,7 +95,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
-import { Film, AlignLeft, Scissors, Music, MoreVertical } from 'lucide-vue-next'
+import { Film, AlignLeft, Scissors, Music, MoreVertical, Settings } from 'lucide-vue-next'
 import VideoPlayer from './VideoPlayer.vue'
 import SubtitleEditor from './SubtitleEditor.vue'
 import ClipFineTuner from './ClipFineTuner.vue'
