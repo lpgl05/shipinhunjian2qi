@@ -1,6 +1,6 @@
 <template>
-  <TransitionRoot :show="assetStore.showAssetManager" as="template">
-    <Dialog as="div" class="relative z-50" @close="assetStore.closeAssetManager">
+  <TransitionRoot :show="workspaceStore.isAssetModalOpen" as="template">
+    <Dialog as="div" class="relative z-50" @close="workspaceStore.closeAssetModal">
       <!-- 背景遮罩 -->
       <TransitionChild
         as="template"
@@ -79,7 +79,7 @@
                   </button>
 
                   <!-- 关闭按钮 -->
-                  <button class="icon-btn" @click="assetStore.closeAssetManager">
+                  <button class="icon-btn" @click="workspaceStore.closeAssetModal">
                     <X :size="24" />
                   </button>
                 </div>
@@ -194,11 +194,13 @@ import {
   Cloud
 } from 'lucide-vue-next'
 import { useAssetStore } from '../../../store/asset'
+import { useWorkspaceStore } from '../../../store/workspace'
 import FolderTree from './AssetManager/FolderTree.vue'
 import AssetCard from './AssetManager/AssetCard.vue'
 import AssetListItem from './AssetManager/AssetListItem.vue'
 
 const assetStore = useAssetStore()
+const workspaceStore = useWorkspaceStore()
 
 const handleUpload = () => {
   console.log('打开上传对话框')
