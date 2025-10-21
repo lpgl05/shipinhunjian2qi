@@ -100,7 +100,7 @@
                 <button 
                   class="px-8 py-3 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-xl font-semibold hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
                   :disabled="!inputText.trim()"
-                  @click="handleSubmit"
+                  @click="handleGenerate"
                 >
                   <Sparkles :size="20" />
                   <span>开始创作</span>
@@ -264,6 +264,20 @@ const handleSubmit = () => {
     path: '/workspace',
     query: { prompt: inputText.value }
   })
+}
+
+// 处理生成按钮
+const handleGenerate = () => {
+  if (inputText.value.trim()) {
+    // 跳转到工作台并带上提示词
+    router.push({
+      path: '/workspace',
+      query: { prompt: inputText.value }
+    })
+  } else {
+    // 没有输入内容时直接跳转到工作台
+    router.push('/workspace')
+  }
 }
 
 // 处理智能体点击

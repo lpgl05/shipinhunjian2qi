@@ -265,6 +265,49 @@ watch(() => chatStore.messages.length, () => {
   scrollToBottom()
 })
 
+// 意图识别函数
+const detectIntent = (text: string): string => {
+  const videoKeywords = ['视频', '混剪', '剪辑', '制作视频', '生成视频', '短视频', 'vlog', '宣传片']
+  const contentKeywords = ['文案', '内容', '文章', '写作', '文案改写', '内容创作']
+  const socialKeywords = ['社媒', '社交媒体', '微博', '抖音', '小红书', '营销']
+  const designKeywords = ['设计', '海报', 'logo', '品牌', '视觉', '图片']
+  const dataKeywords = ['数据', '分析', '报告', '统计', 'roi', '转化']
+  const campaignKeywords = ['策划', '营销', '活动', '推广', 'campaign']
+  
+  const lowerText = text.toLowerCase()
+  
+  if (videoKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'video-mixer'
+  } else if (contentKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'content-rewrite'
+  } else if (socialKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'social-media'
+  } else if (designKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'brand-design'
+  } else if (dataKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'data-analysis'
+  } else if (campaignKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'campaign-manager'
+  }
+  
+  // 默认返回视频混剪智能体
+  return 'video-mixer'
+}
+
+// 自动开始对话流程
+const startAutoConversation = async (prompt: string) => {
+  // 1. 自动发送用户消息
+  chatStore.sendMessage(prompt)
+  
+  // 2. 识别意图并激活对应智能体
+  const detectedAgent = detectIntent(prompt)
+  
+  // 3. 延迟激活智能体，让AI回复先完成
+  setTimeout(() => {
+    workspaceStore.enterCreationMode(detectedAgent)
+  }, 3000) // 3秒后激活智能体
+}
+
 // 页面加载时处理URL参数
 onMounted(() => {
   const prompt = route.query.prompt as string
@@ -272,13 +315,19 @@ onMounted(() => {
   
   if (prompt) {
     inputText.value = prompt
+    
+    // 自动开始对话流程
     nextTick(() => {
       autoResize()
+      // 延迟启动自动对话，确保页面完全加载
+      setTimeout(() => {
+        startAutoConversation(prompt)
+      }, 500)
     })
   }
   
   if (agent) {
-    // 激活智能体，进入创作模式
+    // 直接激活智能体，进入创作模式
     workspaceStore.enterCreationMode(agent)
   }
 })
