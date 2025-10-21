@@ -189,7 +189,6 @@ import {
   Brain,
   Workflow
 } from 'lucide-vue-next'
-import AgentCard from '../components/AgentCard.vue'
 import { useAuthStore } from '../store/auth'
 
 const router = useRouter()
