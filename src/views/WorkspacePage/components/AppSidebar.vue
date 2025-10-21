@@ -15,14 +15,6 @@
         <div v-show="isCollapsed" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center">
           <Video :size="24" class="text-white" />
         </div>
-        <!-- 收起/展开按钮 -->
-        <button 
-          @click="toggleCollapse"
-          class="text-gray-400 hover:text-gray-200 transition-colors"
-        >
-          <ChevronLeft v-if="!isCollapsed" :size="20" />
-          <ChevronRight v-else :size="20" />
-        </button>
       </div>
     </div>
 
@@ -89,15 +81,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Video, Plus, Home, Folder, Clock, Settings, User, Cloud, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Video, Plus, Home, Folder, Clock, Settings, User, Cloud } from 'lucide-vue-next'
 import { useAssetStore } from '../../../store/asset'
 
 const assetStore = useAssetStore()
-const isCollapsed = ref(false)
-
-const toggleCollapse = () => {
-  isCollapsed.value = !isCollapsed.value
-}
+const isCollapsed = ref(true) // 固定为收起状态
 
 const menuItems = [
   { name: '首页', icon: Home, active: false },

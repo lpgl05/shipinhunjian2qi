@@ -1,8 +1,8 @@
 <template>
   <div class="workspace-layout flex h-screen w-full overflow-hidden bg-gray-950">
-    <!-- 左侧边栏 -->
-    <aside class="flex-shrink-0 bg-gray-900 border-r border-gray-800 transition-all duration-300" :class="sidebarWidth">
-      <AppSidebar />
+    <!-- 左侧边栏 - 固定收起状态 -->
+    <aside class="w-16 flex-shrink-0 bg-gray-900 border-r border-gray-800">
+      <AppSidebar :is-collapsed="true" />
     </aside>
 
     <!-- 中间内容区 -->
@@ -55,38 +55,30 @@ import ChatCanvas from '../views/WorkspacePage/components/ChatCanvas.vue'
 import RightPanel from '../views/WorkspacePage/components/RightPanel.vue'
 import AssetManager from '../views/WorkspacePage/components/AssetManager.vue'
 
-const isRightPanelCollapsed = ref(true)
+const isRightPanelCollapsed = ref(false)
 const isFullscreen = ref(false)
 
-// 动态宽度计算
+// 动态宽度计算 - 新的布局比例
 const sidebarWidth = computed(() => {
-  return isRightPanelCollapsed.value && isFullscreen.value ? 'w-16' : 'w-80'
+  return 'w-16' // 固定收起宽度
 })
 
 const chatWidth = computed(() => {
-  if (isFullscreen.value && isRightPanelCollapsed.value) {
-    return 'w-full'
-  } else if (isFullscreen.value) {
-    return 'w-1/2'
-  } else if (isRightPanelCollapsed.value) {
-    return 'flex-1'
+  if (isFullscreen.value) {
+    return 'w-0' // 全屏时隐藏聊天区域
   } else {
-    return 'w-80'
+    return 'w-80' // 固定聊天区域宽度
   }
 })
 
 const rightPanelWidth = computed(() => {
   if (isFullscreen.value) {
-    return 'w-full'
-  } else if (!isRightPanelCollapsed.value) {
-    return 'w-2/3' // 智能体页面时右侧画布更大
+    return 'w-full' // 全屏时占满整个屏幕
+  } else {
+    return 'flex-1' // 默认占满剩余空间
   }
-  return 'w-96'
 })
 
-const toggleRightPanel = () => {
-  isRightPanelCollapsed.value = !isRightPanelCollapsed.value
-}
 
 const toggleFullscreen = () => {
   isFullscreen.value = !isFullscreen.value
