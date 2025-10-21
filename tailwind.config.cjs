@@ -15,7 +15,8 @@ module.exports = {
         'border-color': '#4B5563',    // gray-600
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'monospace'],
       },
       backgroundImage: {
         'primary-accent': 'linear-gradient(to right, #3B82F6, #8B5CF6)',

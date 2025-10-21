@@ -418,7 +418,8 @@ const handleFiles = (files: File[]) => {
       id: Date.now() + Math.random(),
       name: file.name,
       size: file.size,
-      type: file.type.startsWith('video') ? 'video' : 'image'
+      type: file.type.startsWith('video') ? 'video' : 'image',
+      url: URL.createObjectURL(file) // 创建预览URL
     }
     uploadedFiles.value.push(fileData)
   })

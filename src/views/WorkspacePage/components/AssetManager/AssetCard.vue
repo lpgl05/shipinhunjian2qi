@@ -32,17 +32,57 @@
 
     <!-- 缩略图区域 -->
     <div class="aspect-video bg-gray-800 flex items-center justify-center relative overflow-hidden">
+      <!-- 视频预览 -->
+      <video
+        v-if="asset.type === 'video'"
+        :src="asset.url"
+        class="w-full h-full object-cover"
+        muted
+        preload="metadata"
+        @mouseenter="playVideo"
+        @mouseleave="pauseVideo"
+      >
+        <div class="absolute inset-0 flex items-center justify-center bg-gray-700">
+          <component :is="getAssetIcon(asset.type)" :size="40" class="text-gray-400" />
+        </div>
+      </video>
+
+      <!-- 图片预览 -->
       <img
-        v-if="asset.thumbnail"
-        :src="asset.thumbnail"
+        v-else-if="asset.type === 'image'"
+        :src="asset.url"
         :alt="asset.name"
         class="w-full h-full object-cover"
+        @error="handleImageError"
       />
-      <component v-else :is="getAssetIcon(asset.type)" :size="40" class="text-gray-600" />
+
+      <!-- 音频预览 -->
+      <div
+        v-else-if="asset.type === 'audio'"
+        class="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600"
+      >
+        <Music :size="40" class="text-white" />
+      </div>
+
+      <!-- 文档预览 -->
+      <div
+        v-else
+        class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-600 to-gray-700"
+      >
+        <component :is="getAssetIcon(asset.type)" :size="40" class="text-white" />
+      </div>
+
+      <!-- 播放按钮覆盖层（视频） -->
+      <div
+        v-if="asset.type === 'video'"
+        class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <Play :size="32" class="text-white" />
+      </div>
 
       <!-- 类型标签 -->
       <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 text-white text-xs font-medium rounded capitalize">
-        {{ asset.type }}
+        {{ getTypeLabel(asset.type) }}
       </div>
 
       <!-- 时长标签（视频/音频） -->
@@ -79,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { Check, Trash2, Video, Image, Music, FileText } from 'lucide-vue-next'
+import { Check, Trash2, Video, Image, Music, FileText, Play } from 'lucide-vue-next'
 import type { Asset } from '../../../../store/asset'
 
 interface Props {
@@ -117,6 +157,32 @@ const formatDate = (timestamp: string) => {
   if (days < 7) return `${days}天前`
   
   return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })
+}
+
+const getTypeLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    video: '视频',
+    image: '图片',
+    audio: '音频',
+    document: '文档'
+  }
+  return labels[type] || type
+}
+
+const playVideo = (event: Event) => {
+  const video = event.target as HTMLVideoElement
+  video.play()
+}
+
+const pauseVideo = (event: Event) => {
+  const video = event.target as HTMLVideoElement
+  video.pause()
+}
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+  // 可以在这里显示默认图片或图标
 }
 </script>
 
