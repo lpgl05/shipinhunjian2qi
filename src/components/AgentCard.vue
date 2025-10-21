@@ -1,66 +1,95 @@
 <template>
-  <div
-    class="agent-card group relative bg-gray-700 rounded-2xl border border-gray-600 p-6 cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-500/50"
-    @click="handleClick"
+  <div 
+    class="agent-card group relative p-8 bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 cursor-pointer transition-all duration-300 hover:border-gray-600 hover:-translate-y-2 hover:shadow-2xl"
+    :class="[`hover:shadow-${gradient.split(' ')[0].replace('from-', '')}/20`]"
+    @click="$emit('click')"
   >
-    <!-- 背景光效 -->
-    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-violet-500/0 group-hover:from-blue-500/10 group-hover:to-violet-500/10 transition-all duration-300"></div>
-    
-    <!-- 内容 -->
-    <div class="relative z-10">
-      <!-- 图标 -->
-      <div class="mb-4 inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500/20 to-violet-500/20 rounded-xl group-hover:from-blue-500/30 group-hover:to-violet-500/30 transition-all duration-300">
-        <component :is="iconComponent" :size="28" class="text-blue-400 group-hover:text-blue-300 transition-colors" />
-      </div>
-
-      <!-- 标题 -->
-      <h3 class="text-lg font-bold text-gray-50 mb-2 group-hover:text-white transition-colors">
-        {{ title }}
-      </h3>
-
-      <!-- 描述 -->
-      <p class="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
-        {{ description }}
-      </p>
-
-      <!-- 悬停时显示的箭头 -->
-      <div class="mt-4 flex items-center text-blue-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-2">
-        <span class="text-sm font-medium mr-1">开始使用</span>
-        <ArrowRight :size="16" />
-      </div>
-    </div>
-
-    <!-- 角标（可选） -->
-    <div v-if="badge" class="absolute top-4 right-4 px-2 py-1 bg-blue-500 text-white text-xs font-medium rounded-full">
+    <!-- Badge -->
+    <div 
+      v-if="badge" 
+      class="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full"
+    >
       {{ badge }}
     </div>
+
+    <!-- Icon -->
+    <div 
+      class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 bg-gradient-to-r"
+      :class="gradient"
+    >
+      <component :is="iconComponent" :size="32" class="text-white" />
+    </div>
+
+    <!-- Content -->
+    <h3 class="text-xl font-bold mb-3 text-gray-50 group-hover:text-blue-400 transition-colors">
+      {{ title }}
+    </h3>
+    <p class="text-gray-400 leading-relaxed">
+      {{ description }}
+    </p>
+
+    <!-- Hover Effect -->
+    <div class="absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none" :class="gradient"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowRight } from 'lucide-vue-next'
-import * as LucideIcons from 'lucide-vue-next'
+import { 
+  Scissors, 
+  Type, 
+  Share2, 
+  Wand2, 
+  BarChart3, 
+  Target 
+} from 'lucide-vue-next'
 
 interface Props {
   icon: string
   title: string
   description: string
   badge?: string
+  gradient?: string
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
+const props = withDefaults(defineProps<Props>(), {
+  gradient: 'from-blue-500 to-violet-500'
+})
+
+defineEmits<{
   click: []
 }>()
 
-// 动态获取图标组件
+// Map icon name to component
 const iconComponent = computed(() => {
-  return (LucideIcons as any)[props.icon] || LucideIcons.Box
+  const iconMap: Record<string, any> = {
+    'Scissors': Scissors,
+    'Type': Type,
+    'Share2': Share2,
+    'Wand2': Wand2,
+    'BarChart3': BarChart3,
+    'Target': Target
+  }
+  return iconMap[props.icon] || Scissors
 })
-
-const handleClick = () => {
-  emit('click')
-}
 </script>
 
+<style scoped>
+.agent-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.agent-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.agent-card:hover::before {
+  opacity: 1;
+}
+</style>
