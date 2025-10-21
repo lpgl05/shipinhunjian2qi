@@ -131,7 +131,7 @@ export const useChatStore = defineStore('chat', () => {
       }
     }
     
-    return responses[agentId] || responses['video-mixer']
+    return responses[agentId] ?? responses['video-mixer']
   }
 
   // 模拟AI回复
