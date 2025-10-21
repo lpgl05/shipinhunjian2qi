@@ -249,37 +249,29 @@ const agents = [
 
 // 处理输入框点击
 const handleInputClick = () => {
-  if (!authStore.isAuthenticated) {
-    authStore.openAuthModal()
-  }
+  // 直接跳转到工作台
+  router.push('/workspace')
 }
 
 // 处理生成按钮点击
 const handleGenerate = () => {
-  if (!authStore.isAuthenticated) {
-    authStore.openAuthModal()
-    return
-  }
-
   if (promptText.value.trim()) {
     // 跳转到工作台并带上提示词
     router.push({
-      name: 'workspace',
+      path: '/workspace',
       query: { prompt: promptText.value }
     })
+  } else {
+    // 没有输入内容时直接跳转到工作台
+    router.push('/workspace')
   }
 }
 
 // 处理智能体卡片点击
 const handleAgentClick = (agent: any) => {
-  if (!authStore.isAuthenticated) {
-    authStore.openAuthModal()
-    return
-  }
-
-  // 跳转到工作台并激活对应功能
+  // 直接跳转到工作台并激活对应功能
   router.push({
-    name: 'workspace',
+    path: '/workspace',
     query: { agent: agent.id }
   })
 }
