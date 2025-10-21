@@ -226,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { 
   Check, 
   Edit, 
@@ -301,7 +301,7 @@ const clearSelection = () => {
 }
 
 // 播放视频（悬停时）
-const playVideo = (video: Video, event: Event) => {
+const playVideo = (_video: Video, event: Event) => {
   const videoElement = event.target as HTMLVideoElement
   videoElement.play()
 }

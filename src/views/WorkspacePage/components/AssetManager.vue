@@ -182,7 +182,6 @@ import {
   DialogTitle,
 } from '@headlessui/vue'
 import { 
-  Folder, 
   Search, 
   Grid3x3, 
   List, 

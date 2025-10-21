@@ -256,10 +256,10 @@ const folders = ref<FolderItem[]>([
 
 // 最近文件
 const recentFiles = ref<FileItem[]>([
-  { id: '1', name: 'o(67).mp4', type: 'video', modifiedTime: '今天 14:30', thumbnail: '/assets/thumbnails/video1.jpg' },
-  { id: '2', name: 'video_1752466...', type: 'video', modifiedTime: '今天 12:15', thumbnail: '/assets/thumbnails/video2.jpg' },
-  { id: '3', name: '20250519_TZO...', type: 'document', modifiedTime: '昨天 16:20' },
-  { id: '4', name: 'project_implem...', type: 'document', modifiedTime: '昨天 10:45' }
+  { id: '1', name: 'o(67).mp4', type: 'video', modifiedTime: '今天 14:30', thumbnail: '/assets/thumbnails/video1.jpg', category: 'video' },
+  { id: '2', name: 'video_1752466...', type: 'video', modifiedTime: '今天 12:15', thumbnail: '/assets/thumbnails/video2.jpg', category: 'video' },
+  { id: '3', name: '20250519_TZO...', type: 'document', modifiedTime: '昨天 16:20', category: 'document' },
+  { id: '4', name: 'project_implem...', type: 'document', modifiedTime: '昨天 10:45', category: 'document' }
 ])
 
 // 文件列表

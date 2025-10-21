@@ -365,6 +365,8 @@ const posterInputRef = ref<HTMLInputElement>()
 
 // 已上传文件
 const uploadedFiles = ref<any[]>([])
+const uploadedAudio = ref<any[]>([])
+const uploadedPoster = ref<any | null>(null)
 
 // 推荐音乐
 const recommendedMusic = [
