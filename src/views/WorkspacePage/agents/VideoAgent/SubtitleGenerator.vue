@@ -19,11 +19,11 @@
         <button
           class="flex-1 btn-primary flex items-center justify-center gap-2"
           :disabled="!scriptText.trim() || isGenerating"
-          @click="generateStoryboard"
+          @click="generateRewrite"
         >
           <Loader2 v-if="isGenerating" :size="20" class="animate-spin" />
           <Wand2 v-else :size="20" />
-          <span>{{ isGenerating ? 'AI生成中...' : 'AI改写并生成分镜' }}</span>
+          <span>{{ isGenerating ? 'AI改写中...' : 'AI改写脚本' }}</span>
         </button>
         <button class="px-6 py-2.5 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-all">
           清空
@@ -31,201 +31,269 @@
       </div>
     </div>
 
-    <!-- 右侧：分镜列表区 -->
+    <!-- 右侧：文案改写条数显示 -->
     <div class="w-1/2 p-6 flex flex-col">
       <div class="mb-4">
-        <h3 class="text-xl font-bold text-gray-50 mb-2">AI生成分镜</h3>
-        <p class="text-sm text-gray-400">{{ scenes.length > 0 ? `共 ${scenes.length} 个分镜` : '等待生成...' }}</p>
+        <h3 class="text-xl font-bold text-gray-50 mb-2">文案改写</h3>
+        <p class="text-sm text-gray-400">{{ rewriteCount > 0 ? `共生成 ${rewriteCount} 条改写文案` : '等待生成...' }}</p>
       </div>
 
-      <!-- 分镜列表 -->
-      <div class="flex-1 overflow-y-auto scrollbar-thin space-y-4">
+      <!-- 改写统计 -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="stat-card">
+          <div class="text-2xl font-bold text-blue-400">{{ rewriteCount }}</div>
+          <div class="text-sm text-gray-400">改写条数</div>
+        </div>
+        <div class="stat-card">
+          <div class="text-2xl font-bold text-green-400">{{ selectedCount }}</div>
+          <div class="text-sm text-gray-400">已选择</div>
+        </div>
+      </div>
+
+      <!-- 改写文案列表 -->
+      <div class="flex-1 overflow-y-auto scrollbar-thin space-y-3">
         <!-- 骨架屏 (加载中) -->
-        <div v-if="isGenerating" class="space-y-4">
+        <div v-if="isGenerating" class="space-y-3">
           <div
-            v-for="i in 3"
+            v-for="i in 5"
             :key="i"
             class="skeleton-card p-4 bg-gray-800 rounded-lg animate-pulse"
           >
-            <div class="h-4 bg-gray-700 rounded w-1/4 mb-3"></div>
-            <div class="h-3 bg-gray-700 rounded w-full mb-2"></div>
-            <div class="h-3 bg-gray-700 rounded w-5/6"></div>
+            <div class="h-3 bg-gray-700 rounded w-3/4 mb-2"></div>
+            <div class="h-3 bg-gray-700 rounded w-1/2"></div>
           </div>
         </div>
 
-        <!-- 分镜卡片列表 -->
-        <draggable
-          v-else-if="scenes.length > 0"
-          v-model="scenes"
-          item-key="id"
-          class="space-y-4"
-          :animation="200"
-          ghost-class="ghost"
+        <!-- 改写文案卡片 -->
+        <div
+          v-else-if="rewriteItems.length > 0"
+          class="space-y-3"
         >
-          <template #item="{ element: scene, index }">
-            <div class="scene-card group p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-all">
-              <!-- 卡片头部 -->
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                    {{ index + 1 }}
-                  </div>
-                  <input
-                    v-model="scene.title"
-                    class="bg-transparent border-none outline-none text-gray-50 font-semibold flex-1"
-                    placeholder="场景标题"
-                  />
-                </div>
-                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button class="p-1 text-gray-400 hover:text-gray-50 transition-colors">
-                    <GripVertical :size="16" />
-                  </button>
-                  <button 
-                    class="p-1 text-gray-400 hover:text-red-400 transition-colors"
-                    @click="removeScene(scene.id)"
-                  >
-                    <Trash2 :size="16" />
-                  </button>
-                </div>
+          <div
+            v-for="(item, index) in rewriteItems"
+            :key="item.id"
+            class="rewrite-card"
+            :class="{ 'selected': item.selected }"
+          >
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0">
+                <button
+                  class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                  :class="item.selected 
+                    ? 'border-blue-500 bg-blue-500' 
+                    : 'border-gray-600 hover:border-gray-400'"
+                  @click="toggleSelect(item.id)"
+                >
+                  <Check v-if="item.selected" :size="14" class="text-white" />
+                </button>
               </div>
-
-              <!-- 场景描述 -->
-              <textarea
-                v-model="scene.description"
-                rows="3"
-                class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 text-sm placeholder-gray-500 resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
-                placeholder="场景描述..."
-              ></textarea>
-
-              <!-- 场景时长 -->
-              <div class="mt-3 flex items-center gap-2">
-                <Clock :size="16" class="text-gray-400" />
-                <input
-                  v-model.number="scene.duration"
-                  type="number"
-                  min="1"
-                  max="60"
-                  class="w-20 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-gray-50 text-sm outline-none"
-                />
-                <span class="text-sm text-gray-400">秒</span>
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium text-gray-400">改写版本 {{ index + 1 }}</span>
+                  <div class="flex items-center gap-2">
+                    <button 
+                      class="icon-btn-sm"
+                      @click="copyText(item.content)"
+                      title="复制"
+                    >
+                      <Copy :size="14" />
+                    </button>
+                    <button 
+                      class="icon-btn-sm text-red-400"
+                      @click="deleteItem(item.id)"
+                      title="删除"
+                    >
+                      <Trash2 :size="14" />
+                    </button>
+                  </div>
+                </div>
+                
+                <p class="text-sm text-gray-200 leading-relaxed">{{ item.content }}</p>
+                
+                <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                  <span>{{ item.wordCount }} 字</span>
+                  <span>{{ item.duration }}s</span>
+                  <span class="px-2 py-0.5 bg-gray-700 rounded-full">{{ item.style }}</span>
+                </div>
               </div>
             </div>
-          </template>
-        </draggable>
+          </div>
+        </div>
 
         <!-- 空状态 -->
-        <div v-else class="text-center py-20">
-          <FileText :size="48" class="mx-auto mb-4 text-gray-600" />
-          <p class="text-gray-500">暂无分镜，请输入脚本并点击生成</p>
+        <div v-else class="flex flex-col items-center justify-center h-64 text-gray-500">
+          <FileText :size="48" class="mb-4" />
+          <p class="text-lg">暂无改写文案</p>
+          <p class="text-sm">在左侧输入脚本后点击"AI改写脚本"生成</p>
         </div>
+      </div>
+
+      <!-- 底部操作按钮 -->
+      <div v-if="rewriteItems.length > 0" class="flex gap-3 mt-6 pt-4 border-t border-gray-700">
+        <button 
+          class="btn-secondary flex-1 flex items-center justify-center gap-2"
+          @click="selectAll"
+          :disabled="selectedCount === rewriteCount"
+        >
+          <CheckSquare :size="16" />
+          <span>全选</span>
+        </button>
+        <button 
+          class="btn-primary flex-1 flex items-center justify-center gap-2"
+          @click="useSelected"
+          :disabled="selectedCount === 0"
+        >
+          <ArrowRight :size="16" />
+          <span>使用选中文案 ({{ selectedCount }})</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import draggable from 'vuedraggable'
+import { ref, computed } from 'vue'
 import { 
+  Loader2, 
   Wand2, 
-  Loader2,
-  Clock,
-  GripVertical,
-  Trash2,
-  FileText
+  FileText, 
+  Check, 
+  Copy, 
+  Trash2, 
+  CheckSquare, 
+  ArrowRight 
 } from 'lucide-vue-next'
 
-// 脚本文本
+interface RewriteItem {
+  id: string
+  content: string
+  wordCount: number
+  duration: number
+  style: string
+  selected: boolean
+}
+
 const scriptText = ref('')
-
-// 是否正在生成
 const isGenerating = ref(false)
+const rewriteItems = ref<RewriteItem[]>([])
 
-// 分镜场景列表
-const scenes = ref<any[]>([])
+// 计算属性
+const rewriteCount = computed(() => rewriteItems.value.length)
+const selectedCount = computed(() => rewriteItems.value.filter(item => item.selected).length)
 
-// 生成分镜
-const generateStoryboard = async () => {
+// 生成改写文案
+const generateRewrite = async () => {
   if (!scriptText.value.trim()) return
-
+  
   isGenerating.value = true
-
-  // 模拟AI生成
+  
+  // 模拟AI改写过程
   setTimeout(() => {
-    scenes.value = [
+    const newItems: RewriteItem[] = [
       {
-        id: Date.now() + 1,
-        title: '开场',
-        description: '欢迎来到我的旅行vlog，今天带大家探索这座美丽的城市',
-        duration: 5
+        id: '1',
+        content: '欢迎来到我的精彩旅行vlog！今天我们将一起探索美丽的海滨小镇，感受不一样的风景和人文魅力。',
+        wordCount: 42,
+        duration: 15,
+        style: '活泼',
+        selected: false
       },
       {
-        id: Date.now() + 2,
-        title: '第一幕：海边清晨',
-        description: '清晨的海边，阳光洒在沙滩上，海浪轻轻拍打着岸边',
-        duration: 8
+        id: '2',
+        content: '在这个阳光明媚的早晨，我们来到了风景如画的海边。金色的阳光洒在细腻的沙滩上，海浪轻抚着海岸线。',
+        wordCount: 45,
+        duration: 18,
+        style: '文艺',
+        selected: false
       },
       {
-        id: Date.now() + 3,
-        title: '第二幕：古镇漫步',
-        description: '漫步在古镇小巷，感受历史的气息，品味传统文化',
-        duration: 10
+        id: '3',
+        content: '漫步在古镇的石板路上，每一块石头都诉说着历史的故事。古老的建筑与现代生活完美融合，让人流连忘返。',
+        wordCount: 48,
+        duration: 20,
+        style: '古典',
+        selected: false
+      },
+      {
+        id: '4',
+        content: '这里不仅有美丽的风景，还有丰富的美食文化。每一道菜都承载着当地人的热情和智慧。',
+        wordCount: 38,
+        duration: 16,
+        style: '温馨',
+        selected: false
+      },
+      {
+        id: '5',
+        content: '今天的旅程让我收获满满，不仅看到了美丽的风景，更感受到了不同文化的魅力。期待下一次的探索！',
+        wordCount: 46,
+        duration: 19,
+        style: '总结',
+        selected: false
       }
     ]
+    
+    rewriteItems.value = newItems
     isGenerating.value = false
   }, 2000)
 }
 
-// 移除场景
-const removeScene = (id: number) => {
-  const index = scenes.value.findIndex(s => s.id === id)
-  if (index > -1) {
-    scenes.value.splice(index, 1)
+// 切换选择状态
+const toggleSelect = (id: string) => {
+  const item = rewriteItems.value.find(item => item.id === id)
+  if (item) {
+    item.selected = !item.selected
   }
+}
+
+// 全选
+const selectAll = () => {
+  rewriteItems.value.forEach(item => {
+    item.selected = true
+  })
+}
+
+// 使用选中的文案
+const useSelected = () => {
+  const selectedItems = rewriteItems.value.filter(item => item.selected)
+  console.log('使用选中的文案:', selectedItems)
+  // 这里可以实现使用选中文案的逻辑
+}
+
+// 复制文案
+const copyText = (text: string) => {
+  navigator.clipboard.writeText(text)
+  // 可以添加复制成功的提示
+}
+
+// 删除文案
+const deleteItem = (id: string) => {
+  rewriteItems.value = rewriteItems.value.filter(item => item.id !== id)
 }
 </script>
 
 <style scoped>
-/* 按钮样式 */
-.btn-primary {
-  @apply px-6 py-2.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg font-medium hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+.stat-card {
+  @apply bg-gray-800 rounded-lg p-4 text-center;
 }
 
-/* 拖拽幽灵样式 */
-.ghost {
-  opacity: 0.5;
-  background: #3B82F6;
+.rewrite-card {
+  @apply bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-gray-600 transition-all cursor-pointer;
 }
 
-/* 加载动画 */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.rewrite-card.selected {
+  @apply border-blue-500 bg-blue-500/10;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.skeleton-card {
+  @apply bg-gray-800 rounded-lg p-4;
 }
 
-/* 脉冲动画 */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.icon-btn-sm {
+  @apply p-1.5 text-gray-400 hover:text-gray-50 hover:bg-gray-700 rounded-lg transition-all;
 }
 
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* 滚动条 */
+/* 自定义滚动条 */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
 }
@@ -243,4 +311,3 @@ const removeScene = (id: number) => {
   background: #6B7280;
 }
 </style>
-

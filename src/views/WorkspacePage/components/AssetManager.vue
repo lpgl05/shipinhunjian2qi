@@ -30,8 +30,8 @@
               <!-- 顶部工具栏 -->
               <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
                 <DialogTitle class="text-xl font-bold text-gray-50 flex items-center gap-3">
-                  <Folder :size="24" class="text-blue-400" />
-                  <span>素材管理中心</span>
+                  <Cloud :size="24" class="text-blue-400" />
+                  <span>AI云盘</span>
                 </DialogTitle>
 
                 <div class="flex items-center gap-3">
@@ -191,7 +191,8 @@ import {
   X,
   Download,
   Trash2,
-  FolderOpen
+  FolderOpen,
+  Cloud
 } from 'lucide-vue-next'
 import { useAssetStore } from '../../../store/asset'
 import FolderTree from './AssetManager/FolderTree.vue'

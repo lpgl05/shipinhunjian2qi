@@ -42,7 +42,7 @@
         <TabPanels class="mt-6">
           <!-- 视频/图片标签页 -->
           <TabPanel>
-            <div class="space-y-4">
+            <div class="space-y-6">
               <!-- 拖拽上传区 -->
               <div
                 class="upload-area border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200"
@@ -228,12 +228,113 @@
           </TabPanel>
         </TabPanels>
       </TabGroup>
+
+      <!-- 素材预览展示区 -->
+      <div v-if="hasUploadedAssets" class="preview-section bg-gray-800 rounded-xl p-6">
+        <h4 class="text-lg font-semibold text-gray-200 mb-4 flex items-center gap-2">
+          <Eye :size="20" class="text-blue-400" />
+          素材预览
+        </h4>
+        
+        <!-- 预览统计 -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="stat-card">
+            <div class="text-2xl font-bold text-blue-400">{{ totalVideoCount }}</div>
+            <div class="text-sm text-gray-400">视频素材</div>
+          </div>
+          <div class="stat-card">
+            <div class="text-2xl font-bold text-green-400">{{ totalImageCount }}</div>
+            <div class="text-sm text-gray-400">图片素材</div>
+          </div>
+          <div class="stat-card">
+            <div class="text-2xl font-bold text-purple-400">{{ totalAudioCount }}</div>
+            <div class="text-sm text-gray-400">音频素材</div>
+          </div>
+        </div>
+
+        <!-- 预览网格 -->
+        <div class="preview-grid grid grid-cols-4 gap-4">
+          <!-- 视频预览 -->
+          <div 
+            v-for="file in uploadedFiles.slice(0, 8)" 
+            :key="file.id" 
+            class="preview-item bg-gray-700 rounded-lg overflow-hidden group cursor-pointer"
+            @click="previewAsset(file)"
+          >
+            <div class="aspect-video bg-gray-600 flex items-center justify-center">
+              <img v-if="file.type === 'image'" :src="file.url" :alt="file.name" class="w-full h-full object-cover" />
+              <video v-else-if="file.type === 'video'" :src="file.url" class="w-full h-full object-cover" muted>
+                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                  <Play :size="32" class="text-white" />
+                </div>
+              </video>
+            </div>
+            <div class="p-2">
+              <p class="text-xs text-gray-300 truncate">{{ file.name }}</p>
+              <p class="text-xs text-gray-500">{{ (file.size / 1024 / 1024).toFixed(1) }}MB</p>
+            </div>
+            <!-- 播放按钮 -->
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50">
+              <Play v-if="file.type === 'video'" :size="32" class="text-white" />
+              <Eye v-else :size="32" class="text-white" />
+            </div>
+          </div>
+          
+          <!-- 显示更多按钮 -->
+          <div 
+            v-if="uploadedFiles.length > 8"
+            class="preview-item bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors"
+            @click="showAllAssets = !showAllAssets"
+          >
+            <div class="text-center">
+              <Plus :size="24" class="text-gray-400 mx-auto mb-2" />
+              <p class="text-sm text-gray-400">查看全部</p>
+              <p class="text-xs text-gray-500">+{{ uploadedFiles.length - 8 }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 全部素材展示 -->
+        <div v-if="showAllAssets" class="mt-6">
+          <h5 class="text-md font-medium text-gray-200 mb-3">全部素材 ({{ uploadedFiles.length }})</h5>
+          <div class="grid grid-cols-6 gap-3">
+            <div 
+              v-for="file in uploadedFiles" 
+              :key="file.id" 
+              class="preview-item-sm bg-gray-700 rounded-lg overflow-hidden cursor-pointer"
+              @click="previewAsset(file)"
+            >
+              <div class="aspect-square bg-gray-600 flex items-center justify-center">
+                <img v-if="file.type === 'image'" :src="file.url" :alt="file.name" class="w-full h-full object-cover" />
+                <video v-else-if="file.type === 'video'" :src="file.url" class="w-full h-full object-cover" muted></video>
+              </div>
+              <p class="text-xs text-gray-300 truncate p-1">{{ file.name }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 预览操作按钮 -->
+        <div class="flex gap-3 mt-6">
+          <button class="btn-primary flex items-center gap-2">
+            <Shuffle :size="16" />
+            <span>智能排序</span>
+          </button>
+          <button class="btn-secondary flex items-center gap-2">
+            <Download :size="16" />
+            <span>批量下载</span>
+          </button>
+          <button class="btn-secondary flex items-center gap-2">
+            <Trash2 :size="16" />
+            <span>清空素材</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import { 
   Video, 
@@ -243,7 +344,12 @@ import {
   Folder,
   Play,
   Pause,
-  X
+  X,
+  Eye,
+  Plus,
+  Shuffle,
+  Download,
+  Trash2
 } from 'lucide-vue-next'
 import { useWorkspaceStore } from '../../../../store/workspace'
 
@@ -367,6 +473,33 @@ const togglePlay = (id: string) => {
     playingMusic.value = id
   }
 }
+
+// 预览相关状态
+const showAllAssets = ref(false)
+
+// 计算属性：是否有上传的素材
+const hasUploadedAssets = computed(() => {
+  return uploadedFiles.value.length > 0 || uploadedAudio.value.length > 0 || uploadedPoster.value !== null
+})
+
+// 计算属性：素材统计
+const totalVideoCount = computed(() => {
+  return uploadedFiles.value.filter(file => file.type === 'video').length
+})
+
+const totalImageCount = computed(() => {
+  return uploadedFiles.value.filter(file => file.type === 'image').length
+})
+
+const totalAudioCount = computed(() => {
+  return uploadedAudio.value.length
+})
+
+// 预览素材
+const previewAsset = (file: any) => {
+  console.log('预览素材:', file)
+  // 这里可以实现预览逻辑，比如打开预览模态框
+}
 </script>
 
 <style scoped>
@@ -406,6 +539,23 @@ const togglePlay = (id: string) => {
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #6B7280;
+}
+
+/* 预览相关样式 */
+.stat-card {
+  @apply bg-gray-700 rounded-lg p-4 text-center;
+}
+
+.preview-item {
+  @apply relative transition-all duration-200 hover:scale-105;
+}
+
+.preview-item-sm {
+  @apply relative transition-all duration-200 hover:scale-105;
+}
+
+.preview-grid {
+  @apply gap-4;
 }
 </style>
 

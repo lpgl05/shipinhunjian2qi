@@ -1,6 +1,6 @@
 <template>
   <div class="batch-video-generator bg-gray-800 rounded-xl p-6 border border-gray-700">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-6">
       <h3 class="text-lg font-semibold text-gray-50 flex items-center gap-2">
         <Film :size="20" class="text-blue-400" />
         批量视频生成
@@ -8,159 +8,68 @@
       <span class="text-sm text-gray-400">共3个素材, 将生成3个视频</span>
     </div>
 
-    <!-- 视频项目列表 -->
-    <div class="space-y-4 mb-6">
-      <div 
-        v-for="(project, index) in videoProjects" 
-        :key="project.id"
-        class="video-project bg-gray-750 rounded-lg p-4 border border-gray-600"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-              {{ index + 1 }}
-            </div>
-            <div>
-              <h4 class="text-md font-medium text-gray-50">{{ project.title }}</h4>
-              <p class="text-xs text-gray-400">{{ project.materialCount }}个素材</p>
-            </div>
+    <!-- 视频混剪步骤说明 -->
+    <div class="steps-section mb-6">
+      <h4 class="text-md font-semibold text-gray-200 mb-4">视频混剪步骤</h4>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="step-item bg-gray-750 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+            <span class="text-sm font-medium text-gray-200">参数配置</span>
           </div>
-          <div class="flex items-center gap-2">
-            <button class="icon-btn-sm" title="编辑">
-              <Edit :size="16" />
-            </button>
-            <button class="icon-btn-sm text-red-400" title="删除">
-              <Trash2 :size="16" />
-            </button>
-          </div>
+          <p class="text-xs text-gray-400">设置视频尺寸、时长、风格等参数</p>
         </div>
-
-        <!-- 素材卡片 -->
-        <div class="grid grid-cols-3 gap-2 mb-3">
-          <div 
-            v-for="material in project.materials" 
-            :key="material.id"
-            class="material-card bg-gray-700 rounded-lg p-2 flex flex-col items-center text-center"
-          >
-            <Grid3X3 :size="20" class="text-gray-400 mb-1" />
-            <span class="text-xs text-gray-300">{{ material.title }}</span>
-            <span class="text-xs text-gray-500">{{ material.duration }}s</span>
+        
+        <div class="step-item bg-gray-750 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+            <span class="text-sm font-medium text-gray-200">素材上传</span>
           </div>
-          <!-- 添加素材按钮 -->
-          <div class="material-card bg-gray-700/50 border-2 border-dashed border-gray-600 rounded-lg p-2 flex flex-col items-center justify-center text-center hover:border-blue-500 hover:bg-blue-500/10 transition-colors cursor-pointer">
-            <Plus :size="20" class="text-gray-400 mb-1" />
-            <span class="text-xs text-gray-400">添加素材</span>
-          </div>
+          <p class="text-xs text-gray-400">上传视频、图片、音频等创作素材</p>
         </div>
-
-        <!-- 项目信息 -->
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-400">总时长: {{ project.totalDuration }}秒</span>
-          <span class="px-2 py-1 bg-gray-600 text-gray-300 text-xs rounded-full">{{ project.style }}</span>
+        
+        <div class="step-item bg-gray-750 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
+            <span class="text-sm font-medium text-gray-200">脚本生成</span>
+          </div>
+          <p class="text-xs text-gray-400">AI生成视频脚本和分镜设计</p>
+        </div>
+        
+        <div class="step-item bg-gray-750 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">4</div>
+            <span class="text-sm font-medium text-gray-200">视频生成</span>
+          </div>
+          <p class="text-xs text-gray-400">AI自动剪辑生成最终视频</p>
         </div>
       </div>
     </div>
 
-    <!-- 操作按钮 -->
-    <div class="flex items-center gap-3">
+    <!-- 开始编辑按钮 -->
+    <div class="text-center">
       <button 
-        class="btn-primary flex items-center gap-2"
-        @click="handleStartGeneration"
+        class="btn-primary flex items-center justify-center gap-2 mx-auto px-8 py-3 text-lg font-semibold"
+        @click="handleStartEditing"
       >
-        <Zap :size="16" />
-        <span>生成所有视频</span>
+        <Play :size="20" />
+        <span>开始编辑</span>
       </button>
-      <button 
-        class="btn-secondary flex items-center gap-2"
-        @click="handleAddProject"
-      >
-        <Plus :size="16" />
-        <span>新建批量视频</span>
-      </button>
-      <button class="btn-secondary flex items-center gap-2">
-        <Settings :size="16" />
-        <span>批量设置</span>
-      </button>
+      <p class="text-xs text-gray-500 mt-2">点击开始进入视频创作工作台</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { 
   Film, 
-  Edit, 
-  Trash2, 
-  Grid3X3, 
-  Plus, 
-  Zap, 
-  Settings 
+  Play
 } from 'lucide-vue-next'
 
-interface Material {
-  id: string
-  title: string
-  duration: number
-}
-
-interface VideoProject {
-  id: string
-  title: string
-  materialCount: number
-  materials: Material[]
-  totalDuration: number
-  style: string
-}
-
-// 模拟视频项目数据
-const videoProjects = ref<VideoProject[]>([
-  {
-    id: '1',
-    title: '产品展示视频',
-    materialCount: 3,
-    materials: [
-      { id: '1', title: '开场片段', duration: 5 },
-      { id: '2', title: '主要内容', duration: 15 },
-      { id: '3', title: '结尾片段', duration: 5 }
-    ],
-    totalDuration: 25,
-    style: '商务风格'
-  },
-  {
-    id: '2',
-    title: '社交媒体视频',
-    materialCount: 0,
-    materials: [],
-    totalDuration: 0,
-    style: '年轻化风格'
-  },
-  {
-    id: '3',
-    title: '批量视频 3',
-    materialCount: 0,
-    materials: [],
-    totalDuration: 0,
-    style: '默认风格'
-  }
-])
-
-// 开始生成视频
-const handleStartGeneration = () => {
+// 开始编辑
+const handleStartEditing = () => {
   // 触发UGI事件，激活视频混剪智能体
-  emit('select', { agentId: 'video-mixer', action: 'batch-generate' })
-}
-
-// 添加新项目
-const handleAddProject = () => {
-  const newProject: VideoProject = {
-    id: Date.now().toString(),
-    title: `批量视频 ${videoProjects.value.length + 1}`,
-    materialCount: 0,
-    materials: [],
-    totalDuration: 0,
-    style: '默认风格'
-  }
-  videoProjects.value.push(newProject)
+  emit('select', { agentId: 'video-mixer', action: 'start-editing' })
 }
 
 // 定义事件
@@ -170,11 +79,11 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
-.material-card {
-  min-height: 60px;
+.step-item {
+  transition: all 0.2s ease;
 }
 
-.icon-btn-sm {
-  @apply p-1.5 text-gray-400 hover:text-gray-50 hover:bg-gray-600 rounded-lg transition-all;
+.step-item:hover {
+  background-color: #374151;
 }
 </style>
