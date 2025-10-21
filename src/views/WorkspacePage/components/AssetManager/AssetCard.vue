@@ -1,6 +1,6 @@
 <template>
   <div
-    class="asset-card group relative bg-gray-750 rounded-xl border overflow-hidden cursor-pointer transition-all duration-200"
+    class="asset-card group relative bg-gray-800 rounded-xl border overflow-hidden cursor-pointer transition-all duration-200"
     :class="[
       selected 
         ? 'border-blue-500 ring-2 ring-blue-500/50' 

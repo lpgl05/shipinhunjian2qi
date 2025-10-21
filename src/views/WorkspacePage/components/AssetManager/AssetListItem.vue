@@ -1,6 +1,6 @@
 <template>
   <div
-    class="asset-list-item group flex items-center gap-4 p-4 bg-gray-750 rounded-lg border cursor-pointer transition-all"
+    class="asset-list-item group flex items-center gap-4 p-4 bg-gray-800 rounded-lg border cursor-pointer transition-all"
     :class="[
       selected 
         ? 'border-blue-500 bg-blue-500/10' 

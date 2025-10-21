@@ -16,7 +16,7 @@
             <button
               v-for="prompt in quickPrompts"
               :key="prompt"
-              class="px-5 py-2.5 bg-gray-800 text-gray-300 text-sm rounded-xl border border-gray-700 hover:border-blue-500 hover:text-blue-400 hover:bg-gray-750 transition-all duration-200"
+              class="px-5 py-2.5 bg-gray-800 text-gray-300 text-sm rounded-xl border border-gray-700 hover:border-blue-500 hover:text-blue-400 hover:bg-gray-700 transition-all duration-200"
               @click="handleQuickPrompt(prompt)"
             >
               {{ prompt }}

@@ -293,7 +293,7 @@ const selectTemplate = (template: 'vertical' | 'horizontal') => {
 <style scoped>
 /* 折叠面板样式 */
 .accordion-header {
-  @apply w-full flex items-center justify-between px-5 py-4 bg-gray-800 rounded-lg text-gray-50 font-medium hover:bg-gray-750 transition-all cursor-pointer;
+  @apply w-full flex items-center justify-between px-5 py-4 bg-gray-800 rounded-lg text-gray-50 font-medium hover:bg-gray-700 transition-all cursor-pointer;
 }
 
 .accordion-panel {

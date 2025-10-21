@@ -164,7 +164,7 @@
                     <div
                       v-for="music in recommendedMusic"
                       :key="music.id"
-                      class="music-item flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-750 transition-all"
+                      class="music-item flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all"
                       :class="{ 'ring-2 ring-blue-500': selectedMusic === music.id }"
                     >
                       <!-- 播放按钮 -->
