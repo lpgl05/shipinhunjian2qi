@@ -97,7 +97,7 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   // 获取智能体回复内容
-  const getAgentResponse = (agentId: string, _userText: string) => {
+  const getAgentResponse = (agentId: string, _userText: string): { title: string; description: string; component: string } => {
     const responses: Record<string, { title: string; description: string; component: string }> = {
       'video-mixer': {
         title: '视频混剪智能体',
