@@ -94,7 +94,7 @@
                       v-for="folder in assetStore.folders"
                       :key="folder.id"
                       :folder="folder"
-                      :selected-id="assetStore.selectedFolderId"
+                      :selected-id="assetStore.selectedFolderId || ''"
                       @select="assetStore.selectFolder"
                     />
                   </div>

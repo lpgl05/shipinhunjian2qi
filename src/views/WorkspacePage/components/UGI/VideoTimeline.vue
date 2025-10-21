@@ -173,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import { Film, Edit3, Trash2, Plus, Clock, Settings, Zap, X } from 'lucide-vue-next'
 

@@ -10,7 +10,7 @@
       @click="handleSelect"
     >
       <ChevronRight 
-        v-if="folder.children.length > 0"
+        v-if="folder.children && folder.children.length > 0"
         :size="16" 
         class="transition-transform"
         :class="{ 'rotate-90': isExpanded }"
@@ -27,7 +27,7 @@
     </div>
 
     <!-- 子文件夹 -->
-    <div v-if="isExpanded && folder.children.length > 0" class="ml-4 mt-1 space-y-1">
+    <div v-if="isExpanded && folder.children && folder.children.length > 0" class="ml-4 mt-1 space-y-1">
       <FolderTree
         v-for="child in folder.children"
         :key="child.id"
