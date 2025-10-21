@@ -38,6 +38,7 @@
       <div class="max-w-5xl w-full">
         <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
           <video
+            v-if="currentVideo"
             ref="videoPlayerRef"
             :src="currentVideo.url"
             controls
@@ -49,7 +50,7 @@
         </div>
 
         <!-- 视频信息 -->
-        <div class="mt-4 flex items-center justify-between">
+        <div v-if="currentVideo" class="mt-4 flex items-center justify-between">
           <div>
             <h4 class="text-lg font-semibold text-gray-50">{{ currentVideo.title }}</h4>
             <p class="text-sm text-gray-400">{{ currentVideo.duration }} • {{ currentVideo.resolution }}</p>
