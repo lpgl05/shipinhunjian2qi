@@ -68,7 +68,7 @@ interface Clip {
   duration: string
 }
 
-const props = defineProps<{
+defineProps<{
   clips: Clip[]
 }>()
 
