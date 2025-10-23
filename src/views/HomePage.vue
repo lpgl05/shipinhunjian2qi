@@ -18,20 +18,37 @@
           <a href="#blog" class="text-gray-400 hover:text-gray-50 transition-colors">博客</a>
         </nav>
 
-        <!-- Auth Buttons -->
+        <!-- User Info / Auth Buttons -->
         <div class="flex items-center gap-3">
-          <button 
-            class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
-            @click="handleLogin"
-          >
-            登录
-          </button>
-          <button 
-            class="px-6 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200"
-            @click="handleLogin"
-          >
-            免费注册
-          </button>
+          <template v-if="authStore.isAuthenticated">
+            <!-- 用户信息 -->
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
+                <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
+              </div>
+              <span class="text-gray-300">{{ authStore.user?.name }}</span>
+              <button 
+                class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
+                @click="handleLogout"
+              >
+                登出
+              </button>
+            </div>
+          </template>
+          <template v-else>
+            <button 
+              class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
+              @click="handleLogin"
+            >
+              登录
+            </button>
+            <button 
+              class="px-6 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200"
+              @click="handleLogin"
+            >
+              免费注册
+            </button>
+          </template>
         </div>
       </div>
     </header>
@@ -180,8 +197,6 @@
       <p>© 2024 智策营销. All rights reserved.</p>
     </footer>
 
-    <!-- Auth Modal -->
-    <AuthModal />
   </div>
 </template>
 
@@ -198,7 +213,6 @@ import {
   Workflow
 } from 'lucide-vue-next'
 import AgentCard from '../components/AgentCard.vue'
-import AuthModal from '../components/AuthModal.vue'
 import { useAuthStore } from '../store/auth'
 
 const router = useRouter()
@@ -291,7 +305,13 @@ const handleAgentClick = (agent: any) => {
 
 // 处理登录
 const handleLogin = () => {
-  authStore.toggleAuthModal()
+  router.push('/login')
+}
+
+// 处理登出
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
 }
 </script>
 
