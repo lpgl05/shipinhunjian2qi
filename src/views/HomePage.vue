@@ -8,15 +8,15 @@
           <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center">
             <Sparkles :size="24" class="text-white" />
           </div>
-          <span class="text-xl font-bold">智策营销</span>
+          <span class="text-xl font-bold">AI社会化营销大师</span>
         </div>
 
-        <!-- Navigation -->
-        <nav class="hidden md:flex items-center gap-8">
+        <!-- Navigation - Hidden for now -->
+        <!-- <nav class="hidden md:flex items-center gap-8">
           <a href="#product" class="text-gray-400 hover:text-gray-50 transition-colors">产品</a>
           <a href="#pricing" class="text-gray-400 hover:text-gray-50 transition-colors">定价</a>
           <a href="#blog" class="text-gray-400 hover:text-gray-50 transition-colors">博客</a>
-        </nav>
+        </nav> -->
 
         <!-- User Info / Auth Buttons -->
         <div class="flex items-center gap-3">
@@ -31,7 +31,7 @@
                 class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
                 @click="handleLogout"
               >
-                登出
+                退出登录
               </button>
             </div>
           </template>
@@ -58,7 +58,7 @@
       <div class="max-w-5xl mx-auto">
         <!-- Main Title -->
         <h1 class="text-6xl md:text-7xl font-extrabold text-center mb-6 bg-gradient-to-r from-blue-400 via-violet-400 to-purple-400 text-transparent bg-clip-text">
-          全球首个视频创作智能体
+          AI驱动的智能营销创作平台
         </h1>
         
         <p class="text-xl text-gray-400 text-center mb-12 max-w-2xl mx-auto">
@@ -194,7 +194,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-gray-800 py-8 px-6 text-center text-gray-500 text-sm">
-      <p>© 2024 智策营销. All rights reserved.</p>
+      <p>© 2024 AI社会化营销大师. All rights reserved.</p>
     </footer>
 
   </div>

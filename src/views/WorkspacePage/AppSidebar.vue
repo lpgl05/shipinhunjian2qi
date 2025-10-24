@@ -53,14 +53,14 @@
     <div class="flex flex-col items-center gap-2">
       <!-- 设置 -->
       <Tooltip text="设置">
-        <button class="sidebar-icon-btn">
+        <button class="sidebar-icon-btn" @click="handleSettings">
           <Settings :size="20" />
         </button>
       </Tooltip>
 
       <!-- 用户头像 -->
       <Tooltip text="个人中心">
-        <button class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors">
+        <button class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors" @click="handleProfile">
           <User :size="20" class="text-gray-400" />
         </button>
       </Tooltip>
@@ -78,9 +78,11 @@ import {
   Settings, 
   User 
 } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '../../store/workspace'
 import Tooltip from './components/Tooltip.vue'
 
+const router = useRouter()
 const workspaceStore = useWorkspaceStore()
 
 /**
@@ -88,6 +90,20 @@ const workspaceStore = useWorkspaceStore()
  */
 const handleNewChat = () => {
   workspaceStore.startNewSession()
+}
+
+/**
+ * 跳转到个人中心
+ */
+const handleProfile = () => {
+  router.push('/profile')
+}
+
+/**
+ * 跳转到设置页面
+ */
+const handleSettings = () => {
+  router.push('/settings')
 }
 </script>
 

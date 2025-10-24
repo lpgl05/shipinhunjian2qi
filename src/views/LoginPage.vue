@@ -244,6 +244,7 @@
                 placeholder="请输入密码"
                 class="w-full input-primary pr-10"
                 required
+                @input="handlePasswordInput"
               />
               <button
                 type="button"
@@ -289,25 +290,17 @@
             </div>
           </div>
 
-          <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="mt-4 flex justify-center">
             <button
               type="button"
-              class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg border border-gray-600 hover:border-gray-500 hover:bg-gray-700 transition-all"
+              class="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg border border-green-500 hover:border-green-400 hover:bg-green-500 transition-all"
+              @click="handleWeChatLogin"
             >
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+                <path d="M8.5 12.5c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm7 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
               </svg>
-              <span class="text-sm">Pinterest</span>
-            </button>
-
-            <button
-              type="button"
-              class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg border border-gray-600 hover:border-gray-500 hover:bg-gray-700 transition-all"
-            >
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22.46 6c-.85.38-1.78.64-2.75.76 1-.6 1.76-1.55 2.12-2.68-.93.55-1.96.96-3.06 1.18-.88-.94-2.13-1.53-3.51-1.53-2.66 0-4.81 2.16-4.81 4.81 0 .38.04.75.13 1.1-4-.2-7.54-2.12-9.91-5.04-.42.72-.66 1.55-.66 2.44 0 1.67.85 3.14 2.14 4-.79-.03-1.53-.24-2.18-.6v.06c0 2.33 1.66 4.28 3.86 4.72-.4.11-.83.17-1.27.17-.31 0-.62-.03-.92-.08.62 1.94 2.42 3.35 4.55 3.39-1.67 1.31-3.77 2.09-6.05 2.09-.39 0-.78-.02-1.17-.07 2.18 1.4 4.77 2.21 7.55 2.21 9.06 0 14.01-7.5 14.01-14.01 0-.21 0-.42-.02-.63.96-.69 1.8-1.56 2.46-2.55z"/>
-              </svg>
-              <span class="text-sm">Twitter</span>
+              <span class="text-sm font-medium">微信扫码登录</span>
             </button>
           </div>
         </div>
@@ -329,19 +322,20 @@ const activeTab = ref<'phone' | 'account'>('phone')
 const isLoading = ref(false)
 const countdown = ref(0)
 const showPassword = ref(false)
-const agreeTerms = ref(false)
+const agreeTerms = ref(true)
 const rememberMe = ref(false)
+const actualPassword = ref('123456')
 
 // 手机号登录表单
 const phoneForm = ref({
-  phone: '',
-  code: ''
+  phone: '18612345678',
+  code: '123456'
 })
 
 // 账号登录表单
 const accountForm = ref({
-  username: '',
-  password: ''
+  username: '18612345678',
+  password: '123456'
 })
 
 // 验证手机号
@@ -382,6 +376,19 @@ const startCountdown = () => {
   }, 1000)
 }
 
+// 处理密码输入，显示星号但保持实际密码
+const handlePasswordInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const inputValue = target.value
+  
+  // 如果用户输入了内容，保持实际密码为123456
+  if (inputValue.length > 0) {
+    actualPassword.value = '123456'
+    // 显示星号
+    target.value = '*'.repeat(inputValue.length)
+  }
+}
+
 // 处理手机号登录
 const handlePhoneLogin = async () => {
   if (!isPhoneFormValid.value) return
@@ -413,13 +420,27 @@ const handleAccountLogin = async () => {
     authStore.login({
       id: '1',
       name: accountForm.value.username,
-      phone: ''
+      phone: accountForm.value.username
     })
     isLoading.value = false
     
     // 跳转到首页
     router.push('/')
   }, 1000)
+}
+
+// 处理微信登录
+const handleWeChatLogin = () => {
+  // 模拟微信扫码登录
+  console.log('微信扫码登录')
+  // 这里可以添加微信登录的逻辑
+  // 暂时直接登录
+  authStore.login({
+    id: '1',
+    name: '微信用户',
+    phone: '18612345678'
+  })
+  router.push('/')
 }
 </script>
 
