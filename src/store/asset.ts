@@ -167,6 +167,97 @@ export const useAssetStore = defineStore('asset', () => {
     selectedAssets.value = []
   }
 
+  // 文件夹管理功能
+  const addFolder = (folder: Folder) => {
+    if (folder.parentId) {
+      // 递归查找父文件夹并添加子文件夹
+      const addToParent = (folderList: Folder[], parentId: string): boolean => {
+        for (const f of folderList) {
+          if (f.id === parentId) {
+            if (!f.children) f.children = []
+            f.children.push(folder)
+            return true
+          }
+          if (f.children && addToParent(f.children, parentId)) {
+            return true
+          }
+        }
+        return false
+      }
+      addToParent(folders.value, folder.parentId)
+    } else {
+      folders.value.push(folder)
+    }
+  }
+
+  const deleteFolder = (folderId: string) => {
+    // 递归删除文件夹
+    const removeFromParent = (folderList: Folder[]): boolean => {
+      for (let i = 0; i < folderList.length; i++) {
+        if (folderList[i].id === folderId) {
+          // 删除文件夹中的所有资源
+          const assetsToDelete = assets.value.filter(asset => asset.folderId === folderId)
+          assetsToDelete.forEach(asset => deleteAsset(asset.id))
+          
+          // 删除文件夹
+          folderList.splice(i, 1)
+          
+          // 如果当前选中的是被删除的文件夹，重置选择
+          if (selectedFolderId.value === folderId) {
+            selectedFolderId.value = '1' // 默认选择"我的素材"
+          }
+          return true
+        }
+        if (folderList[i].children && removeFromParent(folderList[i].children!)) {
+          return true
+        }
+      }
+      return false
+    }
+    removeFromParent(folders.value)
+  }
+
+  const renameFolder = (folderId: string, newName: string) => {
+    // 递归查找并重命名文件夹
+    const findAndRename = (folderList: Folder[]): boolean => {
+      for (const folder of folderList) {
+        if (folder.id === folderId) {
+          folder.name = newName
+          return true
+        }
+        if (folder.children && findAndRename(folder.children)) {
+          return true
+        }
+      }
+      return false
+    }
+    findAndRename(folders.value)
+  }
+
+  const getFolderById = (folderId: string): Folder | null => {
+    // 递归查找文件夹
+    const findFolder = (folderList: Folder[]): Folder | null => {
+      for (const folder of folderList) {
+        if (folder.id === folderId) {
+          return folder
+        }
+        if (folder.children) {
+          const found = findFolder(folder.children)
+          if (found) return found
+        }
+      }
+      return null
+    }
+    return findFolder(folders.value)
+  }
+
+  const moveAssetToFolder = (assetId: string, targetFolderId: string | undefined) => {
+    const asset = assets.value.find(a => a.id === assetId)
+    if (asset) {
+      asset.folderId = targetFolderId
+    }
+  }
+
   return {
     showAssetManager,
     currentFolder,
@@ -188,6 +279,11 @@ export const useAssetStore = defineStore('asset', () => {
     toggleSelectAll,
     deleteAsset,
     deleteAssets,
-    clearSelection
+    clearSelection,
+    addFolder,
+    deleteFolder,
+    renameFolder,
+    getFolderById,
+    moveAssetToFolder
   }
 })
