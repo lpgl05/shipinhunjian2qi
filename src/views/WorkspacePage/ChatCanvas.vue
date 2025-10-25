@@ -9,13 +9,10 @@
             <Sparkles :size="40" class="text-white" />
           </div>
           <h2 class="text-3xl font-bold text-gray-50 mb-3">
-            {{ workspaceStore.isCreationMode ? '开始创作' : '开始对话' }}
+            {{ getWelcomeTitle() }}
           </h2>
           <p class="text-lg text-gray-400 mb-8">
-            {{ workspaceStore.isCreationMode 
-              ? '在右侧画布中配置你的创作参数' 
-              : '描述你的需求，AI将为你智能生成' 
-            }}
+            {{ getWelcomeSubtitle() }}
           </p>
 
           <!-- 快捷提示词 -->
@@ -156,6 +153,56 @@ const quickPrompts = [
   '分析营销数据报告'
 ]
 
+// 智能体信息映射
+const agentInfo: Record<string, { title: string; subtitle: string }> = {
+  'video-mixer': {
+    title: '视频混剪智能体',
+    subtitle: '描述您的视频创作需求，我将为您智能生成视频方案'
+  },
+  'content-rewrite': {
+    title: '知识库仿写智能体',
+    subtitle: '告诉我您的文案需求，我将为您提供专业的改写服务'
+  },
+  'social-media': {
+    title: '社媒运营智能体',
+    subtitle: '分享您的营销目标，我将为您制定社交媒体策略'
+  },
+  'brand-design': {
+    title: '品牌设计智能体',
+    subtitle: '描述您的品牌需求，我将为您创建视觉素材'
+  },
+  'data-analysis': {
+    title: '数据分析智能体',
+    subtitle: '提供您的数据需求，我将为您分析营销数据'
+  },
+  'campaign-manager': {
+    title: '营销策划智能体',
+    subtitle: '告诉我您的营销目标，我将为您制定全链路方案'
+  }
+}
+
+// 获取欢迎标题
+const getWelcomeTitle = () => {
+  if (workspaceStore.isCreationMode) {
+    return '开始创作'
+  }
+  if (workspaceStore.activeAgent && agentInfo[workspaceStore.activeAgent]) {
+    return agentInfo[workspaceStore.activeAgent].title
+  }
+  return '开始对话'
+}
+
+// 获取欢迎副标题
+const getWelcomeSubtitle = () => {
+  if (workspaceStore.isCreationMode) {
+    return '在右侧画布中配置你的创作参数'
+  }
+  if (workspaceStore.activeAgent && agentInfo[workspaceStore.activeAgent]) {
+    return agentInfo[workspaceStore.activeAgent].subtitle
+  }
+  return '描述你的需求，AI将为你智能生成'
+}
+
 // 自动调整textarea高度
 const autoResize = () => {
   if (textareaRef.value) {
@@ -177,7 +224,17 @@ const scrollToBottom = () => {
 const handleSend = () => {
   if (!inputText.value.trim() || chatStore.isAiTyping) return
 
-  chatStore.sendMessage(inputText.value.trim())
+  const messageText = inputText.value.trim()
+  chatStore.sendMessage(messageText)
+  
+  // 检查是否是自动配置流程
+  if (isWaitingForAutoConfigInput.value) {
+    // 等待AI回复后再触发自动配置处理
+    setTimeout(() => {
+      handleAutoConfigUserInput({ text: messageText })
+    }, 1500)
+  }
+  
   inputText.value = ''
 
   // 重置textarea高度
@@ -231,6 +288,99 @@ const handleInsertImage = () => {
   console.log('插入图片')
 }
 
+// 开始自动配置流程（在对话框中）
+const startAutoConfigFlow = async () => {
+  // 1. 先询问用户需求
+  chatStore.addAiMessage('好的，我来帮您自动配置视频参数。\n\n请描述您想要制作的视频内容，包括：\n\n1. 视频类型（产品宣传/社媒营销/活动推广等）\n2. 视频时长（15秒/30秒/60秒等）\n3. 视频风格（现代/电影感/活力/简约等）\n4. 是否需要字幕\n5. 其他特殊要求\n\n请详细描述，我将为您智能生成配置方案。')
+  
+  // 设置自动配置状态，等待用户回复
+  isWaitingForAutoConfigInput.value = true
+}
+
+// 自动配置状态
+const isWaitingForAutoConfigInput = ref(false)
+
+// 处理用户消息，如果是自动配置流程
+const handleAutoConfigUserInput = (message: any) => {
+  if (isWaitingForAutoConfigInput.value) {
+    // 用户已回复，开始配置流程
+    isWaitingForAutoConfigInput.value = false
+    
+    // 添加第一个消息：确认理解
+    const userText = typeof message === 'string' ? message : message.text
+    chatStore.addAiMessage(`好的，我已经理解了您的需求：${userText}`)
+    
+    // 添加等待动画消息（只出现一次）
+    setTimeout(() => {
+      chatStore.addAiMessage(
+        '',
+        'WaitingTransition',
+        {
+          message: '正在为您智能配置视频参数，请稍候...'
+        }
+      )
+    }, 500)
+    
+    // 模拟AI分析过程（等待5秒）
+    setTimeout(() => {
+      // 生成自动配置结果
+      const config = generateAutoConfig()
+      
+      // 发送配置完成消息（显示结果页）
+      chatStore.addAiMessage(
+        `✅ 配置完成！我已根据您的需求完成了以下配置：\n\n` +
+        `📹 **视频格式**: ${config.aspectRatio === '9:16' ? '竖版 (9:16)' : '横版 (16:9)'}\n` +
+        `⏱️ **视频时长**: ${config.duration}秒\n` +
+        `🎨 **视频风格**: ${getStyleLabel(config.style)}\n` +
+        `📝 **字幕配置**: ${config.enableSubtitles ? '已启用' : '未启用'}\n` +
+        `🎤 **音色类型**: ${getVoiceLabel(config.voiceType)}\n` +
+        `📊 **分辨率**: ${config.resolution}\n\n` +
+        `所有配置已应用到右侧画布，您可以继续调整参数。`
+      )
+    }, 5500) // 5秒 + 500ms延迟
+  }
+}
+
+// 生成自动配置参数（模拟AI智能配置）
+const generateAutoConfig = () => {
+  return {
+    aspectRatio: '9:16',
+    title: '智能生成视频',
+    duration: 60,
+    resolution: '1080p',
+    fps: 30,
+    style: 'modern',
+    transition: 'fade',
+    enableSubtitles: true,
+    subtitleStyle: 'modern',
+    subtitlePosition: 'bottom',
+    voiceType: 'authoritative',
+    voiceSpeed: 1.0
+  }
+}
+
+// 获取样式标签
+const getStyleLabel = (style: string) => {
+  const styles: Record<string, string> = {
+    modern: '现代',
+    cinematic: '电影感',
+    vibrant: '活力',
+    minimal: '简约'
+  }
+  return styles[style] || style
+}
+
+// 获取音色标签
+const getVoiceLabel = (voice: string) => {
+  const voices: Record<string, string> = {
+    authoritative: '权威',
+    calm: '平静',
+    energetic: '活力',
+    dramatic: '戏剧'
+  }
+  return voices[voice] || voice
+}
+
 // 处理UGI组件事件
 const handleUgiEvent = (type: string, data: any) => {
   console.log('UGI事件:', type, data)
@@ -238,8 +388,12 @@ const handleUgiEvent = (type: string, data: any) => {
   // 根据事件类型处理不同的逻辑
   switch (type) {
     case 'select':
-      // 选择智能体，进入创作模式
-      if (data.agentId) {
+      // 处理不同的选择动作
+      if (data.action === 'auto-config') {
+        // 在对话框中开始自动配置流程
+        startAutoConfigFlow()
+      } else if (data.agentId) {
+        // 选择智能体，进入创作模式
         workspaceStore.enterCreationMode(data.agentId)
       }
       break
@@ -327,8 +481,20 @@ onMounted(() => {
   }
   
   if (agent) {
-    // 直接激活智能体，进入创作模式
+    // 直接进入创作模式，显示BatchVideoGenerator和右侧画布
     workspaceStore.enterCreationMode(agent)
+    
+    // 发送欢迎消息和BatchVideoGenerator组件
+    setTimeout(() => {
+      chatStore.addAiMessage(
+        '已为您激活视频混剪智能体，点击下方按钮开始创作：',
+        'BatchVideoGenerator',
+        {
+          agentId: agent,
+          userText: ''
+        }
+      )
+    }, 300)
   }
 })
 </script>

@@ -46,15 +46,24 @@
       </div>
     </div>
 
-    <!-- 开始编辑按钮 -->
+    <!-- 操作按钮 -->
     <div class="text-center">
-      <button 
-        class="btn-primary flex items-center justify-center gap-2 mx-auto px-8 py-3 text-lg font-semibold"
-        @click="handleStartEditing"
-      >
-        <Play :size="20" />
-        <span>开始编辑</span>
-      </button>
+      <div class="flex items-center justify-center gap-4">
+        <button 
+          class="btn-primary flex items-center justify-center gap-2 px-8 py-3 text-lg font-semibold whitespace-nowrap"
+          @click="handleStartEditing"
+        >
+          <Play :size="20" />
+          <span class="whitespace-nowrap">开始编辑</span>
+        </button>
+        <button 
+          class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 text-lg font-semibold whitespace-nowrap"
+          @click="handleAutoConfig"
+        >
+          <Wand2 :size="20" />
+          <span class="whitespace-nowrap">自动配置</span>
+        </button>
+      </div>
       <p class="text-xs text-gray-500 mt-2">点击开始进入视频创作工作台</p>
     </div>
   </div>
@@ -63,13 +72,20 @@
 <script setup lang="ts">
 import { 
   Film, 
-  Play
+  Play,
+  Wand2
 } from 'lucide-vue-next'
 
 // 开始编辑
 const handleStartEditing = () => {
   // 触发UGI事件，激活视频混剪智能体
   emit('select', { agentId: 'video-mixer', action: 'start-editing' })
+}
+
+// 自动配置
+const handleAutoConfig = () => {
+  // 触发UGI事件，打开自动配置
+  emit('select', { agentId: 'video-mixer', action: 'auto-config' })
 }
 
 // 定义事件

@@ -2,7 +2,10 @@
   <aside class="app-sidebar w-16 h-full bg-gray-900 border-r border-gray-800 flex flex-col items-center py-4">
     <!-- Logo -->
     <div class="mb-8">
-      <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+      <div 
+        class="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+        @click="handleLogoClick"
+      >
         <Sparkles :size="20" class="text-white" />
       </div>
     </div>
@@ -84,6 +87,13 @@ import Tooltip from './components/Tooltip.vue'
 
 const router = useRouter()
 const workspaceStore = useWorkspaceStore()
+
+/**
+ * 点击Logo返回主页
+ */
+const handleLogoClick = () => {
+  router.push('/')
+}
 
 /**
  * 新建对话

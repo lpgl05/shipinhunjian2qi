@@ -161,6 +161,15 @@
                 <!-- 推荐音乐库子标签页 -->
                 <TabPanel>
                   <div class="space-y-3">
+                    <!-- 音乐资料库按钮 -->
+                    <button
+                      class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 font-medium"
+                      @click="showMusicLibraryModal = true"
+                    >
+                      <Music :size="20" />
+                      <span>浏览音乐资料库</span>
+                    </button>
+
                     <div
                       v-for="music in recommendedMusic"
                       :key="music.id"
@@ -330,6 +339,13 @@
         </div>
       </div>
     </div>
+
+    <!-- 音乐资料库模态框 -->
+    <MusicLibraryModal
+      v-if="showMusicLibraryModal"
+      @close="showMusicLibraryModal = false"
+      @select="console.log"
+    />
   </div>
 </template>
 
@@ -352,6 +368,7 @@ import {
   Trash2
 } from 'lucide-vue-next'
 import { useWorkspaceStore } from '../../../../store/workspace'
+import MusicLibraryModal from './components/MusicLibraryModal.vue'
 
 const workspaceStore = useWorkspaceStore()
 
@@ -379,6 +396,9 @@ const recommendedMusic = [
 // 选中的音乐
 const selectedMusic = ref<string | null>(null)
 const playingMusic = ref<string | null>(null)
+
+// 模态框状态
+const showMusicLibraryModal = ref(false)
 
 // 触发文件选择
 const triggerFileInput = () => {
