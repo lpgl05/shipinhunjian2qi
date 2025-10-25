@@ -84,6 +84,10 @@ import Tooltip from './components/Tooltip.vue'
 const workspaceStore = useWorkspaceStore()
 const isFullscreen = ref(false)
 
+// 调试日志
+console.log('MainCanvas 初始化 - 当前智能体:', workspaceStore.activeAgent)
+console.log('MainCanvas 初始化 - 是否创作模式:', workspaceStore.isCreationMode)
+
 // 智能体配置映射
 const agentConfig: Record<string, any> = {
   'video-mixer': {
@@ -94,7 +98,7 @@ const agentConfig: Record<string, any> = {
     component: defineAsyncComponent(() => import('./agents/VideoAgent/VideoEditingCanvas.vue'))
   },
   'content-rewrite': {
-    title: '知识库仿写智能体',
+    title: '风格模仿写作大师',
     subtitle: '智能仿写营销文案',
     icon: Type,
     gradient: 'from-purple-500 to-pink-500',

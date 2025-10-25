@@ -33,6 +33,12 @@ const router = createRouter({
       name: 'settings',
       component: () => import('../views/SettingsPage.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/knowledge-agent',
+      name: 'knowledge-agent',
+      component: () => import('../views/WorkspacePage/agents/KnowledgeAgent/StyleWritingWorkspace.vue'),
+      meta: { requiresAuth: true, fullLayout: true }
     }
   ]
 })

@@ -234,7 +234,7 @@ const agents = [
   {
     id: 'content-rewrite',
     icon: 'Type',
-    title: '知识库仿写智能体',
+    title: '风格模仿写作大师',
     description: '基于知识库智能仿写营销文案，保持品牌调性统一',
     gradient: 'from-purple-500 to-pink-500'
   },
@@ -296,7 +296,13 @@ const handleGenerate = () => {
 
 // 处理智能体点击
 const handleAgentClick = (agent: any) => {
-  // 直接跳转到工作台，激活对应智能体
+  // 风格模仿写作大师直接跳转到专属工作区
+  if (agent.id === 'content-rewrite') {
+    router.push('/knowledge-agent')
+    return
+  }
+  
+  // 其他智能体跳转到工作台
   router.push({
     path: '/workspace',
     query: { agent: agent.id }

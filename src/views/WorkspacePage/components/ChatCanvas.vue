@@ -157,12 +157,13 @@
 
 <script setup lang="ts">
 import { ref, nextTick, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { Sparkles, Paperclip, Send, Bot, Image as ImageIcon, Scissors, Type, Share2, Wand2, BarChart3, Target } from 'lucide-vue-next'
 import ChatMessage from './ChatMessage.vue'
 import { useChatStore } from '../../../store/chat'
 
 const route = useRoute()
+const router = useRouter()
 const chatStore = useChatStore()
 
 const inputText = ref('')
@@ -189,7 +190,7 @@ const agentOptions = [
   },
   {
     id: 'content-rewrite',
-    name: '知识库仿写智能体',
+    name: '风格模仿写作大师',
     description: '基于知识库智能仿写营销文案',
     icon: Type,
     color: 'from-purple-500 to-pink-500'
@@ -299,16 +300,21 @@ const handleInsertImage = () => {
 
 // 处理智能体选择
 const handleAgentSelect = (agentId: string) => {
+  console.log('智能体被点击:', agentId)
   const agent = agentOptions.find(a => a.id === agentId)
   if (agent) {
+    // 风格模仿写作大师直接跳转到专属工作区
+    if (agentId === 'content-rewrite') {
+      console.log('跳转到知识库智能体工作区')
+      router.push('/knowledge-agent')
+      return
+    }
+    
     // 根据选择的智能体设置不同的默认提示
     let defaultPrompt = ''
     switch (agentId) {
       case 'video-mixer':
         defaultPrompt = '请帮我批量处理这些视频素材，生成多个不同风格的营销视频'
-        break
-      case 'content-rewrite':
-        defaultPrompt = '基于我的品牌知识库，帮我仿写一篇营销文案'
         break
       case 'social-media':
         defaultPrompt = '为我的产品创建一套社媒营销内容，包括文案和配图建议'

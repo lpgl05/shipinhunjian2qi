@@ -5,16 +5,18 @@
       <div class="max-w-4xl mx-auto">
         <!-- 欢迎消息 (仅在无消息时显示) -->
         <div v-if="chatStore.messages.length === 0" class="text-center py-20">
-          <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-violet-500 rounded-3xl mb-6 animate-pulse-slow">
-            <Sparkles :size="40" class="text-white" />
+          <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r rounded-3xl mb-6 animate-pulse-slow" :class="isSpecialAgentRoute ? 'from-purple-500 to-pink-500' : 'from-blue-500 to-violet-500'">
+            <component :is="isSpecialAgentRoute ? Type : Sparkles" :size="40" class="text-white" />
           </div>
           <h2 class="text-3xl font-bold text-gray-50 mb-3">
-            {{ workspaceStore.isCreationMode ? '开始创作' : '开始对话' }}
+            {{ isSpecialAgentRoute ? '风格模仿写作大师' : (workspaceStore.isCreationMode ? '开始创作' : '开始对话') }}
           </h2>
           <p class="text-lg text-gray-400 mb-8">
-            {{ workspaceStore.isCreationMode 
-              ? '在右侧画布中配置你的创作参数' 
-              : '描述你的需求，AI将为你智能生成' 
+            {{ isSpecialAgentRoute 
+              ? '基于知识库智能仿写营销文案，告诉我您想要创作的内容，我将为您推荐最适合的写作风格' 
+              : (workspaceStore.isCreationMode 
+                ? '在右侧画布中配置你的创作参数' 
+                : '描述你的需求，AI将为你智能生成')
             }}
           </p>
 
@@ -28,6 +30,35 @@
             >
               {{ prompt }}
             </button>
+          </div>
+          
+          <!-- 智能体选项 - 只在非特定路由下显示 -->
+          <div v-if="!isSpecialAgentRoute" class="mt-12">
+            <h3 class="text-xl font-semibold text-gray-300 mb-6 text-center">选择智能体开始创作</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+              <button
+                v-for="agent in agentOptions"
+                :key="agent.id"
+                @click="handleAgentSelect(agent.id)"
+                class="group p-6 bg-gray-800/50 rounded-2xl border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10"
+              >
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-r rounded-xl flex items-center justify-center" :class="agent.color">
+                      <component :is="agent.icon" :size="24" class="text-white" />
+                    </div>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <h4 class="text-lg font-semibold text-gray-50 mb-2 group-hover:text-blue-400 transition-colors">
+                      {{ agent.name }}
+                    </h4>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                      {{ agent.description }}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -126,20 +157,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, nextTick, watch, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { 
   Sparkles, 
   Paperclip, 
   Send, 
   Bot, 
-  Image as ImageIcon 
+  Image as ImageIcon,
+  Scissors,
+  Type,
+  Share2,
+  Wand2,
+  BarChart3,
+  Target
 } from 'lucide-vue-next'
 import ChatMessage from './components/ChatMessage.vue'
 import { useChatStore } from '../../store/chat'
 import { useWorkspaceStore } from '../../store/workspace'
 
 const route = useRoute()
+const router = useRouter()
 const chatStore = useChatStore()
 const workspaceStore = useWorkspaceStore()
 
@@ -148,12 +186,81 @@ const isInputFocused = ref(false)
 const textareaRef = ref<HTMLTextAreaElement>()
 const messagesContainer = ref<HTMLElement>()
 
+// 判断是否在特殊智能体路由下（需要隐藏智能体卡片）
+const isSpecialAgentRoute = computed(() => {
+  return route.path === '/knowledge-agent' || 
+         (route.path === '/workspace' && route.query.agent === 'video-mixer')
+})
+
 // 快捷提示词
-const quickPrompts = [
-  '批量生成产品展示视频',
-  '创建社媒营销内容',
-  '设计品牌视觉素材',
-  '分析营销数据报告'
+const quickPrompts = computed(() => {
+  if (route.path === '/knowledge-agent') {
+    return [
+      '写一篇产品介绍文章',
+      '创建营销推广文案',
+      '撰写技术博客文章',
+      '制作社交媒体内容'
+    ]
+  } else if (route.path === '/workspace' && route.query.agent === 'video-mixer') {
+    return [
+      '制作产品宣传视频',
+      '创建抖音短视频',
+      '生成B站横版视频',
+      '批量制作营销视频'
+    ]
+  }
+  return [
+    '批量生成产品展示视频',
+    '创建社媒营销内容',
+    '设计品牌视觉素材',
+    '分析营销数据报告'
+  ]
+})
+
+// 智能体选项
+const agentOptions = [
+  {
+    id: 'video-mixer',
+    name: '视频混剪智能体',
+    description: '批量素材生成批量视频',
+    icon: Scissors,
+    color: 'from-blue-500 to-cyan-500'
+  },
+  {
+    id: 'content-rewrite',
+    name: '风格模仿写作大师',
+    description: '基于知识库智能仿写营销文案',
+    icon: Type,
+    color: 'from-purple-500 to-pink-500'
+  },
+  {
+    id: 'social-media',
+    name: '社媒运营智能体',
+    description: '全平台内容分发，智能配图配乐',
+    icon: Share2,
+    color: 'from-green-500 to-emerald-500'
+  },
+  {
+    id: 'brand-design',
+    name: '品牌设计智能体',
+    description: '一键生成品牌视觉素材',
+    icon: Wand2,
+    color: 'from-orange-500 to-red-500'
+  },
+  {
+    id: 'data-analysis',
+    name: '数据分析智能体',
+    description: '营销数据深度分析，用户画像洞察',
+    icon: BarChart3,
+    color: 'from-indigo-500 to-blue-500'
+  },
+  {
+    id: 'campaign-manager',
+    name: '营销策划智能体',
+    description: '全链路营销策划，从策略制定到执行',
+    icon: Target,
+    color: 'from-violet-500 to-purple-500'
+  }
 ]
 
 // 自动调整textarea高度
@@ -218,6 +325,24 @@ const handleQuickPrompt = (prompt: string) => {
     nextTick(() => {
       textareaRef.value?.focus()
     })
+  }
+}
+
+// 处理智能体选择
+const handleAgentSelect = (agentId: string) => {
+  console.log('智能体被点击:', agentId)
+  const agent = agentOptions.find(a => a.id === agentId)
+  if (agent) {
+    // 知识库仿写智能体直接跳转到专属工作区
+    if (agentId === 'content-rewrite') {
+      console.log('跳转到知识库智能体工作区')
+      router.push('/knowledge-agent')
+      return
+    }
+    
+    // 其他智能体的处理逻辑
+    console.log('选择了智能体:', agent.name)
+    // TODO: 实现其他智能体的逻辑
   }
 }
 
@@ -313,6 +438,13 @@ onMounted(() => {
   const prompt = route.query.prompt as string
   const agent = route.query.agent as string
   
+  console.log('ChatCanvas onMounted - 路由参数:', { prompt, agent })
+  console.log('当前 workspace store 状态:', {
+    layoutMode: workspaceStore.layoutMode,
+    activeAgent: workspaceStore.activeAgent,
+    isCreationMode: workspaceStore.isCreationMode
+  })
+  
   if (prompt) {
     inputText.value = prompt
     
@@ -327,8 +459,14 @@ onMounted(() => {
   }
   
   if (agent) {
+    console.log('激活智能体:', agent)
     // 直接激活智能体，进入创作模式
     workspaceStore.enterCreationMode(agent)
+    console.log('激活后 workspace store 状态:', {
+      layoutMode: workspaceStore.layoutMode,
+      activeAgent: workspaceStore.activeAgent,
+      isCreationMode: workspaceStore.isCreationMode
+    })
   }
 })
 </script>
