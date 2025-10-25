@@ -5,19 +5,14 @@
       <div class="max-w-4xl mx-auto">
         <!-- 欢迎消息 (仅在无消息时显示) -->
         <div v-if="chatStore.messages.length === 0" class="text-center py-20">
-          <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r rounded-3xl mb-6 animate-pulse-slow" :class="isSpecialAgentRoute ? 'from-purple-500 to-pink-500' : 'from-blue-500 to-violet-500'">
-            <component :is="isSpecialAgentRoute ? Type : Sparkles" :size="40" class="text-white" />
+          <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r rounded-3xl mb-6 animate-pulse-slow" :class="getAgentIconClass()">
+            <component :is="getAgentIcon()" :size="40" class="text-white" />
           </div>
           <h2 class="text-3xl font-bold text-gray-50 mb-3">
-            {{ isSpecialAgentRoute ? '风格模仿写作大师' : (workspaceStore.isCreationMode ? '开始创作' : '开始对话') }}
+            {{ getAgentTitle() }}
           </h2>
           <p class="text-lg text-gray-400 mb-8">
-            {{ isSpecialAgentRoute 
-              ? '基于知识库智能仿写营销文案，告诉我您想要创作的内容，我将为您推荐最适合的写作风格' 
-              : (workspaceStore.isCreationMode 
-                ? '在右侧画布中配置你的创作参数' 
-                : '描述你的需求，AI将为你智能生成')
-            }}
+            {{ getAgentDescription() }}
           </p>
 
           <!-- 快捷提示词 -->
@@ -191,6 +186,48 @@ const isSpecialAgentRoute = computed(() => {
   return route.path === '/knowledge-agent' || 
          (route.path === '/workspace' && route.query.agent === 'video-mixer')
 })
+
+// 获取智能体标题
+const getAgentTitle = () => {
+  if (route.path === '/knowledge-agent') {
+    return '风格模仿写作大师'
+  } else if (route.path === '/workspace' && route.query.agent === 'video-mixer') {
+    return '视频混剪智能体'
+  }
+  return workspaceStore.isCreationMode ? '开始创作' : '开始对话'
+}
+
+// 获取智能体描述
+const getAgentDescription = () => {
+  if (route.path === '/knowledge-agent') {
+    return '基于知识库智能仿写营销文案，告诉我您想要创作的内容，我将为您推荐最适合的写作风格'
+  } else if (route.path === '/workspace' && route.query.agent === 'video-mixer') {
+    return '批量素材生成批量视频，智能剪辑生成专业视频内容'
+  }
+  return workspaceStore.isCreationMode 
+    ? '在右侧画布中配置你的创作参数' 
+    : '描述你的需求，AI将为你智能生成'
+}
+
+// 获取智能体图标
+const getAgentIcon = () => {
+  if (route.path === '/knowledge-agent') {
+    return Type
+  } else if (route.path === '/workspace' && route.query.agent === 'video-mixer') {
+    return Scissors
+  }
+  return Sparkles
+}
+
+// 获取智能体图标样式
+const getAgentIconClass = () => {
+  if (route.path === '/knowledge-agent') {
+    return 'from-purple-500 to-pink-500'
+  } else if (route.path === '/workspace' && route.query.agent === 'video-mixer') {
+    return 'from-blue-500 to-cyan-500'
+  }
+  return 'from-blue-500 to-violet-500'
+}
 
 // 快捷提示词
 const quickPrompts = computed(() => {
