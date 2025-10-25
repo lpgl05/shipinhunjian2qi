@@ -105,7 +105,7 @@ export const useChatStore = defineStore('chat', () => {
         component: 'BatchVideoGenerator'
       },
       'content-rewrite': {
-        title: '知识库仿写智能体',
+        title: '风格模仿写作大师',
         description: '我将为您提供专业的文案改写服务，保持品牌调性统一。',
         component: 'ContentRewriter'
       },
