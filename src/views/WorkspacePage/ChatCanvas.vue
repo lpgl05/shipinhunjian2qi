@@ -70,12 +70,12 @@
             ]"
           >
             <!-- 左侧工具按钮 -->
-            <div class="flex items-center gap-1 pl-3 pb-3">
+            <div class="flex items-center gap-1 pl-3">
               <button class="icon-btn" title="上传文件" @click="handleUpload">
-                <Paperclip :size="20" />
+                <Paperclip :size="16" />
               </button>
               <button class="icon-btn" title="插入图片" @click="handleInsertImage">
-                <ImageIcon :size="20" />
+                <ImageIcon :size="16" />
               </button>
             </div>
 
@@ -85,7 +85,7 @@
               v-model="inputText"
               placeholder="描述你的需求... (Enter发送，Shift+Enter换行)"
               rows="1"
-              class="flex-1 bg-transparent border-none outline-none resize-none text-gray-50 placeholder-gray-500 py-3 max-h-40 scrollbar-thin"
+              class="flex-1 bg-transparent border-none outline-none resize-none text-gray-50 placeholder-gray-500 py-3 max-h-40 scrollbar-thin text-sm"
               @input="autoResize"
               @focus="isInputFocused = true"
               @blur="isInputFocused = false"
@@ -94,13 +94,13 @@
             ></textarea>
 
             <!-- 发送按钮 -->
-            <div class="pr-3 pb-3">
+            <div class="pr-3 flex items-center">
               <button
-                class="flex-shrink-0 bg-gradient-to-r from-blue-500 to-violet-500 p-3 rounded-xl hover:brightness-110 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                class="flex-shrink-0 bg-gradient-to-r from-blue-500 to-violet-500 p-2 rounded-lg hover:brightness-110 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 :disabled="!inputText.trim() || chatStore.isAiTyping"
                 @click="handleSend"
               >
-                <Send :size="20" class="text-white" />
+                <Send :size="16" class="text-white" />
               </button>
             </div>
           </div>
@@ -562,7 +562,7 @@ onMounted(() => {
 }
 
 .icon-btn {
-  @apply p-2 text-gray-400 hover:text-gray-50 hover:bg-gray-700 rounded-lg transition-all;
+  @apply p-1.5 text-gray-400 hover:text-gray-50 hover:bg-gray-700 rounded-lg transition-all;
 }
 </style>
 

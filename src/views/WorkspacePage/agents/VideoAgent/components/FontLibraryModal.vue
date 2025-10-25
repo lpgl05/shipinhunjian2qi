@@ -11,7 +11,7 @@
             v-for="font in fonts"
             :key="font.id"
             class="font-item bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-600 transition-all"
-            @click="$emit('select', font.id)"
+            @click="handleSelect(font)"
           >
             <!-- 花字预览 -->
             <div class="aspect-video bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mb-3" :class="font.previewClass">
@@ -40,6 +40,11 @@ const fonts = [
   { id: '3d', name: '立体体', category: '立体', previewClass: 'shadow-inner' },
   { id: 'neon', name: '霓虹体', category: '炫酷', previewClass: 'glow' }
 ]
+
+const handleSelect = (font: any) => {
+  emit('select', font.id)
+  emit('close')
+}
 </script>
 
 <style scoped>

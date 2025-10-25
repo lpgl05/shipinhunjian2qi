@@ -344,7 +344,7 @@
     <MusicLibraryModal
       v-if="showMusicLibraryModal"
       @close="showMusicLibraryModal = false"
-      @select="console.log"
+      @select="handleMusicSelect"
     />
   </div>
 </template>
@@ -486,6 +486,24 @@ const openAssetModal = () => {
 // 选择音乐
 const selectMusic = (id: string) => {
   selectedMusic.value = id
+}
+
+// 处理音乐库选中
+const handleMusicSelect = (music: any) => {
+  // 添加到推荐音乐列表（如果不存在）
+  const exists = recommendedMusic.find(m => m.id === music.id)
+  if (!exists) {
+    recommendedMusic.push({
+      id: music.id,
+      name: music.name,
+      artist: music.artist,
+      duration: music.duration,
+      tags: [music.category]
+    })
+  }
+  // 选中该音乐
+  selectedMusic.value = music.id
+  console.log('已选择音乐:', music.name)
 }
 
 // 切换播放

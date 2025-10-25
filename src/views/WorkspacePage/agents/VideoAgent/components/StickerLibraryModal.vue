@@ -11,7 +11,7 @@
             v-for="sticker in stickers"
             :key="sticker.id"
             class="sticker-item bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-600 transition-all text-center"
-            @click="$emit('select', sticker.id)"
+            @click="handleSelect(sticker)"
           >
             <!-- 贴纸图标 -->
             <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center mb-3">
@@ -42,6 +42,11 @@ const stickers = [
   { id: 'sparkles', name: '闪亮', category: '装饰', emoji: '💫' },
   { id: 'check', name: '对勾', category: '确认', emoji: '✅' }
 ]
+
+const handleSelect = (sticker: any) => {
+  emit('select', sticker.id)
+  emit('close')
+}
 </script>
 
 <style scoped>

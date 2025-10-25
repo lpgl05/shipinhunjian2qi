@@ -356,14 +356,14 @@
     <FontLibraryModal
       v-if="showFontLibraryModal"
       @close="showFontLibraryModal = false"
-      @select="console.log"
+      @select="(fontId: string) => config.subtitleFont = fontId"
     />
 
     <!-- 贴纸库模态框 -->
     <StickerLibraryModal
       v-if="showStickerLibraryModal"
       @close="showStickerLibraryModal = false"
-      @select="console.log"
+      @select="(stickerId: string) => config.subtitleSticker = stickerId"
     />
 
     <!-- 音色克隆模态框 -->
@@ -418,6 +418,8 @@ const config = reactive({
   enableSubtitles: true,
   subtitleStyle: 'modern',
   subtitlePosition: 'bottom',
+  subtitleFont: '',
+  subtitleSticker: '',
   voiceType: 'authoritative',
   voiceSpeed: 1.0
 })
@@ -465,8 +467,10 @@ const showStickerLibraryModal = ref(false)
 const loadTemplate = (template: any) => {
   console.log('加载模板:', template)
   selectedTemplate.value = template.id
-  // 这里可以根据模板ID加载具体配置
-  // 例如：Object.assign(config, template.config)
+  // 应用模板配置到实际配置中
+  if (template.config) {
+    Object.assign(config, template.config)
+  }
 }
 
 const deleteTemplate = (id: string) => {

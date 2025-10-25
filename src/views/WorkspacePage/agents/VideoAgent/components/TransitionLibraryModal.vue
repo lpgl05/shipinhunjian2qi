@@ -11,7 +11,7 @@
             v-for="transition in transitions"
             :key="transition.id"
             class="transition-item bg-gray-700 rounded-lg overflow-hidden cursor-pointer hover:bg-gray-600 transition-all"
-            @click="$emit('select', transition.id)"
+            @click="handleSelect(transition)"
           >
             <!-- GIF预览图 -->
             <div class="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
@@ -49,6 +49,11 @@ const transitions = [
   { id: 'fly', name: '飞入', description: '飞出飞入', preview: '↗↙' },
   { id: 'wipe', name: '划动', description: '擦除效果', preview: '⊲⊳' }
 ]
+
+const handleSelect = (transition: any) => {
+  emit('select', transition.id)
+  emit('close')
+}
 </script>
 
 <style scoped>

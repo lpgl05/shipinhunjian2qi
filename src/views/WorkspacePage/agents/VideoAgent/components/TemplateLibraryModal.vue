@@ -7,7 +7,12 @@
       </div>
       <div class="flex-1 overflow-y-auto p-4">
         <div class="grid grid-cols-3 gap-4">
-          <div v-for="t in templates" :key="t.id" class="bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-600" @click="$emit('select', t)">
+          <div 
+            v-for="t in templates" 
+            :key="t.id" 
+            class="bg-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-600 transition-all"
+            @click="handleSelect(t)"
+          >
             <h4 class="font-medium text-gray-50">{{ t.name }}</h4>
             <p class="text-sm text-gray-400 mt-1">{{ t.description }}</p>
           </div>
@@ -20,8 +25,40 @@
 <script setup lang="ts">
 const emit = defineEmits<{ close: [], select: [t: any] }>()
 const templates = [
-  { id: '1', name: '产品宣传', description: '适合产品展示' },
-  { id: '2', name: '社媒营销', description: '适合社交媒体' },
-  { id: '3', name: '活动推广', description: '适合活动宣传' }
+  { 
+    id: '1', 
+    name: '产品宣传', 
+    description: '适合产品展示',
+    config: {
+      aspectRatio: '9:16',
+      style: 'modern',
+      duration: 30
+    }
+  },
+  { 
+    id: '2', 
+    name: '社媒营销', 
+    description: '适合社交媒体',
+    config: {
+      aspectRatio: '16:9',
+      style: 'vibrant',
+      duration: 15
+    }
+  },
+  { 
+    id: '3', 
+    name: '活动推广', 
+    description: '适合活动宣传',
+    config: {
+      aspectRatio: '9:16',
+      style: 'energetic',
+      duration: 60
+    }
+  }
 ]
+
+const handleSelect = (template: any) => {
+  emit('select', template)
+  emit('close')
+}
 </script>

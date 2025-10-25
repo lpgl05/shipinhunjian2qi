@@ -48,7 +48,7 @@
           v-for="music in filteredMusic"
           :key="music.id"
           class="flex items-center gap-4 p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
-          @click="$emit('select', music)"
+          @click="handleSelect(music)"
         >
           <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
             <Music :size="24" class="text-white" />
@@ -143,6 +143,11 @@ const filteredMusic = computed(() => {
 
   return result
 })
+
+const handleSelect = (music: MusicItem) => {
+  emit('select', music)
+  emit('close')
+}
 </script>
 
 <style scoped>

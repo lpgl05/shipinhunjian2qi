@@ -1,11 +1,10 @@
 <template>
   <div class="batch-video-generator bg-gray-800 rounded-xl p-6 border border-gray-700">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-lg font-semibold text-gray-50 flex items-center gap-2">
+    <div class="flex items-center mb-6">
+      <h3 class="text-lg font-semibold text-gray-50 flex items-center gap-2 whitespace-nowrap">
         <Film :size="20" class="text-blue-400" />
         批量视频生成
       </h3>
-      <span class="text-sm text-gray-400">共3个素材, 将生成3个视频</span>
     </div>
 
     <!-- 视频混剪步骤说明 -->
