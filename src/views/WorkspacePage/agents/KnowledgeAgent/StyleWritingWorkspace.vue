@@ -526,7 +526,7 @@ const generateContent = async () => {
 }
 
 // 生成模拟文章
-const generateMockArticle = (topic: string, wordCount: string, style: string) => {
+const generateMockArticle = (topic: string, wordCount: string, _style: string) => {
   const baseContent = `
     <h2>${topic}</h2>
     <p>在当今快速发展的商业环境中，${topic}已经成为企业成功的关键因素之一。本文将从多个角度深入分析这一重要话题，为读者提供全面的见解和实践指导。</p>
@@ -586,9 +586,9 @@ const markdownToHtml = (markdown: string) => {
 }
 
 // 保存编辑
-const saveEdit = () => {
+const saveEdit = async () => {
   // 将markdown转换为HTML
-  generatedContent.value = markdownToHtml(editedContent.value)
+  generatedContent.value = await markdownToHtml(editedContent.value)
   isEditing.value = false
   // 可以添加保存成功的提示
 }

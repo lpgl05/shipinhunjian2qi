@@ -228,7 +228,7 @@ const analyzeUserDescription = () => {
   
   // 智能识别时长
   const durationMatch = description.match(/(\d+)\s*秒/)
-  if (durationMatch) {
+  if (durationMatch && durationMatch[1]) {
     autoConfigResult.duration = parseInt(durationMatch[1])
   }
   
