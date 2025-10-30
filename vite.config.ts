@@ -3,8 +3,19 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
-  base: process.env.NODE_ENV === 'production' ? '/shipinhunjian2qi/' : '/',
+  plugins: [vue({
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => tag.includes('-')
+      }
+    }
+  })],
+  base: '/',
+  server: {
+    port: 1020,
+    host: '0.0.0.0',
+    strictPort: true
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

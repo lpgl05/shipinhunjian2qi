@@ -105,7 +105,7 @@ export const useChatStore = defineStore('chat', () => {
         component: 'BatchVideoGenerator'
       },
       'content-rewrite': {
-        title: '知识库仿写智能体',
+        title: '风格模仿写作大师',
         description: '我将为您提供专业的文案改写服务，保持品牌调性统一。',
         component: 'ContentRewriter'
       },
@@ -147,22 +147,11 @@ export const useChatStore = defineStore('chat', () => {
     const agentInfo = getAgentResponse(detectedAgent, userText)
     
     setTimeout(() => {
-      // 第一轮回复：确认理解并介绍智能体
+      // 只发送确认理解消息，不发送等待动画消息
+      // 等待动画消息由ChatCanvas在自动配置流程中控制
       addAiMessage(
-        `我理解了您的需求！${agentInfo.description}`,
+        `我理解了您的需求！${agentInfo.description}`
       )
-      
-      // 第二轮回复：显示对应的UGI组件
-      setTimeout(() => {
-        addAiMessage(
-          `已为您激活${agentInfo.title}，点击下方按钮开始创作：`,
-          agentInfo.component,
-          {
-            agentId: detectedAgent,
-            userText: userText
-          }
-        )
-      }, 1500)
     }, 1000)
   }
 

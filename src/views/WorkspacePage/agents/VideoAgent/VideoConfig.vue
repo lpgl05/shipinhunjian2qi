@@ -1,322 +1,369 @@
 <template>
-  <div class="video-config h-full overflow-y-auto scrollbar-thin p-6 bg-gray-900">
-    <div class="max-w-4xl mx-auto space-y-6">
-      <!-- 标题 -->
-      <div class="mb-6">
-        <h3 class="text-2xl font-bold text-gray-50 mb-2">视频参数配置</h3>
-        <p class="text-gray-400">配置视频参数，开始你的创作之旅</p>
-      </div>
-
-      <!-- 模板选择区 - 简化版 -->
-      <div class="templates-section bg-gray-800 rounded-xl p-6">
-        <h4 class="text-lg font-semibold text-gray-200 mb-4">视频模板</h4>
-        
-        <!-- 基础模板选择 -->
-        <div class="flex gap-3 mb-4">
+  <div class="video-config h-full flex bg-gray-900">
+    <!-- 左侧配置面板 -->
+    <div class="w-1/2 flex flex-col border-r border-gray-700">
+      <!-- 顶部操作栏 -->
+      <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
+        <div class="flex items-center gap-3">
+          <h3 class="text-lg font-semibold text-gray-50">视频参数配置</h3>
+          <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">步骤 1/4</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- 保存模板按钮 -->
           <button
-            class="template-option"
-            :class="{ 'active': config.aspectRatio === '9:16' }"
-            @click="config.aspectRatio = '9:16'"
+            class="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center gap-2"
+            @click="showSaveTemplateModal = true"
           >
-            <Smartphone :size="18" class="text-blue-400" />
-            <span class="text-sm">竖版 (9:16)</span>
-          </button>
-          <button
-            class="template-option"
-            :class="{ 'active': config.aspectRatio === '16:9' }"
-            @click="config.aspectRatio = '16:9'"
-          >
-            <Monitor :size="18" class="text-blue-400" />
-            <span class="text-sm">横版 (16:9)</span>
-          </button>
-        </div>
-        
-        <!-- 默认模板 -->
-        <div v-if="defaultTemplates.length > 0" class="mb-4">
-          <h5 class="text-sm font-medium text-gray-300 mb-2">我的模板</h5>
-          <div class="flex gap-2 flex-wrap">
-            <button
-              v-for="template in defaultTemplates"
-              :key="template.id"
-              class="template-preset"
-              @click="loadTemplate(template)"
-            >
-              {{ template.name }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 参数配置区 -->
-      <div class="config-section bg-gray-800 rounded-xl p-6">
-        <h4 class="text-lg font-semibold text-gray-200 mb-4">参数配置</h4>
-        
-        <div class="grid grid-cols-2 gap-6">
-          <!-- 左侧配置 -->
-          <div class="space-y-4">
-            <div class="form-group">
-              <label for="title">视频标题</label>
-              <input type="text" id="title" v-model="config.title" placeholder="输入视频标题" class="input-primary" />
-            </div>
-            
-            <div class="form-group">
-              <label for="duration">视频时长 (秒)</label>
-              <input type="range" id="duration" v-model="config.duration" min="15" max="180" step="5" class="range-slider" />
-              <span class="text-sm text-gray-400">{{ config.duration }} 秒</span>
-            </div>
-            
-            <div class="form-group">
-              <label>分辨率</label>
-              <div class="flex gap-2">
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.resolution === '1080p' }"
-                  @click="config.resolution = '1080p'"
-                >
-                  1080p
-                </button>
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.resolution === '720p' }"
-                  @click="config.resolution = '720p'"
-                >
-                  720p
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 右侧配置 -->
-          <div class="space-y-4">
-            <div class="form-group">
-              <label>帧率 (FPS)</label>
-              <div class="flex gap-2">
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.fps === 30 }"
-                  @click="config.fps = 30"
-                >
-                  30 FPS
-                </button>
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.fps === 60 }"
-                  @click="config.fps = 60"
-                >
-                  60 FPS
-                </button>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>视频风格</label>
-              <div class="flex flex-wrap gap-2">
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.style === 'modern' }"
-                  @click="config.style = 'modern'"
-                >
-                  现代
-                </button>
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.style === 'cinematic' }"
-                  @click="config.style = 'cinematic'"
-                >
-                  电影感
-                </button>
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.style === 'vibrant' }"
-                  @click="config.style = 'vibrant'"
-                >
-                  活力
-                </button>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>转场效果</label>
-              <div class="flex flex-wrap gap-2">
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.transition === 'fade' }"
-                  @click="config.transition = 'fade'"
-                >
-                  淡入淡出
-                </button>
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.transition === 'cut' }"
-                  @click="config.transition = 'cut'"
-                >
-                  硬切
-                </button>
-                <button 
-                  class="btn-option" 
-                  :class="{ 'active': config.transition === 'slide' }"
-                  @click="config.transition = 'slide'"
-                >
-                  推拉
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 字幕配置区 -->
-      <div class="subtitle-section bg-gray-800 rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h4 class="text-lg font-semibold text-gray-200">字幕配置</h4>
-          <Switch
-            v-model="config.enableSubtitles"
-            :class="config.enableSubtitles ? 'bg-blue-600' : 'bg-gray-700'"
-            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-          >
-            <span class="sr-only">启用AI字幕</span>
-            <span
-              :class="config.enableSubtitles ? 'translate-x-6' : 'translate-x-1'"
-              class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-            />
-          </Switch>
-        </div>
-        
-        <div v-if="config.enableSubtitles" class="grid grid-cols-2 gap-4">
-          <div class="form-group">
-            <label>字幕样式</label>
-            <div class="flex gap-2">
-              <button 
-                class="btn-option" 
-                :class="{ 'active': config.subtitleStyle === 'modern' }"
-                @click="config.subtitleStyle = 'modern'"
-              >
-                现代
-              </button>
-              <button 
-                class="btn-option" 
-                :class="{ 'active': config.subtitleStyle === 'classic' }"
-                @click="config.subtitleStyle = 'classic'"
-              >
-                经典
-              </button>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>字幕位置</label>
-            <div class="flex gap-2">
-              <button 
-                class="btn-option" 
-                :class="{ 'active': config.subtitlePosition === '顶部' }"
-                @click="config.subtitlePosition = '顶部'"
-              >
-                顶部
-              </button>
-              <button 
-                class="btn-option" 
-                :class="{ 'active': config.subtitlePosition === '底部' }"
-                @click="config.subtitlePosition = '底部'"
-              >
-                底部
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 音色配置区 -->
-      <div class="voice-section bg-gray-800 rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h4 class="text-lg font-semibold text-gray-200">音色配置</h4>
-          <Switch
-            v-model="config.enableVoice"
-            :class="config.enableVoice ? 'bg-blue-600' : 'bg-gray-700'"
-            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-          >
-            <span class="sr-only">启用AI配音</span>
-            <span
-              :class="config.enableVoice ? 'translate-x-6' : 'translate-x-1'"
-              class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-            />
-          </Switch>
-        </div>
-
-        <div v-if="config.enableVoice" class="space-y-4">
-          <!-- 音色选择区域 - 简化版 -->
-          <div class="voice-selection">
-            <h5 class="text-sm font-medium text-gray-300 mb-3">选择音色</h5>
-            <div class="grid grid-cols-3 gap-3 mb-4">
-              <button
-                v-for="voice in videoStore.builtInVoices"
-                :key="voice.id"
-                @click.stop="handleVoiceSelect(voice)"
-                :class="[
-                  'voice-avatar p-3 rounded-lg border-2 transition-all duration-200',
-                  selectedVoice?.id === voice.id 
-                    ? 'border-blue-500 bg-blue-500/20' 
-                    : 'border-gray-600 bg-gray-700 hover:border-gray-500'
-                ]"
-              >
-                <div class="text-center">
-                  <div class="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
-                    <img 
-                      :src="getVoiceIcon(voice.id)"
-                      :alt="voice.name"
-                      class="w-10 h-10 object-contain"
-                      :class="selectedVoice?.id === voice.id ? 'brightness-110' : 'brightness-90'"
-                    />
-                  </div>
-                  <p class="text-sm font-medium text-gray-200">{{ voice.name }}</p>
-                  <p class="text-xs text-gray-400">{{ voice.type }}</p>
-                </div>
-              </button>
-            </div>
-            
-            <!-- 定制声音按钮 -->
-            <button
-              @click="videoStore.toggleVoiceModal()"
-              class="w-full p-3 border-2 border-dashed border-gray-600 rounded-lg hover:border-gray-500 transition-colors duration-200"
-            >
-              <div class="text-center">
-                <div class="w-12 h-12 mx-auto mb-2 bg-gray-600 rounded-full flex items-center justify-center">
-                  <Mic :size="20" class="text-gray-400" />
-                </div>
-                <p class="text-sm font-medium text-gray-300">定制声音</p>
-                <p class="text-xs text-gray-500">录制20句话生成专属音色</p>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 保存模板区 -->
-      <div class="save-section bg-gray-800 rounded-xl p-6">
-        <h4 class="text-lg font-semibold text-gray-200 mb-4">保存为模板</h4>
-        <div class="flex gap-4">
-          <input 
-            type="text" 
-            v-model="templateName" 
-            placeholder="输入模板名称" 
-            class="input-primary flex-1"
-          />
-          <button 
-            class="btn-primary flex items-center gap-2"
-            @click="saveTemplate"
-            :disabled="!templateName.trim()"
-          >
-            <Save :size="20" />
+            <Save :size="16" />
             <span>保存模板</span>
           </button>
         </div>
       </div>
+
+      <!-- Sheet切换导航 -->
+      <div class="flex border-b border-gray-700 bg-gray-800">
+        <button
+          v-for="sheet in sheets"
+          :key="sheet.id"
+          class="sheet-tab"
+          :class="{ 'active': activeSheet === sheet.id }"
+          @click="activeSheet = sheet.id"
+        >
+          <component :is="sheet.icon" :size="16" />
+          <span>{{ sheet.name }}</span>
+        </button>
+      </div>
+
+      <!-- Sheet内容区 -->
+      <div class="flex-1 overflow-y-auto scrollbar-thin">
+        <!-- 模板选择 -->
+        <div v-if="activeSheet === 'template'" class="p-6 space-y-6">
+          <!-- 基础模板 -->
+          <div class="space-y-4">
+            <h5 class="text-sm font-medium text-gray-300">基础模板</h5>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">视频格式</label>
+              <select v-model="config.aspectRatio" class="input-primary">
+                <option value="9:16">竖版 (9:16) - 适合抖音、快手</option>
+                <option value="16:9">横版 (16:9) - 适合B站、YouTube</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 我的模板 -->
+          <div v-if="savedTemplates.length > 0" class="space-y-4">
+            <h5 class="text-sm font-medium text-gray-300">我的模板</h5>
+            <div class="space-y-2">
+              <div
+                v-for="template in savedTemplates"
+                :key="template.id"
+                class="template-item"
+                :class="{ 'selected': selectedTemplate === template.id }"
+                @click="loadTemplate(template)"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h6 class="font-medium text-gray-50">{{ template.name }}</h6>
+                    <p class="text-sm text-gray-400">{{ template.description }}</p>
+                  </div>
+                  <button class="text-red-400 hover:text-red-300" @click.stop="deleteTemplate(template.id)">
+                    <Trash2 :size="16" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模板库 -->
+          <div class="space-y-4">
+            <h5 class="text-sm font-medium text-gray-300">模板库</h5>
+            <button
+              class="w-full px-4 py-3 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-between"
+              @click="showTemplateLibraryModal = true"
+            >
+              <div class="flex items-center gap-3">
+                <Database :size="20" class="text-blue-400" />
+                <span>浏览系统模板库</span>
+              </div>
+              <Layers :size="16" />
+            </button>
+          </div>
+        </div>
+
+        <!-- 参数配置 -->
+        <div v-if="activeSheet === 'params'" class="p-6 space-y-6">
+          <!-- 基本信息 -->
+          <div class="space-y-4">
+            <h5 class="text-sm font-medium text-gray-300">基本信息</h5>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">视频标题</label>
+                <input
+                  v-model="config.title"
+                  type="text"
+                  placeholder="输入视频标题"
+                  class="input-primary"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">视频时长 ({{ config.duration }}秒)</label>
+                <input
+                  v-model="config.duration"
+                  type="range"
+                  min="15"
+                  max="180"
+                  step="5"
+                  class="range-slider"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 视频质量 -->
+          <div class="space-y-4">
+            <h5 class="text-sm font-medium text-gray-300">视频质量</h5>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">分辨率</label>
+                <select v-model="config.resolution" class="input-primary">
+                  <option value="1080p">1080p</option>
+                  <option value="720p">720p</option>
+                  <option value="480p">480p</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">帧率</label>
+                <select v-model="config.fps" class="input-primary">
+                  <option :value="30">30 FPS</option>
+                  <option :value="60">60 FPS</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 转场效果 -->
+          <div class="space-y-4">
+            <h5 class="text-sm font-medium text-gray-300">转场效果</h5>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">转场效果</label>
+              <div class="flex gap-2 flex-wrap mb-3">
+                <button
+                  v-for="transition in transitions"
+                  :key="transition.value"
+                  class="btn-option"
+                  :class="{ 'active': config.transition === transition.value }"
+                  @click="config.transition = transition.value"
+                >
+                  {{ transition.label }}
+                </button>
+              </div>
+              <button
+                class="w-full px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm"
+                @click="showTransitionLibraryModal = true"
+              >
+                <Layers :size="16" />
+                <span>转场效果库</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 字幕配置 -->
+        <div v-if="activeSheet === 'subtitle'" class="p-6 space-y-6">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-gray-300">启用AI字幕</label>
+              <Switch
+                v-model="config.enableSubtitles"
+                :class="config.enableSubtitles ? 'bg-blue-600' : 'bg-gray-700'"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              >
+                <span class="sr-only">启用AI字幕</span>
+                <span
+                  :class="config.enableSubtitles ? 'translate-x-6' : 'translate-x-1'"
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                />
+              </Switch>
+            </div>
+
+            <div v-if="config.enableSubtitles" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">字幕样式</label>
+                <div class="flex gap-2 flex-wrap">
+                  <button
+                    v-for="style in subtitleStyles"
+                    :key="style.value"
+                    class="btn-option"
+                    :class="{ 'active': config.subtitleStyle === style.value }"
+                    @click="config.subtitleStyle = style.value"
+                  >
+                    {{ style.label }}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">字幕位置</label>
+                <div class="flex gap-2 flex-wrap mb-3">
+                  <button
+                    v-for="position in subtitlePositions"
+                    :key="position.value"
+                    class="btn-option"
+                    :class="{ 'active': config.subtitlePosition === position.value }"
+                    @click="config.subtitlePosition = position.value"
+                  >
+                    {{ position.label }}
+                  </button>
+                </div>
+                <button
+                  class="w-full px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm mb-3"
+                  @click="showFontLibraryModal = true"
+                >
+                  <Type :size="16" />
+                  <span>花字字体库</span>
+                </button>
+                <button
+                  class="w-full px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm"
+                  @click="showStickerLibraryModal = true"
+                >
+                  <Layers :size="16" />
+                  <span>贴纸选择</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 音色配置 -->
+        <div v-if="activeSheet === 'voice'" class="p-6 space-y-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">音色类型</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div
+                  v-for="voice in voiceTypes"
+                  :key="voice.id"
+                  class="voice-card"
+                  :class="{ 'selected': config.voiceType === voice.id }"
+                  @click="config.voiceType = voice.id"
+                >
+                  <img :src="voice.icon" :alt="voice.name" class="w-8 h-8 rounded-full" />
+                  <div>
+                    <h6 class="font-medium text-gray-50">{{ voice.name }}</h6>
+                    <p class="text-xs text-gray-400">{{ voice.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">语速</label>
+              <input
+                v-model="config.voiceSpeed"
+                type="range"
+                min="0.5"
+                max="2.0"
+                step="0.1"
+                class="range-slider"
+              />
+              <div class="flex justify-between text-xs text-gray-400 mt-1">
+                <span>慢</span>
+                <span>{{ config.voiceSpeed }}x</span>
+                <span>快</span>
+              </div>
+            </div>
+            
+            <!-- 定制音色按钮 -->
+            <div>
+              <button
+                class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                @click="handleVoiceCloneClick"
+              >
+                <Mic :size="20" />
+                <span>定制专属音色</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- 音色选择器模态框 -->
-    <VoiceSelector 
-      v-if="videoStore.isVoiceModalOpen"
-      @close="videoStore.toggleVoiceModal"
-      @select="handleVoiceSelect"
+    <!-- 右侧预览面板 -->
+    <div class="w-1/2 flex flex-col bg-gray-800">
+      <!-- 预览标题 -->
+      <div class="p-4 border-b border-gray-700">
+        <h4 class="text-lg font-semibold text-gray-200">实时预览</h4>
+      </div>
+
+      <!-- 预览内容 -->
+      <div class="flex-1 p-6 flex items-center justify-center">
+        <div 
+          class="preview-container"
+          :class="config.aspectRatio === '9:16' ? 'preview-vertical' : 'preview-horizontal'"
+        >
+          <div
+            class="preview-frame"
+            :class="config.aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-video'"
+          >
+            <!-- 预览内容 -->
+            <div class="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex flex-col items-center justify-center text-white">
+              <div class="text-center">
+                <h3 class="text-2xl font-bold mb-2">{{ config.title || '视频标题' }}</h3>
+                <p class="text-lg opacity-80">{{ config.aspectRatio === '9:16' ? '竖版视频' : '横版视频' }}</p>
+                <p class="text-sm opacity-60 mt-2">{{ config.duration }}秒 • {{ config.resolution }} • {{ config.fps }}fps</p>
+              </div>
+              
+              <!-- 字幕预览 -->
+              <div
+                v-if="config.enableSubtitles"
+                class="absolute"
+                :class="config.subtitlePosition === 'top' ? 'top-4' : 'bottom-4'"
+              >
+                <div
+                  class="px-4 py-2 rounded-lg"
+                  :class="config.subtitleStyle === 'modern' ? 'bg-black/70' : 'bg-white/90 text-black'"
+                >
+                  字幕预览文本
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 保存模板模态框 -->
+    <SaveTemplateModal
+      v-if="showSaveTemplateModal"
+      :config="config"
+      @close="showSaveTemplateModal = false"
+      @save="handleSaveTemplate"
+    />
+
+    <!-- 模板库模态框 -->
+    <TemplateLibraryModal
+      v-if="showTemplateLibraryModal"
+      @close="showTemplateLibraryModal = false"
+      @select="loadTemplate"
+    />
+
+    <!-- 转场效果库模态框 -->
+    <TransitionLibraryModal
+      v-if="showTransitionLibraryModal"
+      @close="showTransitionLibraryModal = false"
+      @select="(t: string) => config.transition = t"
+    />
+
+    <!-- 花字字体库模态框 -->
+    <FontLibraryModal
+      v-if="showFontLibraryModal"
+      @close="showFontLibraryModal = false"
+      @select="(fontId: string) => config.subtitleFont = fontId"
+    />
+
+    <!-- 贴纸库模态框 -->
+    <StickerLibraryModal
+      v-if="showStickerLibraryModal"
+      @close="showStickerLibraryModal = false"
+      @select="(stickerId: string) => config.subtitleSticker = stickerId"
     />
 
     <!-- 音色克隆模态框 -->
@@ -325,180 +372,134 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive } from 'vue'
 import { Switch } from '@headlessui/vue'
-import { 
-  Smartphone,
-  Monitor,
+import {
   Save,
-  Mic
+  Trash2,
+  Settings,
+  Type,
+  Mic,
+  Palette,
+  Layers,
+  Database
 } from 'lucide-vue-next'
-
-// 导入音色图标
-import sunnyIcon from '@/assets/icons/voice/sunny.svg'
-import energeticIcon from '@/assets/icons/voice/energetic.svg'
-import calmIcon from '@/assets/icons/voice/calm.svg'
-import authoritativeIcon from '@/assets/icons/voice/authoritative.svg'
-import mysteriousIcon from '@/assets/icons/voice/mysterious.svg'
-import dramaticIcon from '@/assets/icons/voice/dramatic.svg'
-import { useVideoStore } from '../../../../store/video'
-import VoiceSelector from '../../../../components/VoiceSelector.vue'
+import SaveTemplateModal from './components/SaveTemplateModal.vue'
+import TemplateLibraryModal from './components/TemplateLibraryModal.vue'
+import TransitionLibraryModal from './components/TransitionLibraryModal.vue'
+import FontLibraryModal from './components/FontLibraryModal.vue'
+import StickerLibraryModal from './components/StickerLibraryModal.vue'
 import VoiceCloneModal from '../../../../components/VoiceCloneModal.vue'
+import { useVideoStore } from '../../../../store/video'
 
-interface DefaultTemplate {
-  id: string
-  name: string
-  config: any
-}
+// Sheet配置
+const sheets = [
+  { id: 'template', name: '模板选择', icon: Palette },
+  { id: 'params', name: '参数配置', icon: Settings },
+  { id: 'subtitle', name: '字幕配置', icon: Type },
+  { id: 'voice', name: '音色配置', icon: Mic }
+]
 
-// 使用video store
+const activeSheet = ref('template')
+const selectedTemplate = ref<string | null>(null)
+
+// 初始化 videoStore
 const videoStore = useVideoStore()
 
 // 配置数据
 const config = reactive({
+  aspectRatio: '9:16',
   title: '',
   duration: 60,
-  aspectRatio: '16:9',
   resolution: '1080p',
   fps: 30,
   style: 'modern',
   transition: 'fade',
   enableSubtitles: true,
   subtitleStyle: 'modern',
-  subtitlePosition: '底部',
-  enableVoice: false,
-  voiceSpeed: 1.0,
-  voicePitch: 0,
-  voiceVolume: 80,
-  voiceEmotion: 'neutral'
+  subtitlePosition: 'bottom',
+  subtitleFont: '',
+  subtitleSticker: '',
+  voiceType: 'authoritative',
+  voiceSpeed: 1.0
 })
 
-// 默认模板
-const defaultTemplates = ref<DefaultTemplate[]>([
-  {
-    id: '1',
-    name: '抖音短视频',
-    config: {
-      aspectRatio: '9:16',
-      duration: 30,
-      style: 'vibrant',
-      resolution: '1080p',
-      fps: 30
-    }
-  },
-  {
-    id: '2',
-    name: 'B站横版',
-    config: {
-      aspectRatio: '16:9',
-      duration: 120,
-      style: 'cinematic',
-      resolution: '1080p',
-      fps: 60
-    }
-  }
+// 选项数据
+const transitions = [
+  { value: 'fade', label: '淡入淡出' },
+  { value: 'cut', label: '硬切' },
+  { value: 'slide', label: '推拉' },
+  { value: 'zoom', label: '缩放' }
+]
+
+const subtitleStyles = [
+  { value: 'modern', label: '现代' },
+  { value: 'classic', label: '经典' },
+  { value: 'bold', label: '粗体' }
+]
+
+const subtitlePositions = [
+  { value: 'top', label: '顶部' },
+  { value: 'bottom', label: '底部' }
+]
+
+const voiceTypes = [
+  { id: 'authoritative', name: '权威', description: '专业稳重', icon: '/assets/voice/authoritative.svg' },
+  { id: 'calm', name: '平静', description: '温和舒缓', icon: '/assets/voice/calm.svg' },
+  { id: 'energetic', name: '活力', description: '充满激情', icon: '/assets/voice/energetic.svg' },
+  { id: 'dramatic', name: '戏剧', description: '富有表现力', icon: '/assets/voice/dramatic.svg' }
+]
+
+// 模板数据
+const savedTemplates = ref([
+  { id: '1', name: '产品宣传模板', description: '适合产品展示的竖版模板' },
+  { id: '2', name: '社媒营销模板', description: '适合社交媒体的横版模板' }
 ])
 
-const templateName = ref('')
+// 模态框状态
+const showSaveTemplateModal = ref(false)
+const showTemplateLibraryModal = ref(false)
+const showTransitionLibraryModal = ref(false)
+const showFontLibraryModal = ref(false)
+const showStickerLibraryModal = ref(false)
 
-// 音色相关状态
-const isVoiceSelectorOpen = ref(false)
-
-// 计算属性
-const selectedVoice = computed(() => {
-  if (!videoStore.selectedVoiceId) return null
-  return videoStore.getAllVoices().find(voice => voice.id === videoStore.selectedVoiceId)
-})
-
-// 加载模板
-const loadTemplate = (template: DefaultTemplate) => {
-  Object.assign(config, template.config)
+// 方法
+const loadTemplate = (template: any) => {
+  console.log('加载模板:', template)
+  selectedTemplate.value = template.id
+  // 应用模板配置到实际配置中
+  if (template.config) {
+    Object.assign(config, template.config)
+  }
 }
 
-// 保存模板
-const saveTemplate = () => {
-  if (!templateName.value.trim()) return
-  
-  const newTemplate: DefaultTemplate = {
+const deleteTemplate = (id: string) => {
+  savedTemplates.value = savedTemplates.value.filter(t => t.id !== id)
+}
+
+
+const handleSaveTemplate = (templateData: any) => {
+  savedTemplates.value.push({
     id: Date.now().toString(),
-    name: templateName.value.trim(),
-    config: { ...config }
-  }
-  
-  defaultTemplates.value.push(newTemplate)
-  templateName.value = ''
-  
-  // 这里可以调用API保存到后端
-  console.log('保存模板:', newTemplate)
+    name: templateData.name,
+    description: templateData.description
+  })
+  showSaveTemplateModal.value = false
 }
 
-// 获取音色图标
-const getVoiceIcon = (voiceId: string) => {
-  const iconMap: { [key: string]: string } = {
-    'voice-sunny': sunnyIcon,
-    'voice-energetic': energeticIcon,
-    'voice-calm': calmIcon,
-    'voice-authoritative': authoritativeIcon,
-    'voice-mysterious': mysteriousIcon,
-    'voice-dramatic': dramaticIcon
-  }
-  
-  return iconMap[voiceId] || sunnyIcon // 默认使用阳光图标
-}
-
-const handleVoiceSelect = (voice: any) => {
-  videoStore.selectVoice(voice.id)
+// 处理音色克隆点击
+const handleVoiceCloneClick = () => {
+  videoStore.toggleVoiceModal()
 }
 </script>
 
 <style scoped>
-.template-option {
-  @apply flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors;
+.sheet-tab {
+  @apply flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-400 hover:text-gray-50 hover:bg-gray-700 transition-all;
 }
 
-.template-option.active {
-  @apply bg-blue-600 text-white;
-}
-
-.template-preset {
-  @apply px-3 py-1.5 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors;
-}
-
-.form-group {
-  @apply space-y-2;
-}
-
-.form-group label {
-  @apply block text-sm font-medium text-gray-300;
-}
-
-.form-group input,
-.form-group select {
-  @apply w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-}
-
-.input-primary {
-  @apply w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all;
-}
-
-.range-slider {
-  @apply w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer;
-}
-
-.range-slider::-webkit-slider-thumb {
-  @apply w-4 h-4 bg-blue-500 rounded-full appearance-none;
-}
-
-.range-slider::-moz-range-thumb {
-  @apply w-4 h-4 bg-blue-500 rounded-full cursor-pointer border-none;
-}
-
-.btn-option {
-  @apply px-3 py-1.5 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors;
-}
-
-.btn-option.active {
-  @apply bg-blue-600 text-white;
+.sheet-tab.active {
+  @apply text-blue-400 bg-gray-700 border-b-2 border-blue-400;
 }
 
 .template-card {
@@ -509,25 +510,56 @@ const handleVoiceSelect = (voice: any) => {
   @apply ring-2 ring-blue-500 bg-gray-600;
 }
 
-.template-card img {
-  @apply w-full h-24 object-cover rounded-lg mb-3;
+.template-item {
+  @apply bg-gray-700 rounded-lg p-3 cursor-pointer transition-all duration-200 hover:bg-gray-600;
 }
 
-.template-card h4 {
-  @apply font-medium text-gray-50 mb-1;
+.template-item.selected {
+  @apply ring-2 ring-blue-500 bg-gray-600;
 }
 
-.template-card p {
-  @apply text-sm text-gray-400;
+.input-primary {
+  @apply w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all;
 }
 
-/* 音色配置相关样式 */
-.voice-section .form-group {
-  @apply space-y-3;
+.range-slider {
+  @apply w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer;
 }
 
-.voice-section .form-group label {
-  @apply text-sm font-medium text-gray-300 mb-2;
+.range-slider::-webkit-slider-thumb {
+  @apply w-4 h-4 bg-blue-500 rounded-full appearance-none;
+}
+
+.btn-option {
+  @apply px-3 py-1.5 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors;
+}
+
+.btn-option.active {
+  @apply bg-blue-600 text-white;
+}
+
+.voice-card {
+  @apply flex items-center gap-3 p-3 bg-gray-700 rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-600;
+}
+
+.voice-card.selected {
+  @apply ring-2 ring-blue-500 bg-gray-600;
+}
+
+.preview-container {
+  @apply w-full;
+}
+
+.preview-vertical {
+  @apply max-w-xs;
+}
+
+.preview-horizontal {
+  @apply max-w-md;
+}
+
+.preview-frame {
+  @apply w-full bg-gray-700 rounded-lg overflow-hidden relative;
 }
 
 /* 自定义滚动条 */

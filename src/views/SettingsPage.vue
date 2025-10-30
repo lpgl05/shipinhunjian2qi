@@ -1,42 +1,31 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-gray-50">
-    <!-- Header -->
-    <header class="border-b border-gray-800 bg-gray-900">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <!-- Logo -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-violet-500 rounded-lg flex items-center justify-center">
-            <Sparkles :size="24" class="text-white" />
+  <div class="h-screen flex bg-gray-900">
+    <!-- 左侧边栏 -->
+    <AppSidebar />
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <header class="border-b border-gray-800 bg-gray-900 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-gray-50">设置</h1>
+          <div class="flex items-center gap-4">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
+              <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
+            </div>
+            <span class="text-gray-300">{{ authStore.user?.name }}</span>
+            <button 
+              class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
+              @click="handleLogout"
+            >
+              退出登录
+            </button>
           </div>
-          <span class="text-xl font-bold">AI社会化营销大师</span>
         </div>
+      </header>
 
-        <!-- Navigation -->
-        <nav class="flex items-center gap-6">
-          <router-link to="/" class="text-gray-400 hover:text-gray-50 transition-colors">首页</router-link>
-          <router-link to="/workspace" class="text-gray-400 hover:text-gray-50 transition-colors">工作台</router-link>
-          <router-link to="/profile" class="text-gray-400 hover:text-gray-50 transition-colors">个人中心</router-link>
-          <router-link to="/settings" class="text-blue-400 font-medium">设置</router-link>
-        </nav>
-
-        <!-- User Info -->
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
-            <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
-          </div>
-          <span class="text-gray-300">{{ authStore.user?.name }}</span>
-          <button 
-            class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
-            @click="handleLogout"
-          >
-            退出登录
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-6 py-8">
+      <!-- Main Content -->
+      <main class="flex-1 overflow-y-auto px-6 py-8">
       <div class="flex gap-8">
         <!-- Settings Sidebar -->
         <aside class="w-64 flex-shrink-0">
@@ -333,7 +322,8 @@
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -351,6 +341,7 @@ import {
   Save
 } from 'lucide-vue-next'
 import { useAuthStore } from '../store/auth'
+import AppSidebar from './WorkspacePage/AppSidebar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

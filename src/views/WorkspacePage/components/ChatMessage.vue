@@ -82,6 +82,13 @@ const emit = defineEmits<{
 
 // 动态加载UGI组件
 const getUgiComponent = (componentName: string) => {
+  // 特殊处理WaitingTransition组件
+  if (componentName === 'WaitingTransition') {
+    return defineAsyncComponent(() => 
+      import('./WaitingTransition.vue')
+    )
+  }
+  // 其他组件从UGI目录加载
   return defineAsyncComponent(() => 
     import(`./UGI/${componentName}.vue`)
   )

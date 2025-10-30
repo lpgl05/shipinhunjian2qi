@@ -445,7 +445,7 @@ const handleFiles = (uploadedFiles: File[]) => {
       type: fileType,
       size: formatFileSize(file.size),
       modifiedTime: '刚刚',
-      category: fileType === 'folder' ? 'all' : fileType,
+      category: fileType as 'audio' | 'video' | 'image' | 'document',
       folderId: selectedCategory.value !== 'all' && selectedCategory.value !== 'recent' ? 
         folders.value.find(f => f.category === selectedCategory.value)?.id : undefined
     }
@@ -455,11 +455,17 @@ const handleFiles = (uploadedFiles: File[]) => {
     // 更新分类计数
     const categoryIndex = categories.value.findIndex(c => c.id === fileType)
     if (categoryIndex !== -1) {
-      categories.value[categoryIndex].count++
+      const category = categories.value[categoryIndex]
+      if (category) {
+        category.count++
+      }
     }
     const allIndex = categories.value.findIndex(c => c.id === 'all')
     if (allIndex !== -1) {
-      categories.value[allIndex].count++
+      const allCategory = categories.value[allIndex]
+      if (allCategory) {
+        allCategory.count++
+      }
     }
   })
   

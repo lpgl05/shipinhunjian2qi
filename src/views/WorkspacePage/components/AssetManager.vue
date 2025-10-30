@@ -356,19 +356,7 @@ const getCategoryCount = (type: string) => {
   return assetStore.assets.filter(asset => asset.type === type).length
 }
 
-// 根据分类过滤资源
-const filteredAssets = computed(() => {
-  if (selectedCategory.value === 'all') {
-    return assetStore.currentAssets
-  }
-  
-  const categoryType = categories.find(cat => cat.id === selectedCategory.value)?.type
-  if (!categoryType || categoryType === 'all') {
-    return assetStore.currentAssets
-  }
-  
-  return assetStore.currentAssets.filter(asset => asset.type === categoryType)
-})
+// 根据分类过滤资源 (已移除未使用的computed)
 
 // 选择分类
 const selectCategory = (categoryId: string) => {

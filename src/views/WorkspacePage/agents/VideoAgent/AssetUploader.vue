@@ -161,6 +161,15 @@
                 <!-- 推荐音乐库子标签页 -->
                 <TabPanel>
                   <div class="space-y-3">
+                    <!-- 音乐资料库按钮 -->
+                    <button
+                      class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 font-medium"
+                      @click="showMusicLibraryModal = true"
+                    >
+                      <Music :size="20" />
+                      <span>浏览音乐资料库</span>
+                    </button>
+
                     <div
                       v-for="music in recommendedMusic"
                       :key="music.id"
@@ -330,6 +339,13 @@
         </div>
       </div>
     </div>
+
+    <!-- 音乐资料库模态框 -->
+    <MusicLibraryModal
+      v-if="showMusicLibraryModal"
+      @close="showMusicLibraryModal = false"
+      @select="handleMusicSelect"
+    />
   </div>
 </template>
 
@@ -352,6 +368,7 @@ import {
   Trash2
 } from 'lucide-vue-next'
 import { useWorkspaceStore } from '../../../../store/workspace'
+import MusicLibraryModal from './components/MusicLibraryModal.vue'
 
 const workspaceStore = useWorkspaceStore()
 
@@ -379,6 +396,9 @@ const recommendedMusic = [
 // 选中的音乐
 const selectedMusic = ref<string | null>(null)
 const playingMusic = ref<string | null>(null)
+
+// 模态框状态
+const showMusicLibraryModal = ref(false)
 
 // 触发文件选择
 const triggerFileInput = () => {
@@ -466,6 +486,24 @@ const openAssetModal = () => {
 // 选择音乐
 const selectMusic = (id: string) => {
   selectedMusic.value = id
+}
+
+// 处理音乐库选中
+const handleMusicSelect = (music: any) => {
+  // 添加到推荐音乐列表（如果不存在）
+  const exists = recommendedMusic.find(m => m.id === music.id)
+  if (!exists) {
+    recommendedMusic.push({
+      id: music.id,
+      name: music.name,
+      artist: music.artist,
+      duration: music.duration,
+      tags: [music.category]
+    })
+  }
+  // 选中该音乐
+  selectedMusic.value = music.id
+  console.log('已选择音乐:', music.name)
 }
 
 // 切换播放
