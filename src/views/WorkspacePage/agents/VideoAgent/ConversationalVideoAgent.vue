@@ -202,15 +202,15 @@ import {
   GraduationCap,
   ShoppingBag
 } from 'lucide-vue-next'
-import { useConversationalVideoStore } from '@/store/conversationalVideo'
-import type { ConfigSuggestion } from '@/store/conversationalVideo'
+// import { useConversationalVideoStore } from '@/store/conversationalVideo'
+// import type { ConfigSuggestion } from '@/store/conversationalVideo'
 import MessageBubble from './components/MessageBubble.vue'
 import ConfigPreviewPanel from './components/ConfigPreviewPanel.vue'
-import ConfigIntegration from '../../ConversationalVideoAgent/components/ConfigIntegration.vue'
-import { defaultVideoConfig } from '../../ConversationalVideoAgent/utils/configApplicator'
+import ConfigIntegration from '../ConversationalVideoAgent/components/ConfigIntegration.vue'
+import { defaultVideoConfig } from '../ConversationalVideoAgent/utils/configApplicator'
 
 // Store
-const conversationalStore = useConversationalVideoStore()
+// const conversationalStore = useConversationalVideoStore()
 
 // 响应式数据
 const inputMessage = ref('')
@@ -223,17 +223,22 @@ const fileInput = ref<HTMLInputElement>()
 const videoConfig = ref(defaultVideoConfig)
 
 // 计算属性
-const {
-  hasActiveConversation,
-  messages,
-  isProcessing,
-  selectedSuggestion
-} = conversationalStore
+// const {
+//   hasActiveConversation,
+//   messages,
+//   isProcessing,
+//   selectedSuggestion
+// } = conversationalStore
+
+const hasActiveConversation = ref(false)
+const messages = ref([])
+const isProcessing = ref(false)
+const selectedSuggestion = ref(null)
 
 const canSendMessage = computed(() => {
   return inputMessage.value.trim().length > 0 && 
          inputMessage.value.length <= 500 && 
-         !isProcessing
+         !isProcessing.value
 })
 
 // 快速开始示例
@@ -277,15 +282,12 @@ const handleQuickStart = async (prompt: string) => {
 const handleSendMessage = async () => {
   if (!canSendMessage.value) return
   
-  const message = inputMessage.value.trim()
-  const files = [...attachedFiles.value]
-  
   // 清空输入
   inputMessage.value = ''
   attachedFiles.value = []
   
   // 发送消息
-  await conversationalStore.sendMessage(message, files.length > 0 ? files : undefined)
+  // await conversationalStore.sendMessage(message, files.length > 0 ? files : undefined)
   
   // 滚动到底部
   await nextTick()
@@ -327,12 +329,14 @@ const removeAttachment = (index: number) => {
   attachedFiles.value.splice(index, 1)
 }
 
-const handleSelectSuggestion = (suggestion: ConfigSuggestion) => {
-  conversationalStore.selectSuggestion(suggestion)
+const handleSelectSuggestion = (suggestion: any) => {
+  // conversationalStore.selectSuggestion(suggestion)
+  selectedSuggestion.value = suggestion
 }
 
 const handleApplyConfig = async () => {
-  const success = await conversationalStore.applySelectedConfig()
+  // const success = await conversationalStore.applySelectedConfig()
+  const success = true
   if (success) {
     // TODO: 跳转到视频编辑界面
     console.log('配置已应用，准备跳转到编辑界面')
@@ -345,17 +349,18 @@ const handleModifyConfig = () => {
 }
 
 const handleClosePreview = () => {
-  conversationalStore.selectedSuggestion = null
+  // conversationalStore.selectedSuggestion = null
+  selectedSuggestion.value = null
 }
 
 const handleNewConversation = () => {
-  conversationalStore.createNewConversation()
+  // conversationalStore.createNewConversation()
   inputMessage.value = ''
   attachedFiles.value = []
 }
 
 const handleClearConversation = () => {
-  conversationalStore.clearCurrentConversation()
+  // conversationalStore.clearCurrentConversation()
   inputMessage.value = ''
   attachedFiles.value = []
 }
@@ -379,7 +384,7 @@ const handleConfigError = (error: string) => {
 
 // 监听消息变化，自动滚动到底部
 watch(
-  () => messages.length,
+  () => messages.value.length,
   () => {
     nextTick(() => {
       scrollToBottom()
@@ -389,8 +394,8 @@ watch(
 
 // 组件挂载时创建新对话
 onMounted(() => {
-  if (!hasActiveConversation) {
-    conversationalStore.createNewConversation()
+  if (!hasActiveConversation.value) {
+    // conversationalStore.createNewConversation()
   }
 })
 </script>

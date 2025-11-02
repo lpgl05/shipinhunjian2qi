@@ -1,84 +1,94 @@
-&lt;template&gt;
-  &lt;div class="message-bubble" :class="messageTypeClass"&gt;
-    &lt;!-- 用户消息 --&gt;
-    &lt;div v-if="message.type === 'user'" class="flex justify-end"&gt;
-      &lt;div class="max-w-[80%] bg-blue-600 text-white rounded-2xl rounded-br-md px-4 py-3"&gt;
-        &lt;p class="text-sm leading-relaxed whitespace-pre-wrap"&gt;{{ message.content }}&lt;/p&gt;
+<template>
+  <div class="message-bubble" :class="messageTypeClass">
+    <!-- 用户消息 -->
+    <div v-if="message.type === 'user'" class="flex justify-end">
+      <div class="max-w-[80%] bg-blue-600 text-white rounded-2xl rounded-br-md px-4 py-3">
+        <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ message.content }}</p>
         
-        &lt;!-- 附件显示 --&gt;
-        &lt;div v-if="message.attachments &amp;&amp; message.attachments.length &gt; 0" class="mt-2 space-y-1"&gt;
-          &lt;div
+        <!-- 附件显示 -->
+        <div v-if="message.attachments && message.attachments.length > 0" class="mt-2 space-y-1">
+          <div
             v-for="(file, index) in message.attachments"
             :key="index"
             class="flex items-center space-x-2 bg-blue-700 rounded-lg px-2 py-1"
-          &gt;
-            &lt;FileText class="w-3 h-3" /&gt;
-            &lt;span class="text-xs"&gt;{{ file.name }}&lt;/span&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
+          >
+            <FileText class="w-3 h-3" />
+            <span class="text-xs">{{ file.name }}</span>
+          </div>
+        </div>
         
-        &lt;div class="text-xs text-blue-100 mt-2 text-right"&gt;
+        <div class="text-xs text-blue-100 mt-2 text-right">
           {{ formatTime(message.timestamp) }}
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+        </div>
+      </div>
+    </div>
 
-    &lt;!-- 助手消息 --&gt;
-    &lt;div v-else-if="message.type === 'assistant'" class="flex justify-start"&gt;
-      &lt;div class="flex space-x-3 max-w-[90%]"&gt;
-        &lt;!-- 头像 --&gt;
-        &lt;div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1"&gt;
-          &lt;Bot class="w-4 h-4 text-white" /&gt;
-        &lt;/div&gt;
+    <!-- 助手消息 -->
+    <div v-else-if="message.type === 'assistant'" class="flex justify-start">
+      <div class="flex space-x-3 max-w-[90%]">
+        <!-- 头像 -->
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <Bot class="w-4 h-4 text-white" />
+        </div>
         
-        &lt;div class="flex-1"&gt;
-          &lt;div class="bg-gray-800 text-gray-50 rounded-2xl rounded-bl-md px-4 py-3"&gt;
-            &lt;p class="text-sm leading-relaxed whitespace-pre-wrap"&gt;{{ message.content }}&lt;/p&gt;
+        <div class="flex-1">
+          <div class="bg-gray-800 text-gray-50 rounded-2xl rounded-bl-md px-4 py-3">
+            <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ message.content }}</p>
             
-            &lt;div class="text-xs text-gray-400 mt-2"&gt;
+            <div class="text-xs text-gray-400 mt-2">
               {{ formatTime(message.timestamp) }}
-            &lt;/div&gt;
-          &lt;/div&gt;
+            </div>
+          </div>
           
-          &lt;!-- 配置建议卡片 --&gt;
-          &lt;div v-if="message.suggestions &amp;&amp; message.suggestions.length &gt; 0" class="mt-3 space-y-2"&gt;
-            &lt;SuggestionCard
-              v-for="suggestion in message.suggestions"
-              :key="suggestion.id"
-              :suggestion="suggestion"
-              @select="$emit('select-suggestion', suggestion)"
-            /&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+          <!-- 配置建议卡片 -->
+           <div v-if="message.suggestions && message.suggestions.length > 0" class="mt-3 space-y-2">
+             <div
+               v-for="suggestion in message.suggestions"
+               :key="suggestion.id"
+               class="bg-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-600 transition-colors"
+               @click="$emit('select-suggestion', suggestion)"
+             >
+               <h4 class="text-sm font-medium text-gray-50">{{ suggestion.title }}</h4>
+               <p class="text-xs text-gray-400 mt-1">{{ suggestion.description }}</p>
+             </div>
+           </div>
+        </div>
+      </div>
+    </div>
 
-    &lt;!-- 系统消息 --&gt;
-    &lt;div v-else-if="message.type === 'system'" class="flex justify-center"&gt;
-      &lt;div class="bg-gray-700 text-gray-300 rounded-full px-4 py-2 text-sm max-w-[80%] text-center"&gt;
+    <!-- 系统消息 -->
+    <div v-else-if="message.type === 'system'" class="flex justify-center">
+      <div class="bg-gray-700 text-gray-300 rounded-full px-4 py-2 text-sm max-w-[80%] text-center">
         {{ message.content }}
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/template&gt;
+      </div>
+    </div>
+  </div>
+</template>
 
-&lt;script setup lang="ts"&gt;
+<script setup lang="ts">
 import { computed } from 'vue'
 import { Bot, FileText } from 'lucide-vue-next'
-import type { Message } from '@/store/conversationalVideo'
-import SuggestionCard from './SuggestionCard.vue'
+
+interface Message {
+  id: string
+  type: 'user' | 'assistant' | 'system'
+  content: string
+  timestamp: Date
+  attachments?: File[]
+  suggestions?: any[]
+}
 
 interface Props {
   message: Message
 }
 
-const props = defineProps&lt;Props&gt;()
+const props = defineProps<Props>()
 
-const emit = defineEmits&lt;{
+const emit = defineEmits<{
   'select-suggestion': [suggestion: any]
-}&gt;()
+}>()
 
-const messageTypeClass = computed(() =&gt; {
+const messageTypeClass = computed(() => {
   return {
     'user-message': props.message.type === 'user',
     'assistant-message': props.message.type === 'assistant',
@@ -86,23 +96,23 @@ const messageTypeClass = computed(() =&gt; {
   }
 })
 
-const formatTime = (timestamp: Date): string =&gt; {
+const formatTime = (timestamp: Date): string => {
   const now = new Date()
   const diff = now.getTime() - timestamp.getTime()
   
   // 小于1分钟
-  if (diff &lt; 60000) {
+  if (diff < 60000) {
     return '刚刚'
   }
   
   // 小于1小时
-  if (diff &lt; 3600000) {
+  if (diff < 3600000) {
     const minutes = Math.floor(diff / 60000)
     return `${minutes}分钟前`
   }
   
   // 小于24小时
-  if (diff &lt; 86400000) {
+  if (diff < 86400000) {
     const hours = Math.floor(diff / 3600000)
     return `${hours}小时前`
   }
@@ -115,9 +125,9 @@ const formatTime = (timestamp: Date): string =&gt; {
     minute: '2-digit'
   })
 }
-&lt;/script&gt;
+</script>
 
-&lt;style scoped&gt;
+<style scoped>
 .message-bubble {
   margin-bottom: 1rem;
 }
@@ -133,4 +143,4 @@ const formatTime = (timestamp: Date): string =&gt; {
 .system-message {
   /* 系统消息样式 */
 }
-&lt;/style&gt;
+</style>
