@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class', // 使用 class 策略来切换深色模式
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",

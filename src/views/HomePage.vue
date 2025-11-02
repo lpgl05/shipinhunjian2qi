@@ -21,18 +21,59 @@
         <!-- User Info / Auth Buttons -->
         <div class="flex items-center gap-3">
           <template v-if="authStore.isAuthenticated">
-            <!-- 用户信息 -->
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
-                <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
-              </div>
-              <span class="text-gray-300">{{ authStore.user?.name }}</span>
+            <!-- 用户下拉菜单 -->
+            <div class="relative user-menu-container">
               <button 
-                class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
-                @click="handleLogout"
+                class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800 transition-colors"
+                @click="showUserMenu = !showUserMenu"
               >
-                退出登录
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
+                </div>
+                <span class="text-gray-300">{{ authStore.user?.name }}</span>
+                <ChevronDown :size="16" class="text-gray-400" :class="{ 'rotate-180': showUserMenu }" />
               </button>
+              
+              <!-- 下拉菜单 -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <div 
+                  v-if="showUserMenu"
+                  class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50"
+                >
+                  <div class="py-2">
+                    <!-- 主题切换 -->
+                    <button
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-300 hover:bg-gray-700 transition-colors"
+                      @click="handleThemeToggle"
+                    >
+                      <Palette :size="18" />
+                      <span class="flex-1">主题</span>
+                      <span class="text-sm text-gray-400">
+                        {{ themeStore.theme === 'dark' ? '深色' : '浅色' }}
+                      </span>
+                    </button>
+                    
+                    <!-- 分隔线 -->
+                    <div class="my-1 border-t border-gray-700"></div>
+                    
+                    <!-- 退出账号 -->
+                    <button
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-400 hover:bg-gray-700 transition-colors"
+                      @click="handleLogout"
+                    >
+                      <LogOut :size="18" />
+                      <span>退出账号</span>
+                    </button>
+                  </div>
+                </div>
+              </transition>
             </div>
           </template>
           <template v-else>
@@ -201,7 +242,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Sparkles, 
@@ -210,16 +251,35 @@ import {
   Music,
   Zap,
   Brain,
-  Workflow
+  Workflow,
+  ChevronDown,
+  Palette,
+  LogOut
 } from 'lucide-vue-next'
 import AgentCard from '../components/AgentCard.vue'
 import { useAuthStore } from '../store/auth'
+import { useThemeStore } from '../store/theme'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const inputText = ref('')
 const isInputFocused = ref(false)
+const showUserMenu = ref(false)
+
+// 点击外部关闭菜单
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.user-menu-container')) {
+    showUserMenu.value = false
+  }
+}
+
+// 主题切换
+const handleThemeToggle = () => {
+  themeStore.toggleTheme()
+}
 
 // 智能体列表
 const agents = [
@@ -320,9 +380,19 @@ const handleLogin = () => {
 
 // 处理登出
 const handleLogout = () => {
+  showUserMenu.value = false
   authStore.logout()
   router.push('/login')
 }
+
+// 生命周期钩子
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
