@@ -239,15 +239,21 @@
     />
 
     <!-- 新建文件夹模态框 -->
-    <div v-if="showNewFolderModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-gray-800 rounded-lg p-6 w-96">
+    <div v-if="showNewFolderModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="showNewFolderModal = false">
+      <div class="bg-gray-800 rounded-lg p-6 w-96" @click.stop @mousedown.stop @mouseup.stop>
         <h3 class="text-lg font-semibold text-gray-50 mb-4">新建文件夹</h3>
         <input
+          ref="folderNameInput"
           v-model="newFolderName"
           type="text"
           placeholder="请输入文件夹名称"
           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
           @keyup.enter="createNewFolder"
+          @click.stop
+          @mousedown.stop
+          @mouseup.stop
+          @focus.stop
+          @blur.stop
         />
         <div class="flex justify-end gap-3">
           <button
@@ -321,6 +327,7 @@ const newFolderName = ref('')
 
 // 文件输入引用
 const fileInputRef = ref<HTMLInputElement>()
+const folderNameInput = ref<HTMLInputElement>()
 
 // 分类列表 - 添加音频分类
 const categories = ref<Category[]>([
@@ -527,11 +534,15 @@ const createNewFolder = () => {
 
 // 监听拖拽事件
 document.addEventListener('dragover', (e) => {
+  // 如果模态框打开，不处理拖拽事件
+  if (showNewFolderModal.value) return
   e.preventDefault()
   isDragging.value = true
 })
 
 document.addEventListener('dragleave', (e) => {
+  // 如果模态框打开，不处理拖拽事件
+  if (showNewFolderModal.value) return
   if (!e.relatedTarget) {
     isDragging.value = false
   }

@@ -1,8 +1,8 @@
-# 🎉 智策营销智能体平台 - 部署成功报告
+# 🎉 社会化营销平台智能体平台 - 部署成功报告
 
 ## 项目信息
 
-**项目名称**: 智策营销智能体平台  
+**项目名称**: 社会化营销平台智能体平台  
 **GitHub仓库**: https://github.com/kehan857/shipinhunjian2qi.git  
 **GitHub Pages**: https://kehan857.github.io/shipinhunjian2qi/  
 **最新提交**: edfe3fd  

@@ -392,6 +392,12 @@ import StickerLibraryModal from './components/StickerLibraryModal.vue'
 import VoiceCloneModal from '../../../../components/VoiceCloneModal.vue'
 import { useVideoStore } from '../../../../store/video'
 
+// 导入音色图标
+import authoritativeIcon from '../../../../assets/icons/voice/authoritative.svg'
+import calmIcon from '../../../../assets/icons/voice/calm.svg'
+import energeticIcon from '../../../../assets/icons/voice/energetic.svg'
+import dramaticIcon from '../../../../assets/icons/voice/dramatic.svg'
+
 // Sheet配置
 const sheets = [
   { id: 'template', name: '模板选择', icon: Palette },
@@ -444,10 +450,10 @@ const subtitlePositions = [
 ]
 
 const voiceTypes = [
-  { id: 'authoritative', name: '权威', description: '专业稳重', icon: '/assets/voice/authoritative.svg' },
-  { id: 'calm', name: '平静', description: '温和舒缓', icon: '/assets/voice/calm.svg' },
-  { id: 'energetic', name: '活力', description: '充满激情', icon: '/assets/voice/energetic.svg' },
-  { id: 'dramatic', name: '戏剧', description: '富有表现力', icon: '/assets/voice/dramatic.svg' }
+  { id: 'authoritative', name: '权威', description: '专业稳重', icon: authoritativeIcon },
+  { id: 'calm', name: '平静', description: '温和舒缓', icon: calmIcon },
+  { id: 'energetic', name: '活力', description: '充满激情', icon: energeticIcon },
+  { id: 'dramatic', name: '戏剧', description: '富有表现力', icon: dramaticIcon }
 ]
 
 // 模板数据

@@ -13,7 +13,7 @@
             <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
               <Video :size="24" class="text-white" />
             </div>
-            <div class="text-2xl font-bold text-white">智策营销</div>
+            <div class="text-2xl font-bold text-white">社会化营销平台</div>
           </div>
         </div>
 
@@ -119,7 +119,7 @@
 
         <!-- 欢迎标题 -->
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-white mb-2">欢迎使用智策营销</h2>
+          <h2 class="text-3xl font-bold text-white mb-2">欢迎使用社会化营销平台</h2>
           <p class="text-gray-400">登录以解锁所有AI功能</p>
         </div>
 
@@ -200,7 +200,7 @@
           <div class="text-xs text-gray-400">
             <label class="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" v-model="agreeTerms" class="mt-0.5" required />
-              <span>已阅读并同意智策营销服务条款、隐私协议、用户协议和隐私政策</span>
+              <span>已阅读并同意社会化营销平台服务条款、隐私协议、用户协议和隐私政策</span>
             </label>
           </div>
 

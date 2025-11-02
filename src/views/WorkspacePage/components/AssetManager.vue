@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot :show="workspaceStore.isAssetModalOpen" as="template">
-    <Dialog as="div" class="relative z-50" @close="workspaceStore.closeAssetModal">
+    <Dialog as="div" class="relative z-50">
       <!-- 背景遮罩 -->
       <TransitionChild
         as="template"
@@ -11,7 +11,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-black/90 backdrop-blur-sm" />
+        <div class="fixed inset-0 bg-black/90 backdrop-blur-sm" @click="workspaceStore.closeAssetModal" />
       </TransitionChild>
 
       <!-- 全屏容器 -->
@@ -26,7 +26,7 @@
             leave-from="opacity-100 scale-100"
             leave-to="opacity-0 scale-95"
           >
-            <DialogPanel class="w-full max-w-7xl h-[85vh] transform overflow-hidden rounded-2xl bg-gray-800 border border-gray-700 shadow-2xl transition-all flex flex-col">
+            <DialogPanel class="w-full max-w-7xl h-[85vh] transform overflow-hidden rounded-2xl bg-gray-800 border border-gray-700 shadow-2xl transition-all flex flex-col" @click.stop>
               <!-- 顶部工具栏 -->
               <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
                 <DialogTitle class="text-xl font-bold text-gray-50 flex items-center gap-3">
@@ -211,7 +211,7 @@
 
   <!-- 新建文件夹模态框 -->
   <TransitionRoot appear :show="showNewFolderModal" as="template">
-    <Dialog as="div" @close="cancelCreateFolder" class="relative z-50">
+    <Dialog as="div" class="relative z-50">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -221,11 +221,11 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-black bg-opacity-25" />
+        <div class="fixed inset-0 bg-black bg-opacity-25" @click="cancelCreateFolder" />
       </TransitionChild>
 
-      <div class="fixed inset-0 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center">
+      <div class="fixed inset-0 overflow-y-auto" @click.stop>
+        <div class="flex min-h-full items-center justify-center p-4 text-center" @click.stop>
           <TransitionChild
             as="template"
             enter="duration-300 ease-out"
@@ -237,6 +237,9 @@
           >
             <DialogPanel
               class="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800 p-6 text-left align-middle shadow-xl transition-all border border-gray-700"
+              @click.stop
+              @mousedown.stop
+              @mouseup.stop
             >
               <DialogTitle
                 as="h3"
@@ -254,6 +257,11 @@
                   class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   @keyup.enter="createFolder"
                   @keyup.escape="cancelCreateFolder"
+                  @click.stop
+                  @mousedown.stop
+                  @mouseup.stop
+                  @focus.stop
+                  @blur.stop
                 />
               </div>
 
@@ -261,14 +269,18 @@
                 <button
                   type="button"
                   class="inline-flex justify-center rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                  @click="cancelCreateFolder"
+                  @click.stop="cancelCreateFolder"
+                  @mousedown.stop
+                  @mouseup.stop
                 >
                   取消
                 </button>
                 <button
                   type="button"
                   class="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                  @click="createFolder"
+                  @click.stop="createFolder"
+                  @mousedown.stop
+                  @mouseup.stop
                   :disabled="!newFolderName.trim()"
                 >
                   创建
@@ -293,7 +305,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import {
   TransitionRoot,
   TransitionChild,
@@ -484,5 +496,25 @@ const handleBatchDownload = () => {
   console.log('批量下载', assetStore.selectedAssetIds)
   // TODO: 实现批量下载
 }
+
+// 键盘事件处理
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    if (showNewFolderModal.value) {
+      cancelCreateFolder()
+    } else if (workspaceStore.isAssetModalOpen) {
+      workspaceStore.closeAssetModal()
+    }
+  }
+}
+
+// 添加和移除键盘事件监听器
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 

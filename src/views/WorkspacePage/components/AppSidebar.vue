@@ -8,7 +8,7 @@
             <Video :size="24" class="text-white" />
           </div>
           <div>
-            <h1 class="text-lg font-bold text-gray-50">智策营销</h1>
+            <h1 class="text-lg font-bold text-gray-50">社会化营销平台</h1>
             <p class="text-xs text-gray-400">智能营销平台</p>
           </div>
         </div>

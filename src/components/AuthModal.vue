@@ -41,7 +41,7 @@
                   <Video :size="24" class="text-white" />
                 </div>
                 <DialogTitle class="text-xl font-bold text-gray-50 mb-2">
-                  欢迎来到智策营销
+                  欢迎来到社会化营销平台
                 </DialogTitle>
                 <p class="text-xs text-gray-400">
                   登录以解锁所有功能
