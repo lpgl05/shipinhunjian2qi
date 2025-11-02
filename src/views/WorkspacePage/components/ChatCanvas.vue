@@ -161,10 +161,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { Sparkles, Paperclip, Send, Bot, Image as ImageIcon, Scissors, Type, Share2, Wand2, BarChart3, Target } from 'lucide-vue-next'
 import ChatMessage from './ChatMessage.vue'
 import { useChatStore } from '../../../store/chat'
+import { useWorkspaceStore } from '../../../store/workspace'
 
 const route = useRoute()
 const router = useRouter()
 const chatStore = useChatStore()
+const workspaceStore = useWorkspaceStore()
 
 const inputText = ref('')
 const isInputFocused = ref(false)
@@ -187,6 +189,13 @@ const agentOptions = [
     description: '批量素材生成批量视频',
     icon: Scissors,
     color: 'from-blue-500 to-cyan-500'
+  },
+  {
+    id: 'conversational-video',
+    name: '对话式视频混剪智能体',
+    description: '通过自然语言对话生成视频',
+    icon: Sparkles,
+    color: 'from-violet-500 to-purple-500'
   },
   {
     id: 'content-rewrite',
@@ -307,6 +316,13 @@ const handleAgentSelect = (agentId: string) => {
     if (agentId === 'content-rewrite') {
       console.log('跳转到知识库智能体工作区')
       router.push('/knowledge-agent')
+      return
+    }
+    
+    // 对话式视频混剪智能体直接激活创作模式
+    if (agentId === 'conversational-video') {
+      console.log('激活对话式视频混剪智能体')
+      workspaceStore.enterCreationMode(agentId)
       return
     }
     

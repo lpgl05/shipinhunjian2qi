@@ -97,6 +97,13 @@ const agentConfig: Record<string, any> = {
     gradient: 'from-blue-500 to-cyan-500',
     component: defineAsyncComponent(() => import('./agents/VideoAgent/VideoEditingCanvas.vue'))
   },
+  'conversational-video': {
+    title: '对话式视频混剪智能体',
+    subtitle: '通过自然语言对话生成视频',
+    icon: Sparkles,
+    gradient: 'from-violet-500 to-purple-500',
+    component: defineAsyncComponent(() => import('./agents/VideoAgent/ConversationalVideoAgent.vue'))
+  },
   'content-rewrite': {
     title: '风格模仿写作大师',
     subtitle: '智能仿写营销文案',
