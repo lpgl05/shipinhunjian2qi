@@ -2,7 +2,7 @@
   <div 
     class="agent-card group relative p-8 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-600 hover:-translate-y-2 hover:shadow-2xl"
     :class="[gradient ? `hover:shadow-${gradient.split(' ')[0]?.replace('from-', '') || 'blue-500'}/20` : '']"
-    @click="$emit('click')"
+    @click="handleClick"
   >
     <!-- Badge -->
     <div 
@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
   gradient: 'from-blue-500 to-violet-500'
 })
 
-defineEmits<{
+const emit = defineEmits<{
   click: []
 }>()
 
@@ -72,6 +72,12 @@ const iconComponent = computed(() => {
   }
   return iconMap[props.icon] || Scissors
 })
+
+// 处理点击事件
+const handleClick = () => {
+  console.log('🟢 AgentCard 被点击:', props.title)
+  emit('click')
+}
 </script>
 
 <style scoped>

@@ -356,13 +356,17 @@ const handleGenerate = () => {
 
 // 处理智能体点击
 const handleAgentClick = (agent: any) => {
+  console.log('🔵 智能体被点击:', agent.id, agent.title)
+  
   // 风格模仿写作大师直接跳转到专属工作区
   if (agent.id === 'content-rewrite') {
+    console.log('✅ 跳转到知识库智能体:', '/knowledge-agent')
     router.push('/knowledge-agent')
     return
   }
   
   // 其他智能体跳转到工作台
+  console.log('✅ 跳转到工作台:', '/workspace', 'agent:', agent.id)
   router.push({
     path: '/workspace',
     query: { agent: agent.id }

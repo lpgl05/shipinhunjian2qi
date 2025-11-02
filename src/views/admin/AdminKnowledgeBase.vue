@@ -103,7 +103,7 @@
     <Teleport to="body">
       <div
         v-if="showAddModal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         @click.self="showAddModal = false"
       >
         <div class="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-6">
