@@ -39,6 +39,35 @@ const router = createRouter({
       name: 'knowledge-agent',
       component: () => import('../views/WorkspacePage/agents/KnowledgeAgent/StyleWritingWorkspace.vue'),
       meta: { requiresAuth: true, fullLayout: true }
+    },
+    {
+      path: '/my-documents',
+      name: 'my-documents',
+      component: () => import('../views/MyDocumentsPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/my-creations',
+      name: 'my-creations',
+      component: () => import('../views/MyCreationsPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    // 后台管理系统路由
+    {
+      path: '/admin',
+      redirect: '/admin/login'
+    },
+    {
+      path: '/admin/login',
+      name: 'admin-login',
+      component: () => import('../views/admin/AdminLogin.vue'),
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'admin-dashboard',
+      component: () => import('../views/admin/AdminDashboard.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
     }
   ]
 })

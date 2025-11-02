@@ -257,6 +257,137 @@
             </div>
           </div>
 
+          <!-- 前端配置 -->
+          <div v-if="activeSection === 'frontend'" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6">
+            <h2 class="text-xl font-bold mb-6">前端配置</h2>
+            
+            <div class="space-y-6">
+              <!-- 欢迎消息配置 -->
+              <div class="p-4 bg-gray-700/50 rounded-lg">
+                <h3 class="text-lg font-semibold mb-4">欢迎消息</h3>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">对话引导语</label>
+                  <textarea
+                    v-model="frontendConfig.welcomeMessage"
+                    rows="2"
+                    class="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg text-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 focus:outline-none resize-none"
+                    placeholder="请输入引导语..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- 快捷提示配置 -->
+              <div class="p-4 bg-gray-700/50 rounded-lg">
+                <h3 class="text-lg font-semibold mb-4">快捷提示</h3>
+                <div class="space-y-3">
+                  <div
+                    v-for="(prompt, index) in frontendConfig.quickPrompts"
+                    :key="prompt.id"
+                    class="flex items-center gap-3"
+                  >
+                    <span class="text-gray-400 text-sm w-8">{{ index + 1 }}.</span>
+                    <input
+                      v-model="prompt.text"
+                      type="text"
+                      class="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
+                      placeholder="快捷提示文本..."
+                    />
+                    <button
+                      class="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                      @click="removeQuickPrompt(index)"
+                    >
+                      <Trash2 :size="18" />
+                    </button>
+                  </div>
+                  <button
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    @click="addQuickPrompt"
+                  >
+                    添加快捷提示
+                  </button>
+                </div>
+              </div>
+
+              <!-- 写作模板配置 -->
+              <div class="p-4 bg-gray-700/50 rounded-lg">
+                <h3 class="text-lg font-semibold mb-4">写作模板</h3>
+                <div class="space-y-4">
+                  <div
+                    v-for="(template, index) in frontendConfig.writingTemplates"
+                    :key="template.id"
+                    class="p-4 bg-gray-600/50 rounded-lg"
+                  >
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                      <div>
+                        <label class="block text-xs text-gray-400 mb-1">模板名称</label>
+                        <input
+                          v-model="template.name"
+                          type="text"
+                          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 text-sm focus:border-blue-500 outline-none"
+                          placeholder="周报、发言稿..."
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs text-gray-400 mb-1">分类</label>
+                        <select
+                          v-model="template.category"
+                          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 text-sm focus:border-blue-500 outline-none"
+                        >
+                          <option value="business">商务</option>
+                          <option value="marketing">营销</option>
+                          <option value="technical">技术</option>
+                          <option value="common">通用</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="block text-xs text-gray-400 mb-1">描述</label>
+                      <input
+                        v-model="template.description"
+                        type="text"
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 text-sm focus:border-blue-500 outline-none"
+                        placeholder="模板描述..."
+                      />
+                    </div>
+                    <div class="mb-3">
+                      <label class="block text-xs text-gray-400 mb-1">提示词</label>
+                      <textarea
+                        v-model="template.prompt"
+                        rows="2"
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 text-sm focus:border-blue-500 outline-none resize-none"
+                        placeholder="请帮我..."
+                      ></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                      <button
+                        class="px-3 py-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm"
+                        @click="removeTemplate(index)"
+                      >
+                        删除模板
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    @click="addTemplate"
+                  >
+                    添加模板
+                  </button>
+                </div>
+              </div>
+
+              <!-- 保存按钮 -->
+              <div class="flex justify-end">
+                <button
+                  class="px-6 py-3 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg hover:brightness-110 transition-all"
+                  @click="saveFrontendConfig"
+                >
+                  保存前端配置
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- 数据管理 -->
           <div v-if="activeSection === 'data'" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6">
             <h2 class="text-xl font-bold mb-6">数据管理</h2>
@@ -338,20 +469,31 @@ import {
   Database,
   Globe,
   Palette,
-  Save
+  Save,
+  Trash2
 } from 'lucide-vue-next'
 import { useAuthStore } from '../store/auth'
+import { useFrontendConfigStore } from '../store/frontend-config'
 import AppSidebar from './WorkspacePage/AppSidebar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const frontendConfigStore = useFrontendConfigStore()
 
 const activeSection = ref('general')
+
+// 前端配置（本地副本，用于编辑）
+const frontendConfig = ref({
+  welcomeMessage: frontendConfigStore.config.welcomeMessage,
+  quickPrompts: [...frontendConfigStore.config.quickPrompts],
+  writingTemplates: [...frontendConfigStore.config.writingTemplates]
+})
 
 const settingsSections = [
   { id: 'general', name: '通用设置', icon: Settings },
   { id: 'ai', name: 'AI设置', icon: Bot },
   { id: 'workspace', name: '工作台设置', icon: Monitor },
+  { id: 'frontend', name: '前端配置', icon: Palette },
   { id: 'data', name: '数据管理', icon: Database }
 ]
 
@@ -381,6 +523,45 @@ const workspaceSettings = reactive({
   autoSave: true,
   saveInterval: 60
 })
+
+// 添加快捷提示
+const addQuickPrompt = () => {
+  const newPrompt = {
+    id: Date.now().toString(),
+    text: '',
+    order: frontendConfig.value.quickPrompts.length + 1
+  }
+  frontendConfig.value.quickPrompts.push(newPrompt)
+}
+
+// 删除快捷提示
+const removeQuickPrompt = (index: number) => {
+  frontendConfig.value.quickPrompts.splice(index, 1)
+}
+
+// 添加模板
+const addTemplate = () => {
+  const newTemplate = {
+    id: Date.now().toString(),
+    name: '',
+    description: '',
+    prompt: '',
+    category: 'common' as any,
+    order: frontendConfig.value.writingTemplates.length + 1
+  }
+  frontendConfig.value.writingTemplates.push(newTemplate)
+}
+
+// 删除模板
+const removeTemplate = (index: number) => {
+  frontendConfig.value.writingTemplates.splice(index, 1)
+}
+
+// 保存前端配置
+const saveFrontendConfig = () => {
+  frontendConfigStore.updateConfig(frontendConfig.value)
+  alert('前端配置已保存！')
+}
 
 // 处理登出
 const handleLogout = () => {

@@ -18,41 +18,83 @@
     </div>
 
     <!-- 风格列表 -->
-    <div class="style-list space-y-4">
-      <div
-        v-for="style in availableStyles"
-        :key="style.id"
-        class="style-card p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer"
-        :class="{ 'border-purple-500 bg-purple-500/10': selectedStyle?.id === style.id }"
-        @click="selectStyle(style)"
-      >
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white" :class="style.color">
-            {{ style.name.substring(0, 2) }}
-          </div>
-          <div class="flex-1">
-            <h4 class="text-gray-50 font-medium">{{ style.name }}</h4>
-            <p class="text-sm text-gray-400">{{ style.description }}</p>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-xs text-gray-500">来源:</span>
-              <span class="text-xs text-purple-400">{{ style.source || '系统预设' }}</span>
+    <div class="style-list space-y-6">
+      <!-- 我的风格分类 -->
+      <div v-if="myStyles && myStyles.length > 0" class="my-styles">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-4 bg-blue-500 rounded-full"></div>
+          <h4 class="text-sm font-semibold text-gray-300">我的风格</h4>
+          <span class="text-xs text-gray-500">({{ myStyles.length }})</span>
+        </div>
+        <div class="space-y-2">
+          <div
+            v-for="style in myStyles"
+            :key="style.id"
+            class="style-card p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors cursor-pointer"
+            :class="{ 'border-blue-500 bg-blue-500/10': selectedStyle?.id === style.id }"
+            @click="selectStyle(style)"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white" :class="style.color">
+                {{ style.name.substring(0, 2) }}
+              </div>
+              <div class="flex-1">
+                <h4 class="text-gray-50 font-medium">{{ style.name }}</h4>
+                <p class="text-sm text-gray-400">{{ style.description }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs text-gray-500">来源:</span>
+                  <span class="text-xs text-blue-400">{{ style.source }}</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button
-              class="p-2 text-gray-400 hover:text-gray-200 transition-colors"
-              @click.stop="editStyle(style)"
-              title="编辑风格"
-            >
-              <Edit3 :size="16" />
-            </button>
-            <button
-              class="p-2 text-gray-400 hover:text-red-400 transition-colors"
-              @click.stop="deleteStyle(style)"
-              title="删除风格"
-            >
-              <Trash2 :size="16" />
-            </button>
+        </div>
+      </div>
+
+      <!-- 系统预设分类 -->
+      <div class="preset-styles">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-4 bg-purple-500 rounded-full"></div>
+          <h4 class="text-sm font-semibold text-gray-300">系统预设</h4>
+          <span class="text-xs text-gray-500">({{ systemStyles.length }})</span>
+        </div>
+        <div class="space-y-2">
+          <div
+            v-for="style in systemStyles"
+            :key="style.id"
+            class="style-card p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer"
+            :class="{ 'border-purple-500 bg-purple-500/10': selectedStyle?.id === style.id }"
+            @click="selectStyle(style)"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white" :class="style.color">
+                {{ style.name.substring(0, 2) }}
+              </div>
+              <div class="flex-1">
+                <h4 class="text-gray-50 font-medium">{{ style.name }}</h4>
+                <p class="text-sm text-gray-400">{{ style.description }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs text-gray-500">来源:</span>
+                  <span class="text-xs text-purple-400">{{ style.source || '系统预设' }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  class="p-2 text-gray-400 hover:text-gray-200 transition-colors"
+                  @click.stop="editStyle(style)"
+                  title="编辑风格"
+                >
+                  <Edit3 :size="16" />
+                </button>
+                <button
+                  class="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                  @click.stop="deleteStyle(style)"
+                  title="删除风格"
+                >
+                  <Trash2 :size="16" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -178,13 +220,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { Plus, Edit3, Trash2, X } from 'lucide-vue-next'
 
 // Props
 const props = defineProps<{
   selectedStyle: any
   availableStyles: any[]
+  myStyles?: any[]
 }>()
 
 // Emits
@@ -194,6 +237,11 @@ const emit = defineEmits<{
   'style-update': [style: any]
   'style-delete': [styleId: string]
 }>()
+
+// 系统预设风格（非"我的风格"）
+const systemStyles = computed(() => {
+  return props.availableStyles.filter(style => !style.isMine)
+})
 
 // 响应式数据
 const showCreateModal = ref(false)

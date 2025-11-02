@@ -146,6 +146,74 @@
           </div>
         </div>
 
+        <!-- 我的文档 -->
+        <div v-if="activeTab === 'documents'" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">我的文档</h2>
+            <button
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              @click="$router.push('/my-documents')"
+            >
+              查看全部文档
+            </button>
+          </div>
+          <p class="text-gray-400 mb-4">快速访问您上传的知识库文档</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-gray-700/50 rounded-xl">
+              <div class="flex items-center gap-3 mb-3">
+                <FileText :size="24" class="text-blue-400" />
+                <div>
+                  <div class="font-medium">文档总数</div>
+                  <div class="text-2xl font-bold text-blue-400">{{ userStats.documents }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 bg-gray-700/50 rounded-xl">
+              <div class="flex items-center gap-3 mb-3">
+                <CheckCircle :size="24" class="text-green-400" />
+                <div>
+                  <div class="font-medium">训练完成</div>
+                  <div class="text-2xl font-bold text-green-400">{{ userStats.trainedDocs }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 我的创作 -->
+        <div v-if="activeTab === 'creations'" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">我的创作</h2>
+            <button
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              @click="$router.push('/my-creations')"
+            >
+              查看全部创作
+            </button>
+          </div>
+          <p class="text-gray-400 mb-4">查看和管理AI生成的内容</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-gray-700/50 rounded-xl">
+              <div class="flex items-center gap-3 mb-3">
+                <BookOpen :size="24" class="text-purple-400" />
+                <div>
+                  <div class="font-medium">创作总数</div>
+                  <div class="text-2xl font-bold text-purple-400">{{ userStats.creations }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 bg-gray-700/50 rounded-xl">
+              <div class="flex items-center gap-3 mb-3">
+                <Hash :size="24" class="text-orange-400" />
+                <div>
+                  <div class="font-medium">总字数</div>
+                  <div class="text-2xl font-bold text-orange-400">{{ userStats.totalWords }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 使用统计 -->
         <div v-if="activeTab === 'stats'" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6">
           <h2 class="text-xl font-bold mb-6">使用统计</h2>
@@ -274,7 +342,11 @@ import {
   Camera, 
   Video, 
   Clock, 
-  TrendingUp 
+  TrendingUp,
+  FileText,
+  CheckCircle,
+  BookOpen,
+  Hash
 } from 'lucide-vue-next'
 import { useAuthStore } from '../store/auth'
 import AppSidebar from './WorkspacePage/AppSidebar.vue'
@@ -286,6 +358,8 @@ const activeTab = ref('basic')
 
 const tabs = [
   { id: 'basic', name: '基本信息' },
+  { id: 'documents', name: '我的文档' },
+  { id: 'creations', name: '我的创作' },
   { id: 'stats', name: '使用统计' },
   { id: 'account', name: '账户设置' }
 ]
@@ -295,6 +369,10 @@ const userStats = reactive({
   projects: 12,
   videos: 48,
   usage: 156,
+  documents: 15,
+  trainedDocs: 12,
+  creations: 28,
+  totalWords: '45.2K',
   videosThisMonth: 8,
   totalTime: '24.5h',
   timeThisMonth: '6.2h',

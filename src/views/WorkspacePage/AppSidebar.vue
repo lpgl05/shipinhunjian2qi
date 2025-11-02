@@ -54,6 +54,13 @@
 
     <!-- Bottom Actions -->
     <div class="flex flex-col items-center gap-2">
+      <!-- 后台管理系统 -->
+      <Tooltip text="后台管理系统">
+        <button class="sidebar-icon-btn" @click="handleAdminSystem">
+          <Shield :size="20" />
+        </button>
+      </Tooltip>
+
       <!-- 设置 -->
       <Tooltip text="设置">
         <button class="sidebar-icon-btn" @click="handleSettings">
@@ -78,6 +85,7 @@ import {
   FolderKanban, 
   Clock,
   Star,
+  Shield,
   Settings, 
   User 
 } from 'lucide-vue-next'
@@ -107,6 +115,14 @@ const handleNewChat = () => {
  */
 const handleProfile = () => {
   router.push('/profile')
+}
+
+/**
+ * 打开后台管理系统（新窗口）
+ */
+const handleAdminSystem = () => {
+  // 在新窗口打开后台管理系统
+  window.open('/admin', '_blank', 'width=1400,height=900')
 }
 
 /**

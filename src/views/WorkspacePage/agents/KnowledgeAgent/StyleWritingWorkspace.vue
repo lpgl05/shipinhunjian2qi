@@ -78,13 +78,32 @@
 
       <!-- 输入区域 -->
       <div class="input-area p-6 border-t border-gray-800 bg-gray-900/50">
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-2xl mx-auto space-y-3">
+          <!-- 模板快捷按钮区域 -->
+          <div v-if="writingTemplates.length > 0" class="template-shortcuts">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-xs text-gray-400">快捷模板：</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="template in writingTemplates"
+                :key="template.id"
+                class="px-3 py-1.5 bg-gray-800 text-gray-300 text-xs rounded-lg border border-gray-700 hover:border-purple-500 hover:text-purple-400 transition-colors flex items-center gap-1.5"
+                @click="handleTemplateSelect(template)"
+              >
+                <FileText :size="14" />
+                {{ template.name }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 输入框 -->
           <div class="relative">
             <textarea
               ref="textareaRef"
               v-model="inputText"
               rows="3"
-              placeholder="描述您想要创作的内容..."
+              placeholder="描述您想要创作的内容，或点击上方模板快速开始..."
               class="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none transition-all resize-none"
               @keydown="handleKeydown"
               @input="autoResize"
@@ -157,7 +176,8 @@
           <!-- 风格管理 -->
           <StyleManager
             :selected-style="selectedStyle"
-            :available-styles="availableStyles"
+            :available-styles="allStyles"
+            :my-styles="myStyles"
             @style-select="handleStyleSelect"
             @style-create="handleStyleCreate"
             @style-update="handleStyleUpdate"
@@ -322,7 +342,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import { 
   Type, 
   Send, 
@@ -338,8 +358,12 @@ import StyleManager from './StyleManager.vue'
 import AudioBlogGenerator from './AudioBlogGenerator.vue'
 import AppSidebar from '../../AppSidebar.vue'
 import { useChatStore } from '../../../../store/chat'
+import { useFrontendConfigStore } from '../../../../store/frontend-config'
+import { useDocumentsStore } from '../../../../store/documents'
 
 const chatStore = useChatStore()
+const frontendConfigStore = useFrontendConfigStore()
+const documentsStore = useDocumentsStore()
 
 // 响应式数据
 const inputText = ref('')
@@ -368,27 +392,53 @@ const quickPrompts = [
   '制作社交媒体内容'
 ]
 
+// 写作模板
+const writingTemplates = computed(() => {
+  return frontendConfigStore.getWritingTemplates()
+})
+
+// 我的风格（基于文档训练）
+const myStyles = computed(() => {
+  const trainedDocs = documentsStore.documents.filter(doc => doc.trainingStatus === 'completed')
+  return trainedDocs.map(doc => ({
+    id: `my-style-${doc.id}`,
+    name: `我的风格-${doc.name}`,
+    description: `基于文档"${doc.name}"训练的专属风格`,
+    color: 'bg-blue-500',
+    source: '个人知识库',
+    isMine: true
+  }))
+})
+
 // 预设风格
-const availableStyles = [
+const availableStyles = ref([
   {
     id: 'boss-formal',
     name: '老板-正式风格',
     description: '适用于正式商务场合的写作风格，专业、严谨、权威',
-    color: 'bg-purple-500'
+    color: 'bg-purple-500',
+    source: '系统预设'
   },
   {
     id: 'ceo-innovative',
     name: 'CEO-创新风格',
     description: '富有远见和创新精神的领导者风格，适合战略规划',
-    color: 'bg-green-500'
+    color: 'bg-green-500',
+    source: '系统预设'
   },
   {
     id: 'marketing-director',
     name: '营销总监',
     description: '营销导向的写作风格，注重用户体验和转化',
-    color: 'bg-orange-500'
+    color: 'bg-orange-500',
+    source: '系统预设'
   }
-]
+])
+
+// 所有风格（我的风格 + 预设风格）
+const allStyles = computed(() => {
+  return [...myStyles.value, ...availableStyles.value]
+})
 
 // 自动调整textarea高度
 const autoResize = () => {
@@ -434,10 +484,19 @@ const sendMessage = () => {
   scrollToBottom()
 }
 
+// 处理模板选择
+const handleTemplateSelect = (template: any) => {
+  inputText.value = template.prompt
+  nextTick(() => {
+    textareaRef.value?.focus()
+    autoResize()
+  })
+}
+
 // 处理AI回复
 const handleAiResponse = (userMessage: string) => {
   // 根据用户输入推荐风格
-  const recommendedStyle = availableStyles[0] // 默认推荐第一个
+  const recommendedStyle = allStyles.value[0] // 默认推荐第一个
   selectedStyle.value = recommendedStyle
   showConfigForm.value = true
   
@@ -447,7 +506,7 @@ const handleAiResponse = (userMessage: string) => {
   
   chatStore.addAiMessage(aiResponse, 'style-recommendation', {
     recommendedStyle,
-    availableStyles
+    availableStyles: allStyles.value
   })
   
   scrollToBottom()
@@ -469,16 +528,16 @@ const handleStyleSelect = (style: any) => {
 
 // 处理风格创建
 const handleStyleCreate = (style: any) => {
-  availableStyles.push(style)
+  availableStyles.value.push(style)
   selectedStyle.value = style
   showConfigForm.value = true
 }
 
 // 处理风格更新
 const handleStyleUpdate = (updatedStyle: any) => {
-  const index = availableStyles.findIndex(s => s.id === updatedStyle.id)
+  const index = availableStyles.value.findIndex(s => s.id === updatedStyle.id)
   if (index !== -1) {
-    availableStyles[index] = updatedStyle
+    availableStyles.value[index] = updatedStyle
     if (selectedStyle.value?.id === updatedStyle.id) {
       selectedStyle.value = updatedStyle
     }
@@ -487,9 +546,9 @@ const handleStyleUpdate = (updatedStyle: any) => {
 
 // 处理风格删除
 const handleStyleDelete = (styleId: string) => {
-  const index = availableStyles.findIndex(s => s.id === styleId)
+  const index = availableStyles.value.findIndex(s => s.id === styleId)
   if (index !== -1) {
-    availableStyles.splice(index, 1)
+    availableStyles.value.splice(index, 1)
     if (selectedStyle.value?.id === styleId) {
       selectedStyle.value = null
       showConfigForm.value = false
