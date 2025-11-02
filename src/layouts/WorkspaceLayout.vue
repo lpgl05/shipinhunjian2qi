@@ -5,8 +5,8 @@
 
     <!-- 对话画布 (动态宽度) -->
     <div 
-      class="chat-canvas-container flex-shrink-0 transition-all duration-300 ease-in-out"
-      :class="chatCanvasWidth"
+      class="chat-canvas-container flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden"
+      :class="getChatCanvasWidth()"
     >
       <ChatCanvas />
     </div>
@@ -35,13 +35,21 @@ import AssetManager from '../views/WorkspacePage/components/AssetManager.vue'
 const workspaceStore = useWorkspaceStore()
 
 /**
- * 动态计算ChatCanvas宽度
- * - 对话模式: w-full (占满全部空间)
- * - 创作模式: w-1/3 (1/3宽度)
+ * 获取ChatCanvas的宽度类
+ * - 不在创作模式: w-full (占满全屏)
+ * - 在创作模式:
+ *   - chatPanelCollapsed=false: w-1/3 (显示)
+ *   - chatPanelCollapsed=true: w-0 (隐藏)
  */
-const chatCanvasWidth = computed(() => {
-  return workspaceStore.isChatMode ? 'w-full' : 'w-1/3'
-})
+const getChatCanvasWidth = () => {
+  if (!workspaceStore.isCreationMode) {
+    // 不在创作模式，ChatCanvas占满全屏
+    return 'w-full'
+  } else {
+    // 在创作模式下，根据chatPanelCollapsed状态决定宽度
+    return workspaceStore.chatPanelCollapsed ? 'w-0' : 'w-1/3'
+  }
+}
 </script>
 
 <style scoped>

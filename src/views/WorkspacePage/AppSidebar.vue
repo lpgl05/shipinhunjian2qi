@@ -39,7 +39,7 @@
 
       <!-- 历史记录 -->
       <Tooltip text="历史记录">
-        <button class="sidebar-icon-btn">
+        <button class="sidebar-icon-btn" @click="handleHistory">
           <Clock :size="20" />
         </button>
       </Tooltip>
@@ -130,6 +130,13 @@ const handleAdminSystem = () => {
  */
 const handleSettings = () => {
   router.push('/settings')
+}
+
+/**
+ * 跳转到历史记录页面
+ */
+const handleHistory = () => {
+  router.push('/history')
 }
 </script>
 

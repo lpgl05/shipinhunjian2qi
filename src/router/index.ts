@@ -52,6 +52,12 @@ const router = createRouter({
       component: () => import('../views/MyCreationsPage.vue'),
       meta: { requiresAuth: true }
     },
+    {
+      path: '/history',
+      name: 'history',
+      component: () => import('../views/HistoryPage.vue'),
+      meta: { requiresAuth: true }
+    },
     // 后台管理系统路由
     {
       path: '/admin',

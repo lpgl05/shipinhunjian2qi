@@ -12,6 +12,14 @@ export interface Asset {
   folderId?: string
   duration?: string
   tags: string[]
+  aiTags?: AITag[]
+  aiTaggingStatus?: 'idle' | 'processing' | 'completed' | 'failed'
+}
+
+export interface AITag {
+  name: string
+  score: number
+  category: 'scene' | 'object' | 'person' | 'action' | 'emotion' | 'other'
 }
 
 export interface Folder {
@@ -29,6 +37,7 @@ export const useAssetStore = defineStore('asset', () => {
   const selectedFolderId = ref<string | null>(null)
   const viewMode = ref<'grid' | 'list'>('grid')
   const searchQuery = ref('')
+  const selectedTag = ref<string>('')
   
   // 示例文件夹结构
   const folders = ref<Folder[]>([
@@ -98,7 +107,36 @@ export const useAssetStore = defineStore('asset', () => {
       )
     }
     
+    // 标签筛选
+    if (selectedTag.value) {
+      filteredAssets = filteredAssets.filter(asset => {
+        // 检查手动标签
+        if (asset.tags.includes(selectedTag.value)) {
+          return true
+        }
+        // 检查AI标签
+        if (asset.aiTags && asset.aiTags.some(tag => tag.name === selectedTag.value)) {
+          return true
+        }
+        return false
+      })
+    }
+    
     return filteredAssets
+  })
+  
+  // 可用标签列表（从所有素材中提取）
+  const availableTags = computed(() => {
+    const tagsSet = new Set<string>()
+    assets.value.forEach(asset => {
+      // 添加手动标签
+      asset.tags.forEach(tag => tagsSet.add(tag))
+      // 添加AI标签
+      if (asset.aiTags) {
+        asset.aiTags.forEach(tag => tagsSet.add(tag.name))
+      }
+    })
+    return Array.from(tagsSet).sort()
   })
 
   const selectedAssetIds = computed(() => selectedAssets.value)
@@ -258,6 +296,22 @@ export const useAssetStore = defineStore('asset', () => {
     }
   }
 
+  // AI标签相关操作
+  const addAITags = (assetId: string, tags: AITag[]) => {
+    const asset = assets.value.find(a => a.id === assetId)
+    if (asset) {
+      asset.aiTags = tags
+      asset.aiTaggingStatus = 'completed'
+    }
+  }
+
+  const setAITaggingStatus = (assetId: string, status: 'idle' | 'processing' | 'completed' | 'failed') => {
+    const asset = assets.value.find(a => a.id === assetId)
+    if (asset) {
+      asset.aiTaggingStatus = status
+    }
+  }
+
   return {
     showAssetManager,
     currentFolder,
@@ -265,9 +319,11 @@ export const useAssetStore = defineStore('asset', () => {
     selectedFolderId,
     viewMode,
     searchQuery,
+    selectedTag,
     folders,
     assets,
     currentAssets,
+    availableTags,
     selectedAssetIds,
     toggleAssetManager,
     closeAssetManager,
@@ -284,6 +340,8 @@ export const useAssetStore = defineStore('asset', () => {
     deleteFolder,
     renameFolder,
     getFolderById,
-    moveAssetToFolder
+    moveAssetToFolder,
+    addAITags,
+    setAITaggingStatus
   }
 })

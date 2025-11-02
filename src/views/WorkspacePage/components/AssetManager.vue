@@ -46,6 +46,19 @@
                     />
                   </div>
 
+                  <!-- 标签筛选 -->
+                  <div class="relative">
+                    <select
+                      v-model="assetStore.selectedTag"
+                      class="bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2 appearance-none cursor-pointer hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">所有标签</option>
+                      <option v-for="tag in assetStore.availableTags" :key="tag" :value="tag">
+                        {{ tag }}
+                      </option>
+                    </select>
+                  </div>
+
                   <!-- 视图切换 -->
                   <div class="flex gap-1 p-1 bg-gray-700 rounded-lg">
                     <button
@@ -76,6 +89,16 @@
                   <button class="btn-secondary flex items-center gap-2" @click="handleNewFolder">
                     <FolderPlus :size="18" />
                     <span>新建文件夹</span>
+                  </button>
+
+                  <!-- AI打标按钮 -->
+                  <button 
+                    class="btn-secondary flex items-center gap-2" 
+                    @click="handleAITagging"
+                    :disabled="assetStore.selectedAssetIds.length === 0"
+                  >
+                    <Sparkles :size="18" />
+                    <span>AI打标</span>
                   </button>
 
                   <!-- 关闭按钮 -->
@@ -138,11 +161,11 @@
                       </button>
                     </div>
                     <div class="flex items-center gap-2">
-                      <button class="btn-secondary text-sm" @click="handleBatchDownload">
+                      <button class="btn-secondary text-sm flex items-center" @click="handleBatchDownload">
                         <Download :size="16" class="mr-1" />
                         下载
                       </button>
-                      <button class="btn-secondary text-sm text-red-400 hover:text-red-300" @click="handleBatchDelete">
+                      <button class="btn-secondary text-sm text-red-400 hover:text-red-300 flex items-center" @click="handleBatchDelete">
                         <Trash2 :size="16" class="mr-1" />
                         删除
                       </button>
@@ -194,9 +217,12 @@
                       <FolderOpen :size="64" class="mx-auto mb-4 text-gray-600" />
                       <p class="text-gray-400">暂无素材</p>
                       <p class="text-sm text-gray-500 mb-4">点击上传按钮或拖拽文件到此处添加素材</p>
-                      <button class="btn-primary mt-4" @click="handleUpload">
-                        <Upload :size="18" class="mr-2" />
-                        上传素材
+                      <button 
+                        class="mx-auto inline-flex flex-col items-center justify-center px-12 py-8 bg-gradient-to-br from-blue-600 to-violet-600 text-white rounded-xl hover:from-blue-700 hover:to-violet-700 transition-all shadow-lg hover:shadow-xl"
+                        @click="handleUpload"
+                      >
+                        <Upload :size="48" class="mb-3" />
+                        <span class="text-lg font-semibold">上传素材</span>
                       </button>
                     </div>
                   </div>
@@ -302,6 +328,130 @@
     class="hidden"
     @change="handleFileSelect"
   />
+
+  <!-- AI打标成功提示模态框 -->
+  <TransitionRoot appear :show="showAITaggingSuccess" as="template">
+    <Dialog as="div" class="relative z-50">
+      <TransitionChild
+        as="template"
+        enter="duration-300 ease-out"
+        enter-from="opacity-0"
+        enter-to="opacity-100"
+        leave="duration-200 ease-in"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+      >
+        <div class="fixed inset-0 bg-black bg-opacity-25" @click="handleCloseAITagging" />
+      </TransitionChild>
+
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
+          <TransitionChild
+            as="template"
+            enter="duration-300 ease-out"
+            enter-from="opacity-0 scale-95"
+            enter-to="opacity-100 scale-100"
+            leave="duration-200 ease-in"
+            leave-from="opacity-100 scale-100"
+            leave-to="opacity-0 scale-95"
+          >
+            <DialogPanel
+              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800 p-6 text-left align-middle shadow-xl transition-all border border-gray-700"
+            >
+              <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4">
+                  <Sparkles :size="32" class="text-green-500" />
+                </div>
+                <DialogTitle as="h3" class="text-lg font-semibold leading-6 text-gray-50 mb-2">
+                  AI打标成功
+                </DialogTitle>
+                <p class="text-sm text-gray-400 mb-4">
+                  已为 {{ aitaggingResult.count }} 个视频成功添加标签
+                </p>
+                
+                <!-- AI生成标签区域 -->
+                <div v-if="aitaggingResult.tags && aitaggingResult.tags.length > 0" class="bg-gray-700/50 rounded-lg p-4 mb-4">
+                  <p class="text-xs font-semibold text-gray-300 mb-3 text-left" style="font-size: 13px; font-weight: 600;">
+                    🤖 AI生成标签：
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      v-for="tag in aitaggingResult.tags"
+                      :key="tag.name"
+                      class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs"
+                    >
+                      {{ tag.name }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 手工打标签区域 -->
+                <div class="mt-4 pt-4 border-t border-gray-600/50">
+                  <p class="text-xs font-semibold text-gray-300 mb-3 text-left" style="font-size: 13px; font-weight: 600;">
+                    ✏️ 手工打标签：
+                  </p>
+                  
+                  <!-- 显示手动添加的标签 -->
+                  <div v-if="manualTags.length > 0" class="flex flex-wrap gap-2 mb-3">
+                    <span
+                      v-for="tag in manualTags"
+                      :key="tag"
+                      class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs cursor-pointer hover:opacity-80"
+                      @click="removeManualTag(tag)"
+                    >
+                      {{ tag }} ×
+                    </span>
+                  </div>
+
+                  <!-- 输入框区域 -->
+                  <div class="flex gap-2 mb-2">
+                    <input
+                      v-model="manualTagInput"
+                      type="text"
+                      placeholder="输入标签，多个标签用逗号分隔"
+                      class="flex-1 px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg text-xs focus:outline-none focus:border-blue-500"
+                      style="height: 36px;"
+                      @keyup.enter="addManualTag"
+                    />
+                    <button
+                      type="button"
+                      @click="addManualTag"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors"
+                      style="height: 36px; min-width: 70px;"
+                    >
+                      + 添加
+                    </button>
+                  </div>
+                  
+                  <p class="text-xs text-gray-500 text-left">
+                    💡 提示：多个标签可以用逗号（,）、顿号（、）或中文逗号（，）分隔
+                  </p>
+                </div>
+
+                <!-- 底部按钮 -->
+                <div class="flex justify-end gap-3 mt-6">
+                  <button
+                    type="button"
+                    class="inline-flex justify-center rounded-lg border border-gray-600 bg-gray-700 px-6 py-2.5 text-sm font-medium text-white hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 transition-colors"
+                    @click="handleCloseAITagging"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex justify-center rounded-lg border border-transparent bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    @click="handleConfirmAITagging"
+                  >
+                    确定
+                  </button>
+                </div>
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </div>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <script setup lang="ts">
@@ -328,13 +478,15 @@ import {
   Image,
   Video,
   Music,
-  Folder
+  Folder,
+  Sparkles
 } from 'lucide-vue-next'
 import { useAssetStore } from '../../../store/asset'
 import { useWorkspaceStore } from '../../../store/workspace'
 import FolderTree from './AssetManager/FolderTree.vue'
 import AssetCard from './AssetManager/AssetCard.vue'
 import AssetListItem from './AssetManager/AssetListItem.vue'
+import { processVideoSmartTag } from '../../../utils/aiTagging'
 
 const assetStore = useAssetStore()
 const workspaceStore = useWorkspaceStore()
@@ -359,6 +511,79 @@ const newFolderNameInput = ref<HTMLInputElement>()
 // 文件上传
 const fileInput = ref<HTMLInputElement>()
 const isDragging = ref(false)
+
+// AI打标成功提示
+const showAITaggingSuccess = ref(false)
+const aitaggingResult = ref<{ count: number; tags: Array<{ name: string; score: number; category: string }> }>({
+  count: 0,
+  tags: []
+})
+
+// 手工打标签相关状态
+const manualTags = ref<string[]>([])
+const manualTagInput = ref('')
+
+// 添加手动标签
+const addManualTag = () => {
+  if (!manualTagInput.value.trim()) {
+    return
+  }
+
+  // 按分隔符分割标签
+  const tags = manualTagInput.value
+    .split(/[,，、]/)
+    .map(tag => tag.trim())
+    .filter(tag => tag.length > 0)
+
+  // 添加到手动标签列表，去重
+  tags.forEach(tag => {
+    if (!manualTags.value.includes(tag)) {
+      manualTags.value.push(tag)
+    }
+  })
+
+  manualTagInput.value = ''
+}
+
+// 删除手动标签
+const removeManualTag = (tag: string) => {
+  manualTags.value = manualTags.value.filter(t => t !== tag)
+}
+
+// 关闭AI打标弹窗
+const handleCloseAITagging = () => {
+  manualTags.value = []
+  manualTagInput.value = ''
+  showAITaggingSuccess.value = false
+}
+
+// 确认AI打标，应用标签到视频
+const handleConfirmAITagging = () => {
+  // 合并AI生成的标签和手动添加的标签
+  const allManualTagNames = manualTags.value
+  
+  // 如果有手动标签，添加到视频的标签中
+  if (allManualTagNames.length > 0) {
+    const selectedAssets = assetStore.assets.filter(asset => 
+      assetStore.selectedAssetIds.includes(asset.id)
+    )
+    const videoAssets = selectedAssets.filter(asset => asset.type === 'video')
+    
+    // 为每个视频添加手动标签
+    videoAssets.forEach(asset => {
+      allManualTagNames.forEach(tagName => {
+        if (!asset.tags.includes(tagName)) {
+          asset.tags.push(tagName)
+        }
+      })
+    })
+  }
+
+  // 重置状态
+  manualTags.value = []
+  manualTagInput.value = ''
+  showAITaggingSuccess.value = false
+}
 
 // 获取分类数量
 const getCategoryCount = (type: string) => {
@@ -495,6 +720,53 @@ const handleBatchDelete = () => {
 const handleBatchDownload = () => {
   console.log('批量下载', assetStore.selectedAssetIds)
   // TODO: 实现批量下载
+}
+
+// 处理AI打标
+const handleAITagging = async () => {
+  const selectedAssets = assetStore.assets.filter(asset => 
+    assetStore.selectedAssetIds.includes(asset.id)
+  )
+  
+  // 只处理视频文件
+  const videoAssets = selectedAssets.filter(asset => asset.type === 'video')
+  
+  if (videoAssets.length === 0) {
+    alert('请选择至少一个视频文件')
+    return
+  }
+  
+  // 显示处理中状态
+  videoAssets.forEach(asset => {
+    assetStore.setAITaggingStatus(asset.id, 'processing')
+  })
+  
+  // 批量处理视频
+  let allTags: Array<{ name: string; score: number; category: string }> = []
+  for (const asset of videoAssets) {
+    try {
+      const tags = await processVideoSmartTag(asset.url, asset.id)
+      assetStore.addAITags(asset.id, tags)
+      console.log('AI打标处理完成:', asset.name, tags)
+      
+      // 收集所有标签用于显示
+      allTags.push(...tags.map(tag => ({
+        name: tag.name,
+        score: tag.score,
+        category: tag.category
+      })))
+    } catch (error) {
+      console.error('AI打标处理失败:', error)
+      assetStore.setAITaggingStatus(asset.id, 'failed')
+    }
+  }
+  
+  // 显示成功提示
+  aitaggingResult.value = {
+    count: videoAssets.length,
+    tags: [...new Map(allTags.map(tag => [tag.name, tag])).values()].slice(0, 10) // 去重并限制最多显示10个
+  }
+  showAITaggingSuccess.value = true
 }
 
 // 键盘事件处理
