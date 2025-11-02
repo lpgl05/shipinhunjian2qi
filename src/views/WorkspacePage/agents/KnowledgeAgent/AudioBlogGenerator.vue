@@ -15,15 +15,33 @@
           <Volume2 :size="16" />
           生成音频
         </button>
-        <button
-          v-else
-          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
-          @click="generateAudio"
-          :disabled="!content || isGenerating"
-        >
-          <Volume2 :size="16" />
-          {{ isGenerating ? '生成中...' : '开始生成' }}
-        </button>
+        <div v-else class="flex items-center gap-2">
+          <button
+            v-if="!isGenerating"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+            @click="generateAudio"
+            :disabled="!content"
+          >
+            <Volume2 :size="16" />
+            开始生成
+          </button>
+          <button
+            v-else
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-2"
+            @click="cancelGeneration"
+          >
+            <X :size="16" />
+            取消生成
+          </button>
+          <button
+            v-if="!isGenerating"
+            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors flex items-center gap-2"
+            @click="cancelConfig"
+          >
+            <X :size="16" />
+            取消
+          </button>
+        </div>
       </div>
     </div>
 
@@ -200,7 +218,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { Volume2, Mic, CheckCircle, Play, Pause, Download, RefreshCw, Settings } from 'lucide-vue-next'
+import { Volume2, Mic, CheckCircle, Play, Pause, Download, RefreshCw, Settings, X } from 'lucide-vue-next'
 
 // Props
 const props = defineProps<{
@@ -210,6 +228,7 @@ const props = defineProps<{
 // Emits
 const emit = defineEmits<{
   'audio-generated': [audioUrl: string]
+  'config-cancelled': []
 }>()
 
 // 响应式数据
@@ -221,6 +240,7 @@ const isGenerating = ref(false)
 const isPlaying = ref(false)
 const progress = ref(0)
 const duration = ref(0)
+let cancelToken = false
 
 // 音频设置
 const audioSettings = reactive({
@@ -277,21 +297,52 @@ const generateAudio = async () => {
   if (!props.content || !selectedVoice.value) return
   
   isGenerating.value = true
+  cancelToken = false
   
   try {
     // 模拟音频生成过程
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(resolve, 3000)
+      
+      // 检查取消信号
+      const checkCancel = setInterval(() => {
+        if (cancelToken) {
+          clearTimeout(timer)
+          clearInterval(checkCancel)
+          reject(new Error('Generation cancelled'))
+        }
+      }, 100)
+    })
     
-    // 模拟生成的音频URL
-    generatedAudio.value = 'mock-audio-url'
-    duration.value = 120 // 2分钟
-    
-    emit('audio-generated', generatedAudio.value)
-  } catch (error) {
-    console.error('音频生成失败:', error)
+    if (!cancelToken) {
+      // 模拟生成的音频URL
+      generatedAudio.value = 'mock-audio-url'
+      duration.value = 120 // 2分钟
+      
+      emit('audio-generated', generatedAudio.value)
+    }
+  } catch (error: any) {
+    if (error.message === 'Generation cancelled') {
+      console.log('音频生成已取消')
+    } else {
+      console.error('音频生成失败:', error)
+    }
   } finally {
     isGenerating.value = false
   }
+}
+
+// 取消生成
+const cancelGeneration = () => {
+  cancelToken = true
+  isGenerating.value = false
+  showConfig.value = false
+}
+
+// 取消配置
+const cancelConfig = () => {
+  showConfig.value = false
+  emit('config-cancelled')
 }
 
 // 切换播放
@@ -325,6 +376,11 @@ const formatTime = (seconds: number) => {
 if (availableVoices.value.length > 0) {
   selectedVoice.value = availableVoices.value[0]
 }
+
+// 暴露给父组件
+defineExpose({
+  showConfig
+})
 </script>
 
 <style scoped>
@@ -340,32 +396,33 @@ input[type="range"] {
 }
 
 input[type="range"]::-webkit-slider-track {
-  background: #374151;
-  height: 4px;
-  border-radius: 2px;
+  background: #FFFFFF;
+  height: 6px;
+  border-radius: 3px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   background: #10b981;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   border-radius: 50%;
   cursor: pointer;
+  margin-top: -6px;
 }
 
 input[type="range"]::-moz-range-track {
-  background: #374151;
-  height: 4px;
-  border-radius: 2px;
+  background: #FFFFFF;
+  height: 6px;
+  border-radius: 3px;
   border: none;
 }
 
 input[type="range"]::-moz-range-thumb {
   background: #10b981;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   border-radius: 50%;
   cursor: pointer;
   border: none;

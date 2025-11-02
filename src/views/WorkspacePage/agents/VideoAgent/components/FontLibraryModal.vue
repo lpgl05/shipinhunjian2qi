@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50">
     <div class="bg-gray-800 rounded-lg w-full max-w-5xl max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
         <h3 class="text-xl font-semibold text-gray-50">花字字体库</h3>

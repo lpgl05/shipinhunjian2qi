@@ -1,59 +1,59 @@
 <template>
-  <div class="style-manager p-6 bg-gray-900/50 rounded-xl border border-gray-800">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-xl font-bold text-gray-50">风格管理</h3>
-      <button
-        class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all flex items-center gap-2"
-        @click="openCreateModal"
-      >
-        <Plus :size="18" />
-        创建新风格
-      </button>
-    </div>
-
+  <div class="style-manager">
     <!-- 风格列表 -->
-    <div class="style-list space-y-6">
+    <div class="style-list space-y-4">
       <!-- 我的风格分类 -->
-      <div v-if="myStyles && myStyles.length > 0" class="my-styles">
-        <div class="flex items-center gap-2 mb-3">
-          <div class="w-1 h-4 bg-blue-500 rounded-full"></div>
-          <h4 class="text-sm font-semibold text-gray-300">我的风格</h4>
-          <span class="text-xs text-gray-500">({{ myStyles.length }})</span>
-        </div>
-        <div class="space-y-2">
-          <div
-            v-for="style in myStyles"
-            :key="style.id"
-            class="style-card p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors cursor-pointer"
-            :class="{ 'border-blue-500 bg-blue-500/10': selectedStyle?.id === style.id }"
-            @click="selectStyle(style)"
+      <div v-if="props.myStyles && props.myStyles.length > 0" class="my-styles">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-1 h-4 bg-blue-500 rounded-full"></div>
+            <h4 class="text-sm font-semibold text-gray-300">我的风格</h4>
+            <span class="text-xs text-gray-500">({{ props.myStyles.length }})</span>
+          </div>
+          <button
+            class="text-sm text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+            @click="openCreateModal"
           >
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white" :class="style.color">
-                {{ style.name.substring(0, 2) }}
-              </div>
-              <div class="flex-1">
-                <h4 class="text-gray-50 font-medium">{{ style.name }}</h4>
-                <p class="text-sm text-gray-400">{{ style.description }}</p>
-                <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-gray-500">来源:</span>
-                  <span class="text-xs text-blue-400">{{ style.source }}</span>
+            <Plus :size="16" />
+            创建新风格
+          </button>
+        </div>
+        
+        <!-- 横向滚动容器 -->
+        <div class="overflow-x-auto scrollbar-thin pb-2">
+          <div class="flex gap-3 min-w-max">
+            <div
+              v-for="style in props.myStyles"
+              :key="style.id"
+              class="flex-shrink-0 w-32 p-3 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-blue-500 transition-all cursor-pointer group relative"
+              :class="{ 'border-blue-500 bg-blue-500/10': selectedStyleId === style.id }"
+              @click="selectStyle(style)"
+            >
+              <!-- 头像 -->
+              <div class="flex justify-center mb-2">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold text-white" :class="style.color">
+                  {{ style.name.substring(0, 2) }}
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              
+              <!-- 名称 -->
+              <h4 class="text-sm font-medium text-gray-50 text-center truncate">{{ style.name }}</h4>
+              
+              <!-- 操作按钮 - 悬浮显示 -->
+              <div class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
-                  class="p-2 text-gray-400 hover:text-blue-400 transition-colors"
+                  class="p-1 bg-gray-900/80 text-gray-400 hover:text-blue-400 rounded transition-colors"
                   @click.stop="editMyStyle(style)"
-                  title="编辑风格"
+                  title="编辑"
                 >
-                  <Edit3 :size="16" />
+                  <Edit3 :size="12" />
                 </button>
                 <button
-                  class="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                  class="p-1 bg-gray-900/80 text-gray-400 hover:text-red-400 rounded transition-colors"
                   @click.stop="deleteStyle(style)"
-                  title="删除风格"
+                  title="删除"
                 >
-                  <Trash2 :size="16" />
+                  <Trash2 :size="12" />
                 </button>
               </div>
             </div>
@@ -63,38 +63,40 @@
 
       <!-- 系统预设分类 -->
       <div class="preset-styles">
-        <div class="flex items-center gap-2 mb-3">
+        <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-purple-500 rounded-full"></div>
           <h4 class="text-sm font-semibold text-gray-300">系统预设</h4>
           <span class="text-xs text-gray-500">({{ systemStyles.length }})</span>
         </div>
-        <div class="space-y-2">
-          <div
-            v-for="style in systemStyles"
-            :key="style.id"
-            class="style-card p-4 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer"
-            :class="{ 'border-purple-500 bg-purple-500/10': selectedStyle?.id === style.id }"
-            @click="selectStyle(style)"
-          >
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white" :class="style.color">
-                {{ style.name.substring(0, 2) }}
-              </div>
-              <div class="flex-1">
-                <h4 class="text-gray-50 font-medium">{{ style.name }}</h4>
-                <p class="text-sm text-gray-400">{{ style.description }}</p>
-                <div class="flex items-center gap-2 mt-1">
-                  <span class="text-xs text-gray-500">来源:</span>
-                  <span class="text-xs text-purple-400">{{ style.source || '系统预设' }}</span>
+        
+        <!-- 横向滚动容器 -->
+        <div class="overflow-x-auto scrollbar-thin pb-2">
+          <div class="flex gap-3 min-w-max">
+            <div
+              v-for="style in systemStyles"
+              :key="style.id"
+              class="flex-shrink-0 w-32 p-3 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-purple-500 transition-all cursor-pointer group relative"
+              :class="{ 'border-purple-500 bg-purple-500/10': selectedStyleId === style.id }"
+              @click="selectStyle(style)"
+            >
+              <!-- 头像 -->
+              <div class="flex justify-center mb-2">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold text-white" :class="style.color">
+                  {{ style.name.substring(0, 2) }}
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              
+              <!-- 名称 -->
+              <h4 class="text-sm font-medium text-gray-50 text-center truncate">{{ style.name }}</h4>
+              
+              <!-- 编辑按钮 - 悬浮显示 -->
+              <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
-                  class="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+                  class="p-1 bg-gray-900/80 text-gray-400 hover:text-purple-400 rounded transition-colors"
                   @click.stop="editSystemStyle(style)"
-                  title="编辑风格内容"
+                  title="编辑内容"
                 >
-                  <Edit3 :size="16" />
+                  <Edit3 :size="12" />
                 </button>
               </div>
             </div>
@@ -104,7 +106,7 @@
     </div>
 
     <!-- 创建风格模态框 - 两步流程 -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div class="bg-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <!-- 头部 -->
         <div class="flex items-center justify-between p-6 border-b border-gray-700">
@@ -163,7 +165,7 @@
               <input
                 v-model="styleForm.name"
                 type="text"
-                placeholder="例如：CEO-创新风格、雷军风格"
+                placeholder="例如：雷军风格、华与华风格"
                 class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none"
                 required
               />
@@ -171,13 +173,12 @@
 
             <!-- 风格描述 -->
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">风格描述 <span class="text-red-400">*</span></label>
+              <label class="block text-sm font-medium text-gray-300 mb-2">风格描述 <span class="text-gray-500">(选填)</span></label>
               <textarea
                 v-model="styleForm.description"
                 rows="3"
                 placeholder="描述这个风格的特点和适用场景..."
                 class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
-                required
               ></textarea>
             </div>
 
@@ -392,7 +393,7 @@
     </div>
 
     <!-- 云盘文档选择器模态框 -->
-    <div v-if="showCloudSelector" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
+    <div v-if="showCloudSelector" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[60] p-4">
       <div class="bg-gray-800 rounded-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         <div class="p-6 border-b border-gray-700 flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-200">选择云盘文档</h3>
@@ -413,7 +414,7 @@
     </div>
 
     <!-- 编辑系统风格内容模态框 -->
-    <div v-if="showEditSystemStyleModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div v-if="showEditSystemStyleModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div class="bg-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <div class="flex items-center justify-between p-6 border-b border-gray-700">
           <div>
@@ -481,6 +482,9 @@ const emit = defineEmits<{
   'style-update': [style: any]
   'style-delete': [styleId: string]
 }>()
+
+// 当前选中的风格 ID（用于响应式比较）
+const selectedStyleId = computed(() => props.selectedStyle?.id)
 
 // 系统预设风格（非"我的风格"）
 const systemStyles = computed(() => {
@@ -569,7 +573,6 @@ const editingStyleContent = ref('')
 // 计算是否可以进入第二步
 const canProceedToStep2 = computed(() => {
   return styleForm.name.trim() && 
-         styleForm.description.trim() && 
          (selectedCloudFiles.value.length > 0 || selectedUrls.value.length > 0)
 })
 
@@ -805,11 +808,30 @@ const saveNewStyle = () => {
 </script>
 
 <style scoped>
-.style-card {
-  transition: all 0.2s ease;
+/* 横向滚动条样式 */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
 }
 
-.style-card:hover {
-  transform: translateY(-2px);
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.3);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.5);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.7);
+}
+
+/* 文本截断 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

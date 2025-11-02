@@ -96,7 +96,7 @@
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-black/50">
+    <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md">
       <Loader2 :size="48" class="text-white animate-spin" />
     </div>
 

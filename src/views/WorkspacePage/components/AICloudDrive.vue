@@ -239,7 +239,7 @@
     />
 
     <!-- 新建文件夹模态框 -->
-    <div v-if="showNewFolderModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click="showNewFolderModal = false">
+    <div v-if="showNewFolderModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50" @click="showNewFolderModal = false">
       <div class="bg-gray-800 rounded-lg p-6 w-96" @click.stop @mousedown.stop @mouseup.stop>
         <h3 class="text-lg font-semibold text-gray-50 mb-4">新建文件夹</h3>
         <input

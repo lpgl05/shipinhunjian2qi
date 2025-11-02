@@ -37,6 +37,16 @@
         </button>
       </Tooltip>
 
+      <!-- 知识库 -->
+      <Tooltip text="知识库">
+        <button 
+          class="sidebar-icon-btn"
+          @click="handleKnowledgeBase"
+        >
+          <BookOpen :size="20" />
+        </button>
+      </Tooltip>
+
       <!-- 历史记录 -->
       <Tooltip text="历史记录">
         <button class="sidebar-icon-btn">
@@ -82,7 +92,8 @@
 import { 
   Sparkles,
   PlusCircle, 
-  FolderKanban, 
+  FolderKanban,
+  BookOpen,
   Clock,
   Star,
   Shield,
@@ -115,6 +126,13 @@ const handleNewChat = () => {
  */
 const handleProfile = () => {
   router.push('/profile')
+}
+
+/**
+ * 跳转到知识库管理页面
+ */
+const handleKnowledgeBase = () => {
+  router.push('/knowledge-base')
 }
 
 /**
