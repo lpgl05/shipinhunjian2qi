@@ -397,10 +397,11 @@ const writingTemplates = computed(() => {
   return frontendConfigStore.getWritingTemplates()
 })
 
-// 我的风格（基于文档训练）
+// 我的风格（包含基于文档训练的 + 手动创建的）
 const myStyles = computed(() => {
+  // 基于文档训练的风格
   const trainedDocs = documentsStore.documents.filter(doc => doc.trainingStatus === 'completed')
-  return trainedDocs.map(doc => ({
+  const docStyles = trainedDocs.map(doc => ({
     id: `my-style-${doc.id}`,
     name: `我的风格-${doc.name}`,
     description: `基于文档"${doc.name}"训练的专属风格`,
@@ -408,6 +409,12 @@ const myStyles = computed(() => {
     source: '个人知识库',
     isMine: true
   }))
+  
+  // 手动创建的风格
+  const createdStyles = availableStyles.value.filter(style => style.isMine)
+  
+  // 合并两种类型的风格
+  return [...createdStyles, ...docStyles]
 })
 
 // 预设风格
@@ -435,9 +442,10 @@ const availableStyles = ref([
   }
 ])
 
-// 所有风格（我的风格 + 预设风格）
+// 所有风格（我的风格 + 系统预设风格，避免重复）
 const allStyles = computed(() => {
-  return [...myStyles.value, ...availableStyles.value]
+  const systemStyles = availableStyles.value.filter(style => !style.isMine)
+  return [...myStyles.value, ...systemStyles]
 })
 
 // 自动调整textarea高度
@@ -528,9 +536,22 @@ const handleStyleSelect = (style: any) => {
 
 // 处理风格创建
 const handleStyleCreate = (style: any) => {
+  // 添加到可用风格列表
   availableStyles.value.push(style)
+  
+  // 自动选中新创建的风格
   selectedStyle.value = style
+  
+  // 显示配置表单
   showConfigForm.value = true
+  
+  // 滚动到配置表单区域
+  nextTick(() => {
+    const configElement = document.querySelector('.config-form')
+    if (configElement) {
+      configElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  })
 }
 
 // 处理风格更新

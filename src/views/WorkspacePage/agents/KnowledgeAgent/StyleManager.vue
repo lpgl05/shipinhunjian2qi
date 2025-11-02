@@ -40,6 +40,22 @@
                   <span class="text-xs text-blue-400">{{ style.source }}</span>
                 </div>
               </div>
+              <div class="flex items-center gap-2">
+                <button
+                  class="p-2 text-gray-400 hover:text-blue-400 transition-colors"
+                  @click.stop="editMyStyle(style)"
+                  title="编辑风格"
+                >
+                  <Edit3 :size="16" />
+                </button>
+                <button
+                  class="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                  @click.stop="deleteStyle(style)"
+                  title="删除风格"
+                >
+                  <Trash2 :size="16" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -74,18 +90,11 @@
               </div>
               <div class="flex items-center gap-2">
                 <button
-                  class="p-2 text-gray-400 hover:text-gray-200 transition-colors"
-                  @click.stop="editStyle(style)"
-                  title="编辑风格"
+                  class="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+                  @click.stop="editSystemStyle(style)"
+                  title="编辑风格内容"
                 >
                   <Edit3 :size="16" />
-                </button>
-                <button
-                  class="p-2 text-gray-400 hover:text-red-400 transition-colors"
-                  @click.stop="deleteStyle(style)"
-                  title="删除风格"
-                >
-                  <Trash2 :size="16" />
                 </button>
               </div>
             </div>
@@ -100,11 +109,11 @@
         <!-- 头部 -->
         <div class="flex items-center justify-between p-6 border-b border-gray-700">
           <div>
-            <h3 class="text-xl font-bold text-gray-50">创建新风格</h3>
+            <h3 class="text-xl font-bold text-gray-50">{{ isEditMode ? '编辑风格' : '创建新风格' }}</h3>
             <p class="text-sm text-gray-400 mt-1">
               <span v-if="createStep === 1">第一步：配置风格基础信息</span>
               <span v-else-if="createStep === 2">正在学习风格特征...</span>
-              <span v-else>第二步：审核和编辑风格内容</span>
+              <span v-else>第三步：审核和编辑风格内容</span>
             </p>
           </div>
           <button
@@ -375,7 +384,7 @@
               class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all font-medium"
               @click="saveNewStyle"
             >
-              保存风格
+              {{ isEditMode ? '保存修改' : '保存风格' }}
             </button>
           </div>
         </div>
@@ -400,6 +409,54 @@
           @confirm="handleCloudFilesConfirm"
           @upload="handleUploadToCloud"
         />
+      </div>
+    </div>
+
+    <!-- 编辑系统风格内容模态框 -->
+    <div v-if="showEditSystemStyleModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div class="bg-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="flex items-center justify-between p-6 border-b border-gray-700">
+          <div>
+            <h3 class="text-xl font-bold text-gray-50">编辑风格内容</h3>
+            <p class="text-sm text-gray-400 mt-1">{{ editingStyleData.name }}</p>
+          </div>
+          <button
+            class="p-2 text-gray-400 hover:text-gray-200 transition-colors"
+            @click="closeEditSystemStyleModal"
+          >
+            <X :size="24" />
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">风格内容（可编辑）</label>
+            <textarea
+              v-model="editingStyleContent"
+              rows="20"
+              class="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-300 font-mono text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
+              placeholder="风格内容..."
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-2">支持 Markdown 格式</p>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-700 p-6 flex items-center justify-end gap-3 bg-gray-900/50">
+          <button
+            type="button"
+            class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+            @click="closeEditSystemStyleModal"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all font-medium"
+            @click="saveSystemStyleContent"
+          >
+            保存
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -483,6 +540,8 @@ const showCreateModal = ref(false)
 const createStep = ref(1) // 1: 基础配置, 2: AI学习, 3: 编辑内容
 const sourceTab = ref<'cloud' | 'url'>('cloud')
 const showCloudSelector = ref(false)
+const isEditMode = ref(false) // 是否为编辑模式
+const editingStyleId = ref('') // 正在编辑的风格ID
 
 const styleForm = reactive({
   name: '',
@@ -502,6 +561,11 @@ const learningStatus = reactive({
 
 const generatedStyleContent = ref('')
 
+// 编辑系统风格内容相关状态
+const showEditSystemStyleModal = ref(false)
+const editingStyleData = ref<any>({})
+const editingStyleContent = ref('')
+
 // 计算是否可以进入第二步
 const canProceedToStep2 = computed(() => {
   return styleForm.name.trim() && 
@@ -514,18 +578,60 @@ const selectStyle = (style: any) => {
   emit('style-select', style)
 }
 
-const editStyle = (style: any) => {
-  // TODO: 实现编辑功能
-  console.log('编辑风格:', style)
-}
-
 const deleteStyle = (style: any) => {
   if (confirm(`确定要删除风格"${style.name}"吗？`)) {
     emit('style-delete', style.id)
   }
 }
 
+// 编辑系统预设风格（只编辑内容）
+const editSystemStyle = (style: any) => {
+  editingStyleData.value = style
+  editingStyleContent.value = style.content || `# ${style.name}\n\n## 风格概述\n${style.description}\n\n...（风格内容待完善）`
+  showEditSystemStyleModal.value = true
+}
+
+const closeEditSystemStyleModal = () => {
+  showEditSystemStyleModal.value = false
+  editingStyleData.value = {}
+  editingStyleContent.value = ''
+}
+
+const saveSystemStyleContent = () => {
+  const updatedStyle = {
+    ...editingStyleData.value,
+    content: editingStyleContent.value
+  }
+  emit('style-update', updatedStyle)
+  alert(`风格"${updatedStyle.name}"内容已更新！`)
+  closeEditSystemStyleModal()
+}
+
+// 编辑我的风格（完整编辑三步）
+const editMyStyle = (style: any) => {
+  isEditMode.value = true
+  editingStyleId.value = style.id
+  
+  // 填充表单
+  styleForm.name = style.name
+  styleForm.description = style.description
+  styleForm.color = style.color
+  
+  // 解析来源（模拟）
+  selectedCloudFiles.value = []
+  selectedUrls.value = []
+  
+  // 填充风格内容
+  generatedStyleContent.value = style.content || ''
+  
+  // 打开模态框，直接进入第三步（可以返回修改前两步）
+  showCreateModal.value = true
+  createStep.value = 3
+}
+
 const openCreateModal = () => {
+  isEditMode.value = false
+  editingStyleId.value = ''
   showCreateModal.value = true
   createStep.value = 1
   resetForm()
@@ -536,6 +642,8 @@ const closeCreateModal = () => {
     return // 学习过程中不允许关闭
   }
   showCreateModal.value = false
+  isEditMode.value = false
+  editingStyleId.value = ''
   resetForm()
 }
 
@@ -656,24 +764,42 @@ ${sources}
 }
 
 const saveNewStyle = () => {
-  const newStyle = {
-    id: Date.now().toString(),
-    name: styleForm.name,
-    description: styleForm.description,
-    color: styleForm.color,
-    source: `个人创建 (${selectedCloudFiles.value.length + selectedUrls.value.length} 个来源)`,
-    content: generatedStyleContent.value,
-    isMine: true,
-    createdAt: new Date().toISOString()
-  }
+  if (isEditMode.value) {
+    // 编辑模式：更新现有风格
+    const updatedStyle = {
+      id: editingStyleId.value,
+      name: styleForm.name,
+      description: styleForm.description,
+      color: styleForm.color,
+      source: `个人创建 (${selectedCloudFiles.value.length + selectedUrls.value.length} 个来源)`,
+      content: generatedStyleContent.value,
+      isMine: true,
+      updatedAt: new Date().toISOString()
+    }
 
-  emit('style-create', newStyle)
-  
-  // 显示成功提示
-  alert(`风格"${newStyle.name}"创建成功！`)
+    emit('style-update', updatedStyle)
+    alert(`风格"${updatedStyle.name}"更新成功！`)
+  } else {
+    // 创建模式：创建新风格
+    const newStyle = {
+      id: Date.now().toString(),
+      name: styleForm.name,
+      description: styleForm.description,
+      color: styleForm.color,
+      source: `个人创建 (${selectedCloudFiles.value.length + selectedUrls.value.length} 个来源)`,
+      content: generatedStyleContent.value,
+      isMine: true,
+      createdAt: new Date().toISOString()
+    }
+
+    emit('style-create', newStyle)
+    alert(`风格"${newStyle.name}"创建成功！`)
+  }
   
   // 关闭模态框
   showCreateModal.value = false
+  isEditMode.value = false
+  editingStyleId.value = ''
   resetForm()
 }
 </script>

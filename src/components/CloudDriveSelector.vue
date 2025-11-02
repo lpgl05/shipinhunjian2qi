@@ -1,16 +1,25 @@
 <template>
   <div class="cloud-drive-selector">
     <div class="max-h-[400px] overflow-y-auto">
-      <!-- 搜索框 -->
+      <!-- 搜索框和上传按钮 -->
       <div class="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 z-10">
-        <div class="relative">
-          <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="搜索文档..."
-            class="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-blue-500 outline-none"
-          />
+        <div class="flex gap-3">
+          <div class="relative flex-1">
+            <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="搜索文档..."
+              class="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-blue-500 outline-none"
+            />
+          </div>
+          <button
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
+            @click="$emit('upload')"
+          >
+            <Upload :size="18" />
+            上传文档
+          </button>
         </div>
       </div>
 
@@ -19,12 +28,7 @@
         <div v-if="filteredFiles.length === 0" class="text-center py-8 text-gray-400">
           <FileText :size="48" class="mx-auto mb-4 text-gray-600" />
           <p>云盘中暂无文档</p>
-          <button
-            class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            @click="$emit('upload')"
-          >
-            上传文档到云盘
-          </button>
+          <p class="text-sm mt-2">点击上方"上传文档"按钮添加文件</p>
         </div>
 
         <div
@@ -51,7 +55,6 @@
               <span>{{ file.uploadDate }}</span>
             </div>
           </div>
-          <TrainingStatusBadge v-if="file.trainingStatus" :status="file.trainingStatus" />
         </div>
       </div>
     </div>
@@ -85,8 +88,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Search, FileText, FileType, File as FileIcon } from 'lucide-vue-next'
-import TrainingStatusBadge from './TrainingStatusBadge.vue'
+import { Search, FileText, FileType, File as FileIcon, Upload } from 'lucide-vue-next'
 
 interface CloudFile {
   id: string
