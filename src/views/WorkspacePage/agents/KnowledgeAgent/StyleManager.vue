@@ -1,20 +1,14 @@
 <template>
-  <div class="style-manager">
-    <!-- 风格管理头部 -->
-    <div class="style-header mb-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-semibold text-gray-200">写作风格管理</h3>
-          <p class="text-sm text-gray-400">管理和创建您的专属写作风格</p>
-        </div>
-        <button
-          class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-          @click="showCreateModal = true"
-        >
-          <Plus :size="16" />
-          新增风格
-        </button>
-      </div>
+  <div class="style-manager p-6 bg-gray-900/50 rounded-xl border border-gray-800">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-xl font-bold text-gray-50">风格管理</h3>
+      <button
+        class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all flex items-center gap-2"
+        @click="openCreateModal"
+      >
+        <Plus :size="18" />
+        创建新风格
+      </button>
     </div>
 
     <!-- 风格列表 -->
@@ -100,120 +94,312 @@
       </div>
     </div>
 
-    <!-- 创建/编辑风格模态框 -->
-    <div v-if="showCreateModal || showEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-gray-800 rounded-xl p-6 w-full max-w-2xl mx-4">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-200">
-            {{ showEditModal ? '编辑风格' : '创建新风格' }}
-          </h3>
+    <!-- 创建风格模态框 - 两步流程 -->
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div class="bg-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <!-- 头部 -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-700">
+          <div>
+            <h3 class="text-xl font-bold text-gray-50">创建新风格</h3>
+            <p class="text-sm text-gray-400 mt-1">
+              <span v-if="createStep === 1">第一步：配置风格基础信息</span>
+              <span v-else-if="createStep === 2">正在学习风格特征...</span>
+              <span v-else>第二步：审核和编辑风格内容</span>
+            </p>
+          </div>
           <button
             class="p-2 text-gray-400 hover:text-gray-200 transition-colors"
-            @click="closeModal"
+            @click="closeCreateModal"
+          >
+            <X :size="24" />
+          </button>
+        </div>
+
+        <!-- 步骤指示器 -->
+        <div class="px-6 py-4 bg-gray-900/50 border-b border-gray-700">
+          <div class="flex items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                :class="createStep >= 1 ? 'bg-purple-500 text-white' : 'bg-gray-700 text-gray-400'">
+                1
+              </div>
+              <span class="text-sm" :class="createStep >= 1 ? 'text-gray-200' : 'text-gray-500'">基础配置</span>
+            </div>
+            <div class="w-12 h-0.5" :class="createStep >= 2 ? 'bg-purple-500' : 'bg-gray-700'"></div>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                :class="createStep >= 2 ? 'bg-purple-500 text-white' : 'bg-gray-700 text-gray-400'">
+                2
+              </div>
+              <span class="text-sm" :class="createStep >= 2 ? 'text-gray-200' : 'text-gray-500'">AI学习</span>
+            </div>
+            <div class="w-12 h-0.5" :class="createStep >= 3 ? 'bg-purple-500' : 'bg-gray-700'"></div>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                :class="createStep >= 3 ? 'bg-purple-500 text-white' : 'bg-gray-700 text-gray-400'">
+                3
+              </div>
+              <span class="text-sm" :class="createStep >= 3 ? 'text-gray-200' : 'text-gray-500'">完成</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="flex-1 overflow-y-auto p-6">
+          <!-- 第一步：基础配置 -->
+          <div v-if="createStep === 1" class="space-y-6">
+            <!-- 风格名称 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">风格名称 <span class="text-red-400">*</span></label>
+              <input
+                v-model="styleForm.name"
+                type="text"
+                placeholder="例如：CEO-创新风格、雷军风格"
+                class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none"
+                required
+              />
+            </div>
+
+            <!-- 风格描述 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">风格描述 <span class="text-red-400">*</span></label>
+              <textarea
+                v-model="styleForm.description"
+                rows="3"
+                placeholder="描述这个风格的特点和适用场景..."
+                class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
+                required
+              ></textarea>
+            </div>
+
+            <!-- 风格颜色 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">风格颜色</label>
+              <div class="flex gap-3">
+                <button
+                  v-for="color in colorOptions"
+                  :key="color.value"
+                  type="button"
+                  class="w-10 h-10 rounded-full border-2 transition-all hover:scale-110"
+                  :class="[
+                    color.value,
+                    styleForm.color === color.value ? 'border-white scale-110 ring-2 ring-white/50' : 'border-gray-600'
+                  ]"
+                  @click="styleForm.color = color.value"
+                ></button>
+              </div>
+            </div>
+
+            <!-- 知识来源选择 -->
+            <div class="space-y-4">
+              <label class="block text-sm font-medium text-gray-300">知识来源 <span class="text-red-400">*</span></label>
+              
+              <!-- 来源类型标签 -->
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="sourceTab === 'cloud' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400 hover:text-gray-200'"
+                  @click="sourceTab = 'cloud'"
+                >
+                  <FolderOpen :size="16" class="inline mr-1" />
+                  云盘文档
+                </button>
+                <button
+                  type="button"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="sourceTab === 'url' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400 hover:text-gray-200'"
+                  @click="sourceTab = 'url'"
+                >
+                  <Link2 :size="16" class="inline mr-1" />
+                  在线网址
+                </button>
+              </div>
+
+              <!-- 云盘文档选择 -->
+              <div v-if="sourceTab === 'cloud'" class="space-y-3">
+                <button
+                  type="button"
+                  class="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg text-gray-300 transition-colors flex items-center justify-center gap-2"
+                  @click="showCloudSelector = true"
+                >
+                  <FolderOpen :size="18" />
+                  从云盘选择文档（支持多选）
+                </button>
+
+                <!-- 已选择的文档 -->
+                <div v-if="selectedCloudFiles.length > 0" class="space-y-2">
+                  <div class="text-xs text-gray-400 mb-2">已选择 {{ selectedCloudFiles.length }} 个文档：</div>
+                  <div
+                    v-for="file in selectedCloudFiles"
+                    :key="file.id"
+                    class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg"
+                  >
+                    <FileText :size="16" class="text-blue-400" />
+                    <span class="flex-1 text-sm text-gray-300">{{ file.name }}</span>
+                    <button
+                      type="button"
+                      class="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                      @click="removeCloudFile(file.id)"
+                    >
+                      <X :size="16" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 在线网址输入 -->
+              <div v-if="sourceTab === 'url'" class="space-y-3">
+                <div class="flex gap-2">
+                  <input
+                    v-model="urlInput"
+                    type="url"
+                    placeholder="输入知识库网址，如 https://example.com"
+                    class="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none"
+                    @keyup.enter="addUrl"
+                  />
+                  <button
+                    type="button"
+                    class="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    @click="addUrl"
+                  >
+                    添加
+                  </button>
+                </div>
+
+                <!-- 已添加的网址 -->
+                <div v-if="selectedUrls.length > 0" class="space-y-2">
+                  <div class="text-xs text-gray-400 mb-2">已添加 {{ selectedUrls.length }} 个网址：</div>
+                  <div
+                    v-for="(url, index) in selectedUrls"
+                    :key="index"
+                    class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg"
+                  >
+                    <Link2 :size="16" class="text-green-400" />
+                    <span class="flex-1 text-sm text-gray-300 truncate">{{ url }}</span>
+                    <button
+                      type="button"
+                      class="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                      @click="removeUrl(index)"
+                    >
+                      <X :size="16" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 第二步：AI学习进度 -->
+          <div v-if="createStep === 2" class="flex items-center justify-center py-12">
+            <div class="text-center max-w-md">
+              <div class="mb-6">
+                <div class="w-20 h-20 mx-auto mb-4 relative">
+                  <div class="absolute inset-0 border-4 border-purple-500/30 rounded-full"></div>
+                  <div class="absolute inset-0 border-4 border-transparent border-t-purple-500 rounded-full animate-spin"></div>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <Sparkles :size="32" class="text-purple-400" />
+                  </div>
+                </div>
+              </div>
+              
+              <h4 class="text-lg font-semibold text-gray-200 mb-2">{{ learningStatus.message }}</h4>
+              <p class="text-sm text-gray-400 mb-6">{{ learningStatus.detail }}</p>
+              
+              <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                <div 
+                  class="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 ease-out"
+                  :style="{ width: learningStatus.progress + '%' }"
+                ></div>
+              </div>
+              <div class="mt-2 text-sm text-gray-400">{{ learningStatus.progress }}%</div>
+            </div>
+          </div>
+
+          <!-- 第三步：风格内容编辑 -->
+          <div v-if="createStep === 3" class="space-y-4">
+            <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 flex items-start gap-3">
+              <CheckCircle :size="20" class="text-green-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 class="text-green-400 font-medium mb-1">风格学习完成！</h4>
+                <p class="text-sm text-gray-400">AI已成功分析您提供的知识源，并生成了以下风格特征。您可以查看和编辑生成的内容。</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">生成的风格内容（可编辑）</label>
+              <textarea
+                v-model="generatedStyleContent"
+                rows="15"
+                class="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-300 font-mono text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
+                placeholder="风格内容将在这里显示..."
+              ></textarea>
+              <p class="text-xs text-gray-500 mt-2">支持 Markdown 格式，保存后将作为该风格的核心特征。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部操作按钮 -->
+        <div class="border-t border-gray-700 p-6 flex items-center justify-between bg-gray-900/50">
+          <button
+            v-if="createStep === 1"
+            type="button"
+            class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+            @click="closeCreateModal"
+          >
+            取消
+          </button>
+          <button
+            v-else-if="createStep === 3"
+            type="button"
+            class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
+            @click="createStep = 1"
+          >
+            返回修改
+          </button>
+          <div v-else></div>
+
+          <div class="flex gap-3">
+            <button
+              v-if="createStep === 1"
+              type="button"
+              class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="!canProceedToStep2"
+              @click="startLearning"
+            >
+              开始学习风格
+            </button>
+            <button
+              v-else-if="createStep === 3"
+              type="button"
+              class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all font-medium"
+              @click="saveNewStyle"
+            >
+              保存风格
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 云盘文档选择器模态框 -->
+    <div v-if="showCloudSelector" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
+      <div class="bg-gray-800 rounded-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-gray-700 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-200">选择云盘文档</h3>
+          <button
+            class="p-2 text-gray-400 hover:text-gray-200 transition-colors"
+            @click="showCloudSelector = false"
           >
             <X :size="20" />
           </button>
         </div>
-
-        <form @submit.prevent="saveStyle" class="space-y-4">
-          <!-- 风格名称 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">风格名称</label>
-            <input
-              v-model="styleForm.name"
-              type="text"
-              placeholder="例如：CEO-创新风格"
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none"
-              required
-            />
-          </div>
-
-          <!-- 风格描述 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">风格描述</label>
-            <textarea
-              v-model="styleForm.description"
-              rows="3"
-              placeholder="描述这个风格的特点和适用场景..."
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
-              required
-            ></textarea>
-          </div>
-
-          <!-- 风格颜色 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">风格颜色</label>
-            <div class="flex gap-2">
-              <button
-                v-for="color in colorOptions"
-                :key="color.value"
-                type="button"
-                class="w-8 h-8 rounded-full border-2 transition-all"
-                :class="[
-                  color.value,
-                  styleForm.color === color.value ? 'border-white scale-110' : 'border-gray-600'
-                ]"
-                @click="styleForm.color = color.value"
-              ></button>
-            </div>
-          </div>
-
-          <!-- 知识库来源 -->
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">知识库来源</label>
-            <div class="space-y-3">
-              <!-- 文件上传 -->
-              <div>
-                <label class="block text-sm text-gray-400 mb-1">上传文档</label>
-                <input
-                  type="file"
-                  accept=".txt,.md,.pdf,.doc,.docx"
-                  @change="handleFileUpload"
-                  class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-purple-600 file:text-white hover:file:bg-purple-700"
-                />
-              </div>
-
-              <!-- 链接输入 -->
-              <div>
-                <label class="block text-sm text-gray-400 mb-1">知识库链接</label>
-                <input
-                  v-model="styleForm.knowledgeUrl"
-                  type="url"
-                  placeholder="输入知识库链接..."
-                  class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none"
-                />
-              </div>
-
-              <!-- 文本输入 -->
-              <div>
-                <label class="block text-sm text-gray-400 mb-1">直接输入内容</label>
-                <textarea
-                  v-model="styleForm.knowledgeText"
-                  rows="4"
-                  placeholder="直接输入要学习的文本内容..."
-                  class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
-                ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- 操作按钮 -->
-          <div class="flex items-center justify-end gap-3 pt-4">
-            <button
-              type="button"
-              class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
-              @click="closeModal"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-            >
-              {{ showEditModal ? '保存修改' : '创建风格' }}
-            </button>
-          </div>
-        </form>
+        <CloudDriveSelector
+          :files="cloudFiles"
+          :selected-ids="selectedCloudFiles.map(f => f.id)"
+          @confirm="handleCloudFilesConfirm"
+          @upload="handleUploadToCloud"
+        />
       </div>
     </div>
   </div>
@@ -221,7 +407,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { Plus, Edit3, Trash2, X } from 'lucide-vue-next'
+import { Plus, Edit3, Trash2, X, FolderOpen, Link2, FileText, Sparkles, CheckCircle } from 'lucide-vue-next'
+import CloudDriveSelector from '../../../../components/CloudDriveSelector.vue'
 
 // Props
 const props = defineProps<{
@@ -243,108 +430,260 @@ const systemStyles = computed(() => {
   return props.availableStyles.filter(style => !style.isMine)
 })
 
-// 响应式数据
-const showCreateModal = ref(false)
-const showEditModal = ref(false)
-const editingStyle = ref<any>(null)
+// 颜色选项
+const colorOptions = [
+  { value: 'bg-purple-500', name: '紫色' },
+  { value: 'bg-blue-500', name: '蓝色' },
+  { value: 'bg-green-500', name: '绿色' },
+  { value: 'bg-orange-500', name: '橙色' },
+  { value: 'bg-red-500', name: '红色' },
+  { value: 'bg-pink-500', name: '粉色' },
+  { value: 'bg-indigo-500', name: '靛蓝' },
+  { value: 'bg-teal-500', name: '青色' }
+]
 
-// 风格表单
+// 模拟云盘文件
+const cloudFiles = ref([
+  {
+    id: 'cf1',
+    name: '公司年度报告.pdf',
+    type: 'pdf',
+    size: '3.2MB',
+    uploadDate: '2023-10-20',
+    trainingStatus: 'completed' as const
+  },
+  {
+    id: 'cf2',
+    name: '市场分析报告.docx',
+    type: 'docx',
+    size: '1.8MB',
+    uploadDate: '2023-10-22',
+    trainingStatus: 'completed' as const
+  },
+  {
+    id: 'cf3',
+    name: '产品说明书.txt',
+    type: 'txt',
+    size: '0.5MB',
+    uploadDate: '2023-10-25',
+    trainingStatus: 'completed' as const
+  },
+  {
+    id: 'cf4',
+    name: '雷军演讲稿集.pdf',
+    type: 'pdf',
+    size: '2.1MB',
+    uploadDate: '2023-11-01',
+    trainingStatus: 'completed' as const
+  }
+])
+
+// 创建风格相关状态
+const showCreateModal = ref(false)
+const createStep = ref(1) // 1: 基础配置, 2: AI学习, 3: 编辑内容
+const sourceTab = ref<'cloud' | 'url'>('cloud')
+const showCloudSelector = ref(false)
+
 const styleForm = reactive({
   name: '',
   description: '',
-  color: 'bg-purple-500',
-  knowledgeUrl: '',
-  knowledgeText: '',
-  source: ''
+  color: 'bg-purple-500'
 })
 
-// 颜色选项
-const colorOptions = [
-  { value: 'bg-purple-500', label: '紫色' },
-  { value: 'bg-blue-500', label: '蓝色' },
-  { value: 'bg-green-500', label: '绿色' },
-  { value: 'bg-orange-500', label: '橙色' },
-  { value: 'bg-red-500', label: '红色' },
-  { value: 'bg-pink-500', label: '粉色' },
-  { value: 'bg-indigo-500', label: '靛蓝' },
-  { value: 'bg-teal-500', label: '青色' }
-]
+const selectedCloudFiles = ref<any[]>([])
+const selectedUrls = ref<string[]>([])
+const urlInput = ref('')
 
-// 选择风格
+const learningStatus = reactive({
+  message: '正在分析文档内容...',
+  detail: '正在提取关键信息和写作特征',
+  progress: 0
+})
+
+const generatedStyleContent = ref('')
+
+// 计算是否可以进入第二步
+const canProceedToStep2 = computed(() => {
+  return styleForm.name.trim() && 
+         styleForm.description.trim() && 
+         (selectedCloudFiles.value.length > 0 || selectedUrls.value.length > 0)
+})
+
+// 方法
 const selectStyle = (style: any) => {
   emit('style-select', style)
 }
 
-// 编辑风格
 const editStyle = (style: any) => {
-  editingStyle.value = style
-  Object.assign(styleForm, {
-    name: style.name,
-    description: style.description,
-    color: style.color,
-    knowledgeUrl: style.knowledgeUrl || '',
-    knowledgeText: style.knowledgeText || '',
-    source: style.source || ''
-  })
-  showEditModal.value = true
+  // TODO: 实现编辑功能
+  console.log('编辑风格:', style)
 }
 
-// 删除风格
 const deleteStyle = (style: any) => {
   if (confirm(`确定要删除风格"${style.name}"吗？`)) {
     emit('style-delete', style.id)
   }
 }
 
-// 处理文件上传
-const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    // 这里可以添加文件处理逻辑
-    styleForm.source = `文件: ${file.name}`
+const openCreateModal = () => {
+  showCreateModal.value = true
+  createStep.value = 1
+  resetForm()
+}
+
+const closeCreateModal = () => {
+  if (createStep.value === 2) {
+    return // 学习过程中不允许关闭
+  }
+  showCreateModal.value = false
+  resetForm()
+}
+
+const resetForm = () => {
+  styleForm.name = ''
+  styleForm.description = ''
+  styleForm.color = 'bg-purple-500'
+  selectedCloudFiles.value = []
+  selectedUrls.value = []
+  urlInput.value = ''
+  generatedStyleContent.value = ''
+  createStep.value = 1
+}
+
+const handleCloudFilesConfirm = (fileIds: string[]) => {
+  selectedCloudFiles.value = cloudFiles.value.filter(f => fileIds.includes(f.id))
+  showCloudSelector.value = false
+}
+
+const handleUploadToCloud = () => {
+  alert('上传文件功能：这里可以跳转到云盘上传页面')
+  showCloudSelector.value = false
+}
+
+const removeCloudFile = (fileId: string) => {
+  selectedCloudFiles.value = selectedCloudFiles.value.filter(f => f.id !== fileId)
+}
+
+const addUrl = () => {
+  if (urlInput.value.trim()) {
+    try {
+      new URL(urlInput.value) // 验证URL格式
+      selectedUrls.value.push(urlInput.value.trim())
+      urlInput.value = ''
+    } catch {
+      alert('请输入有效的网址格式')
+    }
   }
 }
 
-// 保存风格
-const saveStyle = () => {
-  const styleData = {
-    id: showEditModal.value ? editingStyle.value.id : `style-${Date.now()}`,
+const removeUrl = (index: number) => {
+  selectedUrls.value.splice(index, 1)
+}
+
+const startLearning = async () => {
+  createStep.value = 2
+  learningStatus.progress = 0
+  
+  // 模拟AI学习过程
+  const stages = [
+    { message: '正在分析文档内容...', detail: '正在提取关键信息和写作特征', progress: 20, duration: 1500 },
+    { message: '正在识别写作风格...', detail: '分析语言风格、用词习惯和表达方式', progress: 45, duration: 2000 },
+    { message: '正在生成风格模型...', detail: '构建风格特征库和写作规则', progress: 70, duration: 1800 },
+    { message: '正在优化风格特征...', detail: '精炼风格要点，生成使用指南', progress: 90, duration: 1500 },
+    { message: '学习完成！', detail: '风格特征已生成', progress: 100, duration: 500 }
+  ]
+
+  for (const stage of stages) {
+    learningStatus.message = stage.message
+    learningStatus.detail = stage.detail
+    learningStatus.progress = stage.progress
+    await new Promise(resolve => setTimeout(resolve, stage.duration))
+  }
+
+  // 生成模拟的风格内容
+  generateStyleContent()
+  
+  // 进入第三步
+  createStep.value = 3
+}
+
+const generateStyleContent = () => {
+  const sources = [
+    ...selectedCloudFiles.value.map(f => `- 文档：${f.name}`),
+    ...selectedUrls.value.map(u => `- 网址：${u}`)
+  ].join('\n')
+
+  generatedStyleContent.value = `# ${styleForm.name}
+
+## 风格概述
+${styleForm.description}
+
+## 知识来源
+${sources}
+
+## 核心特征
+
+### 1. 语言风格
+- **语气**：专业、严谨、富有洞察力
+- **用词**：精准、简洁、具有行业深度
+- **句式**：长短结合，逻辑清晰，节奏感强
+
+### 2. 写作结构
+- **开篇**：直击要点，引人入胜
+- **正文**：层次分明，论据充分
+- **结尾**：总结升华，留有余韵
+
+### 3. 表达特点
+- 善于运用数据和案例支撑观点
+- 注重逻辑推理和因果分析
+- 擅长用类比和比喻增强理解
+- 语言简练有力，避免冗余
+
+### 4. 适用场景
+- 商业报告撰写
+- 行业分析文章
+- 产品介绍文案
+- 演讲稿撰写
+
+## 使用建议
+1. 在正式场合使用此风格，能够提升专业度
+2. 适合需要深度分析和逻辑论证的内容
+3. 配合具体的数据和案例效果更佳
+
+---
+*此风格由 AI 基于提供的知识源自动生成，您可以根据需要进行调整。*
+`
+}
+
+const saveNewStyle = () => {
+  const newStyle = {
+    id: Date.now().toString(),
     name: styleForm.name,
     description: styleForm.description,
     color: styleForm.color,
-    knowledgeUrl: styleForm.knowledgeUrl,
-    knowledgeText: styleForm.knowledgeText,
-    source: styleForm.source || '用户创建'
+    source: `个人创建 (${selectedCloudFiles.value.length + selectedUrls.value.length} 个来源)`,
+    content: generatedStyleContent.value,
+    isMine: true,
+    createdAt: new Date().toISOString()
   }
 
-  if (showEditModal.value) {
-    emit('style-update', styleData)
-  } else {
-    emit('style-create', styleData)
-  }
-
-  closeModal()
-}
-
-// 关闭模态框
-const closeModal = () => {
+  emit('style-create', newStyle)
+  
+  // 显示成功提示
+  alert(`风格"${newStyle.name}"创建成功！`)
+  
+  // 关闭模态框
   showCreateModal.value = false
-  showEditModal.value = false
-  editingStyle.value = null
-  Object.assign(styleForm, {
-    name: '',
-    description: '',
-    color: 'bg-purple-500',
-    knowledgeUrl: '',
-    knowledgeText: '',
-    source: ''
-  })
+  resetForm()
 }
 </script>
 
 <style scoped>
-.style-manager {
-  /* 样式管理器样式 */
+.style-card {
+  transition: all 0.2s ease;
+}
+
+.style-card:hover {
+  transform: translateY(-2px);
 }
 </style>
