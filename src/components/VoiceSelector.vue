@@ -14,12 +14,12 @@
         ]"
       >
         <!-- 音色图标 -->
-        <div class="w-12 h-12 mb-2 flex items-center justify-center">
-          <img 
-            :src="getVoiceIcon(voice.id)"
-            :alt="voice.name"
-            class="w-10 h-10 object-contain"
-            :class="selectedVoiceId === voice.id ? 'brightness-110' : 'brightness-90'"
+        <div class="w-12 h-12 mb-2 flex items-center justify-center rounded-full bg-gray-700">
+          <component 
+            :is="getVoiceIcon(voice.id)"
+            :size="20"
+            class="text-gray-300"
+            :class="selectedVoiceId === voice.id ? 'text-blue-400' : 'text-gray-300'"
           />
         </div>
         
@@ -110,16 +110,16 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Play, Pause, Mic } from 'lucide-vue-next'
+import { Play, Pause, Mic, Shield, Heart, Zap, Drama, Sun, Sparkles } from 'lucide-vue-next'
 import { useVideoStore, type VoiceConfig } from '../store/video'
 
-// 导入音色图标
-import sunnyIcon from '../assets/icons/voice/sunny.svg'
-import energeticIcon from '../assets/icons/voice/energetic.svg'
-import calmIcon from '../assets/icons/voice/calm.svg'
-import authoritativeIcon from '../assets/icons/voice/authoritative.svg'
-import mysteriousIcon from '../assets/icons/voice/mysterious.svg'
-import dramaticIcon from '../assets/icons/voice/dramatic.svg'
+// 导入音色图标 - 使用 Lucide 图标替代 SVG 文件
+// import sunnyIcon from '../assets/icons/voice/sunny.svg'
+// import energeticIcon from '../assets/icons/voice/energetic.svg'
+// import calmIcon from '../assets/icons/voice/calm.svg'
+// import authoritativeIcon from '../assets/icons/voice/authoritative.svg'
+// import mysteriousIcon from '../assets/icons/voice/mysterious.svg'
+// import dramaticIcon from '../assets/icons/voice/dramatic.svg'
 
 // Props
 interface Props {
@@ -175,16 +175,16 @@ const selectVoice = (voiceId: string) => {
 
 // 获取音色图标
 const getVoiceIcon = (voiceId: string) => {
-  const iconMap: { [key: string]: string } = {
-    'voice-sunny': sunnyIcon,
-    'voice-energetic': energeticIcon,
-    'voice-calm': calmIcon,
-    'voice-authoritative': authoritativeIcon,
-    'voice-mysterious': mysteriousIcon,
-    'voice-dramatic': dramaticIcon
+  const iconMap: { [key: string]: any } = {
+    'voice-sunny': Sun,
+    'voice-energetic': Zap,
+    'voice-calm': Heart,
+    'voice-authoritative': Shield,
+    'voice-mysterious': Sparkles,
+    'voice-dramatic': Drama
   }
   
-  return iconMap[voiceId] || sunnyIcon // 默认使用阳光图标
+  return iconMap[voiceId] || Sun // 默认使用太阳图标
 }
 
 // 处理定制声音按钮点击

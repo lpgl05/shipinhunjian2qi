@@ -224,7 +224,7 @@ import { ref, reactive, computed } from 'vue'
 import { Plus, Edit3, Trash2, X } from 'lucide-vue-next'
 
 // Props
-const props = defineProps<{
+defineProps<{
   selectedStyle: any
   availableStyles: any[]
   myStyles?: any[]

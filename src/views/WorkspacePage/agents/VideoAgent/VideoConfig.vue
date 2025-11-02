@@ -246,7 +246,9 @@
                   :class="{ 'selected': config.voiceType === voice.id }"
                   @click="config.voiceType = voice.id"
                 >
-                  <img :src="voice.icon" :alt="voice.name" class="w-8 h-8 rounded-full" />
+                  <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                    <component :is="voice.icon" :size="16" class="text-gray-300" />
+                  </div>
                   <div>
                     <h6 class="font-medium text-gray-50">{{ voice.name }}</h6>
                     <p class="text-xs text-gray-400">{{ voice.description }}</p>
@@ -382,7 +384,11 @@ import {
   Mic,
   Palette,
   Layers,
-  Database
+  Database,
+  Shield,
+  Heart,
+  Zap,
+  Drama
 } from 'lucide-vue-next'
 import SaveTemplateModal from './components/SaveTemplateModal.vue'
 import TemplateLibraryModal from './components/TemplateLibraryModal.vue'
@@ -392,11 +398,11 @@ import StickerLibraryModal from './components/StickerLibraryModal.vue'
 import VoiceCloneModal from '../../../../components/VoiceCloneModal.vue'
 import { useVideoStore } from '../../../../store/video'
 
-// 导入音色图标
-import authoritativeIcon from '../../../../assets/icons/voice/authoritative.svg'
-import calmIcon from '../../../../assets/icons/voice/calm.svg'
-import energeticIcon from '../../../../assets/icons/voice/energetic.svg'
-import dramaticIcon from '../../../../assets/icons/voice/dramatic.svg'
+// 导入音色图标 - 使用 Lucide 图标替代 SVG 文件
+// import authoritativeIcon from '../../../../assets/icons/voice/authoritative.svg'
+// import calmIcon from '../../../../assets/icons/voice/calm.svg'
+// import energeticIcon from '../../../../assets/icons/voice/energetic.svg'
+// import dramaticIcon from '../../../../assets/icons/voice/dramatic.svg'
 
 // Sheet配置
 const sheets = [
@@ -450,10 +456,10 @@ const subtitlePositions = [
 ]
 
 const voiceTypes = [
-  { id: 'authoritative', name: '权威', description: '专业稳重', icon: authoritativeIcon },
-  { id: 'calm', name: '平静', description: '温和舒缓', icon: calmIcon },
-  { id: 'energetic', name: '活力', description: '充满激情', icon: energeticIcon },
-  { id: 'dramatic', name: '戏剧', description: '富有表现力', icon: dramaticIcon }
+  { id: 'authoritative', name: '权威', description: '专业稳重', icon: Shield },
+  { id: 'calm', name: '平静', description: '温和舒缓', icon: Heart },
+  { id: 'energetic', name: '活力', description: '充满激情', icon: Zap },
+  { id: 'dramatic', name: '戏剧', description: '富有表现力', icon: Drama }
 ]
 
 // 模板数据

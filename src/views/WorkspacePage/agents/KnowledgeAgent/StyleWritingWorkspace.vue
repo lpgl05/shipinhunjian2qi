@@ -500,7 +500,7 @@ const handleAiResponse = (userMessage: string) => {
   selectedStyle.value = recommendedStyle
   showConfigForm.value = true
   
-  const aiResponse = `根据您的需求"${userMessage}"，我为您推荐使用"${recommendedStyle.name}"风格。这种风格${recommendedStyle.description}。
+  const aiResponse = `根据您的需求"${userMessage}"，我为您推荐使用"${recommendedStyle?.name || '默认'}"风格。这种风格${recommendedStyle?.description || '适合多种场景'}。
 
 请填写以下配置信息，我将为您生成高质量的内容：`
   
@@ -585,7 +585,7 @@ const generateContent = async () => {
 }
 
 // 生成模拟文章
-const generateMockArticle = (topic: string, wordCount: string, _style: string) => {
+const generateMockArticle = (topic: string, _wordCount: string, _style: string) => {
   const baseContent = `
     <h2>${topic}</h2>
     <p>在当今快速发展的商业环境中，${topic}已经成为企业成功的关键因素之一。本文将从多个角度深入分析这一重要话题，为读者提供全面的见解和实践指导。</p>

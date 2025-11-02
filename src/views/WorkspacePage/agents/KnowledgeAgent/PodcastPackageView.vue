@@ -196,7 +196,7 @@ interface Props {
 
 defineProps<Props>()
 
-const emit = defineEmits<{
+defineEmits<{
   'save-to-cloud': []
   'download-all': []
 }>()
