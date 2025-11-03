@@ -37,9 +37,19 @@
         </button>
       </Tooltip>
 
+      <!-- 知识库 -->
+      <Tooltip text="知识库">
+        <button 
+          class="sidebar-icon-btn"
+          @click="handleKnowledgeBase"
+        >
+          <BookOpen :size="20" />
+        </button>
+      </Tooltip>
+
       <!-- 历史记录 -->
       <Tooltip text="历史记录">
-        <button class="sidebar-icon-btn">
+        <button class="sidebar-icon-btn" @click="handleHistory">
           <Clock :size="20" />
         </button>
       </Tooltip>
@@ -82,7 +92,8 @@
 import { 
   Sparkles,
   PlusCircle, 
-  FolderKanban, 
+  FolderKanban,
+  BookOpen,
   Clock,
   Star,
   Shield,
@@ -118,6 +129,13 @@ const handleProfile = () => {
 }
 
 /**
+ * 跳转到知识库管理页面
+ */
+const handleKnowledgeBase = () => {
+  router.push('/knowledge-base')
+}
+
+/**
  * 打开后台管理系统（新窗口）
  */
 const handleAdminSystem = () => {
@@ -130,6 +148,13 @@ const handleAdminSystem = () => {
  */
 const handleSettings = () => {
   router.push('/settings')
+}
+
+/**
+ * 跳转到历史记录页面
+ */
+const handleHistory = () => {
+  router.push('/history')
 }
 </script>
 

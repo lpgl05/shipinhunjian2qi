@@ -52,6 +52,18 @@ const router = createRouter({
       component: () => import('../views/MyCreationsPage.vue'),
       meta: { requiresAuth: true }
     },
+    {
+      path: '/history',
+      name: 'history',
+      component: () => import('../views/HistoryPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/knowledge-base',
+      name: 'knowledge-base',
+      component: () => import('../views/KnowledgeBasePage.vue'),
+      meta: { requiresAuth: true }
+    },
     // 后台管理系统路由
     {
       path: '/admin',
@@ -76,18 +88,28 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
+  console.log('🔄 路由守卫:', {
+    from: from.path,
+    to: to.path,
+    isAuthenticated: authStore.isAuthenticated,
+    requiresAuth: to.meta.requiresAuth
+  })
+  
   // 如果路由需要认证但用户未登录
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    console.log('❌ 需要认证，跳转到登录页')
     next('/login')
     return
   }
   
   // 如果路由需要访客状态但用户已登录
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    console.log('❌ 已登录用户访问访客页面，跳转到首页')
     next('/')
     return
   }
   
+  console.log('✅ 路由守卫通过')
   next()
 })
 

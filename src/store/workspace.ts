@@ -30,6 +30,12 @@ export const useWorkspaceStore = defineStore('workspace', () => {
    * 当前对话会话ID
    */
   const currentSessionId = ref<string | null>(null)
+  
+  /**
+   * 创作模式下聊天面板是否收起
+   * 当在创作模式下，可以通过此状态控制聊天面板的显示/隐藏
+   */
+  const chatPanelCollapsed = ref(false)
 
   // ========== 计算属性 ==========
   
@@ -100,6 +106,13 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     currentSessionId.value = `session-${Date.now()}`
     exitCreationMode() // 返回对话模式
   }
+  
+  /**
+   * 切换聊天面板显示/隐藏 (仅在创作模式下有效)
+   */
+  const toggleChatPanel = () => {
+    chatPanelCollapsed.value = !chatPanelCollapsed.value
+  }
 
   return {
     // 状态
@@ -107,6 +120,7 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     activeAgent,
     isAssetModalOpen,
     currentSessionId,
+    chatPanelCollapsed,
     
     // 计算属性
     isCreationMode,
@@ -119,7 +133,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     openAssetModal,
     closeAssetModal,
     toggleAssetModal,
-    startNewSession
+    startNewSession,
+    toggleChatPanel
   }
 })
 

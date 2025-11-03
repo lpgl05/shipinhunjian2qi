@@ -90,7 +90,7 @@
       <Transition name="modal">
         <div
           v-if="showUploadModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
           @click.self="showUploadModal = false"
         >
           <div class="w-full max-w-2xl bg-gray-900 rounded-2xl border border-gray-700 shadow-2xl p-6">

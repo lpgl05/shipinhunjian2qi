@@ -2,8 +2,19 @@
   <div class="main-canvas h-full flex flex-col bg-gray-800">
     <!-- 顶部Header -->
     <div class="header flex items-center justify-between px-6 py-4 border-b border-gray-700 bg-gray-900">
-      <!-- 左侧：标题 -->
+      <!-- 左侧：标题和展开按钮 -->
       <div class="flex items-center gap-3">
+        <!-- 展开/收起按钮 -->
+        <Tooltip :text="workspaceStore.chatPanelCollapsed ? '展开对话框' : '收起对话框'">
+          <button 
+            class="icon-btn"
+            @click="toggleCanvas"
+          >
+            <PanelLeftClose v-if="!workspaceStore.chatPanelCollapsed" :size="20" />
+            <PanelLeftOpen v-else :size="20" />
+          </button>
+        </Tooltip>
+
         <div 
           class="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-r"
           :class="agentGradient"
@@ -18,17 +29,6 @@
 
       <!-- 右侧：控制按钮 -->
       <div class="flex items-center gap-2">
-        <!-- 收起/展开ChatCanvas -->
-        <Tooltip :text="workspaceStore.isChatMode ? '展开画布' : '收起画布'">
-          <button 
-            class="icon-btn"
-            @click="toggleCanvas"
-          >
-            <PanelLeftClose v-if="!workspaceStore.isChatMode" :size="20" />
-            <PanelLeftOpen v-else :size="20" />
-          </button>
-        </Tooltip>
-
         <!-- 全屏 -->
         <Tooltip text="全屏">
           <button 
@@ -158,9 +158,9 @@ const currentAgentComponent = computed(() => {
   return currentConfig.value?.component || null
 })
 
-// 切换画布
+// 切换画布 - 切换聊天面板的显示/隐藏
 const toggleCanvas = () => {
-  workspaceStore.toggleLayoutMode()
+  workspaceStore.toggleChatPanel()
 }
 
 // 切换全屏

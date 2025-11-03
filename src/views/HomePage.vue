@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-gray-50">
+  <div class="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50">
     <!-- Header -->
-    <header class="border-b border-gray-800 bg-gray-900">
+    <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
       <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center gap-3">
@@ -21,23 +21,64 @@
         <!-- User Info / Auth Buttons -->
         <div class="flex items-center gap-3">
           <template v-if="authStore.isAuthenticated">
-            <!-- 用户信息 -->
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
-                <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
-              </div>
-              <span class="text-gray-300">{{ authStore.user?.name }}</span>
+            <!-- 用户下拉菜单 -->
+            <div class="relative user-menu-container">
               <button 
-                class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
-                @click="handleLogout"
+                class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                @click="showUserMenu = !showUserMenu"
               >
-                退出登录
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
+                </div>
+                <span class="text-gray-600 dark:text-gray-300">{{ authStore.user?.name }}</span>
+                <ChevronDown :size="16" class="text-gray-500 dark:text-gray-400" :class="{ 'rotate-180': showUserMenu }" />
               </button>
+              
+              <!-- 下拉菜单 -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <div 
+                  v-if="showUserMenu"
+                  class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50"
+                >
+                  <div class="py-2">
+                    <!-- 主题切换 -->
+                    <button
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      @click="handleThemeToggle"
+                    >
+                      <Palette :size="18" />
+                      <span class="flex-1">主题</span>
+                      <span class="text-sm text-gray-400">
+                        {{ themeStore.theme === 'dark' ? '深色' : '浅色' }}
+                      </span>
+                    </button>
+                    
+                    <!-- 分隔线 -->
+                    <div class="my-1 border-t border-gray-200 dark:border-gray-700"></div>
+                    
+                    <!-- 退出账号 -->
+                    <button
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      @click="handleLogout"
+                    >
+                      <LogOut :size="18" />
+                      <span>退出账号</span>
+                    </button>
+                  </div>
+                </div>
+              </transition>
             </div>
           </template>
           <template v-else>
             <button 
-              class="px-4 py-2 text-gray-300 hover:text-gray-50 transition-colors"
+              class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-50 transition-colors"
               @click="handleLogin"
             >
               登录
@@ -61,18 +102,18 @@
           AI驱动的智能营销创作平台
         </h1>
         
-        <p class="text-xl text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+        <p class="text-xl text-gray-500 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
           一句话，帮你完成视频混剪。AI驱动的全链路创作平台，让灵感即刻成真
         </p>
 
         <!-- Large Input Area -->
         <div class="relative max-w-4xl mx-auto">
           <div 
-            class="relative bg-gray-800/60 backdrop-blur-xl rounded-3xl border-2 transition-all duration-300"
+            class="relative bg-gray-50/80 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl border-2 transition-all duration-300"
             :class="[
               isInputFocused 
                 ? 'border-blue-500 ring-4 ring-blue-500/20 shadow-2xl shadow-blue-500/20' 
-                : 'border-gray-700 hover:border-gray-600'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
             ]"
           >
             <!-- Gradient Border Effect -->
@@ -83,30 +124,30 @@
                 v-model="inputText"
                 placeholder="一句话，帮你完成视频混剪..."
                 rows="4"
-                class="w-full bg-transparent border-none outline-none text-xl text-gray-50 placeholder-gray-500 resize-none"
+                class="w-full bg-transparent border-none outline-none text-xl text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 resize-none"
                 @focus="isInputFocused = true"
                 @blur="isInputFocused = false"
                 @keydown.meta.enter="handleSubmit"
               ></textarea>
 
               <!-- Action Bar -->
-              <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-700/50">
+              <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700/50">
                 <!-- Quick Actions -->
                 <div class="flex items-center gap-2">
                   <button 
-                    class="p-2 text-gray-400 hover:text-gray-50 hover:bg-gray-700 rounded-lg transition-all"
+                    class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
                     title="上传素材"
                   >
                     <Upload :size="20" />
                   </button>
                   <button 
-                    class="p-2 text-gray-400 hover:text-gray-50 hover:bg-gray-700 rounded-lg transition-all"
+                    class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
                     title="添加图片"
                   >
                     <ImageIcon :size="20" />
                   </button>
                   <button 
-                    class="p-2 text-gray-400 hover:text-gray-50 hover:bg-gray-700 rounded-lg transition-all"
+                    class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
                     title="添加音频"
                   >
                     <Music :size="20" />
@@ -130,11 +171,11 @@
     </section>
 
     <!-- Agent Showcase -->
-    <section class="py-16 px-6 bg-gray-950">
+    <section class="py-16 px-6 bg-gray-50 dark:bg-gray-950">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-12">
           <h2 class="text-4xl font-bold mb-4">探索AI智能体</h2>
-          <p class="text-xl text-gray-400">选择专业的AI助手，快速开始你的创作之旅</p>
+          <p class="text-xl text-gray-500 dark:text-gray-400">选择专业的AI助手，快速开始你的创作之旅</p>
         </div>
 
         <!-- Agent Grid -->
@@ -158,42 +199,42 @@
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-bold mb-4">为什么选择我们</h2>
-          <p class="text-xl text-gray-400">专业的AI技术，简单的操作体验</p>
+          <p class="text-xl text-gray-500 dark:text-gray-400">专业的AI技术，简单的操作体验</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Feature 1 -->
-          <div class="p-8 bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 hover:border-gray-600 transition-all">
+          <div class="p-8 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all">
             <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6">
               <Zap :size="28" class="text-white" />
             </div>
             <h3 class="text-xl font-bold mb-3">极速生成</h3>
-            <p class="text-gray-400">AI驱动的智能剪辑，3分钟完成一部作品</p>
+            <p class="text-gray-500 dark:text-gray-400">AI驱动的智能剪辑，3分钟完成一部作品</p>
           </div>
 
           <!-- Feature 2 -->
-          <div class="p-8 bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 hover:border-gray-600 transition-all">
+          <div class="p-8 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all">
             <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6">
               <Brain :size="28" class="text-white" />
             </div>
             <h3 class="text-xl font-bold mb-3">智能理解</h3>
-            <p class="text-gray-400">理解你的意图，自动匹配最佳创作方案</p>
+            <p class="text-gray-500 dark:text-gray-400">理解你的意图，自动匹配最佳创作方案</p>
           </div>
 
           <!-- Feature 3 -->
-          <div class="p-8 bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 hover:border-gray-600 transition-all">
+          <div class="p-8 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all">
             <div class="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6">
               <Workflow :size="28" class="text-white" />
             </div>
             <h3 class="text-xl font-bold mb-3">全链路支持</h3>
-            <p class="text-gray-400">从脚本到成片，一站式解决所有创作需求</p>
+            <p class="text-gray-500 dark:text-gray-400">从脚本到成片，一站式解决所有创作需求</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-800 py-8 px-6 text-center text-gray-500 text-sm">
+    <footer class="border-t border-gray-200 dark:border-gray-800 py-8 px-6 text-center text-gray-500 dark:text-gray-500 text-sm">
       <p>© 2024 AI社会化营销大师. All rights reserved.</p>
     </footer>
 
@@ -201,7 +242,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Sparkles, 
@@ -210,16 +251,35 @@ import {
   Music,
   Zap,
   Brain,
-  Workflow
+  Workflow,
+  ChevronDown,
+  Palette,
+  LogOut
 } from 'lucide-vue-next'
 import AgentCard from '../components/AgentCard.vue'
 import { useAuthStore } from '../store/auth'
+import { useThemeStore } from '../store/theme'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const inputText = ref('')
 const isInputFocused = ref(false)
+const showUserMenu = ref(false)
+
+// 点击外部关闭菜单
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.user-menu-container')) {
+    showUserMenu.value = false
+  }
+}
+
+// 主题切换
+const handleThemeToggle = () => {
+  themeStore.toggleTheme()
+}
 
 // 智能体列表
 const agents = [
@@ -296,13 +356,17 @@ const handleGenerate = () => {
 
 // 处理智能体点击
 const handleAgentClick = (agent: any) => {
+  console.log('🔵 智能体被点击:', agent.id, agent.title)
+  
   // 风格模仿写作大师直接跳转到专属工作区
   if (agent.id === 'content-rewrite') {
+    console.log('✅ 跳转到知识库智能体:', '/knowledge-agent')
     router.push('/knowledge-agent')
     return
   }
   
   // 其他智能体跳转到工作台
+  console.log('✅ 跳转到工作台:', '/workspace', 'agent:', agent.id)
   router.push({
     path: '/workspace',
     query: { agent: agent.id }
@@ -316,9 +380,19 @@ const handleLogin = () => {
 
 // 处理登出
 const handleLogout = () => {
+  showUserMenu.value = false
   authStore.logout()
   router.push('/login')
 }
+
+// 生命周期钩子
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
