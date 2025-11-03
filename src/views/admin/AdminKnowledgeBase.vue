@@ -4,8 +4,8 @@
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h2 class="text-lg font-bold text-white">通用知识库管理</h2>
-          <p class="text-sm text-gray-400 mt-1">配置所有用户可用的AI智能体知识库</p>
+          <h2 class="text-lg font-bold text-white">通用智能体管理</h2>
+          <p class="text-sm text-gray-400 mt-1">配置所有用户可用的通用智能体</p>
         </div>
         <button
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors flex items-center gap-2"

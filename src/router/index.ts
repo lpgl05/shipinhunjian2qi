@@ -72,14 +72,13 @@ const router = createRouter({
     {
       path: '/admin/login',
       name: 'admin-login',
-      component: () => import('../views/admin/AdminLogin.vue'),
-      meta: { requiresGuest: true }
+      component: () => import('../views/admin/AdminLogin.vue')
     },
     {
       path: '/admin/dashboard',
       name: 'admin-dashboard',
       component: () => import('../views/admin/AdminDashboard.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { requiresAdmin: true }
     }
   ]
 })
@@ -92,8 +91,19 @@ router.beforeEach((to, from, next) => {
     from: from.path,
     to: to.path,
     isAuthenticated: authStore.isAuthenticated,
-    requiresAuth: to.meta.requiresAuth
+    requiresAuth: to.meta.requiresAuth,
+    requiresAdmin: to.meta.requiresAdmin
   })
+  
+  // 如果路由需要后台管理员权限
+  if (to.meta.requiresAdmin) {
+    const adminToken = localStorage.getItem('admin_token')
+    if (!adminToken) {
+      console.log('❌ 需要后台管理员权限，跳转到后台登录页')
+      next('/admin/login')
+      return
+    }
+  }
   
   // 如果路由需要认证但用户未登录
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
