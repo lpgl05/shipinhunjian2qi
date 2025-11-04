@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "AI驱动的智能视频混剪创作平台",
-  "author": "天九团队",
+  "author": "TRAE AI Team",
   "type": "module",
   "scripts": {
     "dev": "vite",
