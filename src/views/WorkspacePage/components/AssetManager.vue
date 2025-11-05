@@ -101,6 +101,15 @@
                     <span>AI打标</span>
                   </button>
 
+                  <!-- AI视频处理按钮 -->
+                  <button 
+                    class="btn-primary flex items-center gap-2 bg-purple-600 hover:bg-purple-700" 
+                    @click="handleVideoProcessing"
+                  >
+                    <Video :size="18" />
+                    <span>AI视频处理</span>
+                  </button>
+
                   <!-- 关闭按钮 -->
                   <button class="icon-btn" @click="workspaceStore.closeAssetModal">
                     <X :size="24" />
@@ -463,7 +472,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue'
-import { 
+import {
   Search, 
   Grid3x3, 
   List, 
@@ -767,6 +776,18 @@ const handleAITagging = async () => {
     tags: [...new Map(allTags.map(tag => [tag.name, tag])).values()].slice(0, 10) // 去重并限制最多显示10个
   }
   showAITaggingSuccess.value = true
+}
+
+// 处理AI视频处理
+const handleVideoProcessing = () => {
+  const selectedAssetsList = assetStore.assets.filter(a => assetStore.selectedAssetIds.includes(a.id))
+  const firstVideo = selectedAssetsList.find(a => a.type === 'video')
+  if (!firstVideo) {
+    alert('请在云盘中选择一个视频素材后再进行AI处理。')
+    return
+  }
+  // 打开视频处理模态框并携带选中视频ID
+  workspaceStore.openVideoProcessorWithAsset(firstVideo.id)
 }
 
 // 键盘事件处理

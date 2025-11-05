@@ -21,6 +21,13 @@
 
     <!-- AI云盘模态框 -->
     <AssetManager />
+    
+    <!-- AI视频处理模态框 -->
+    <VideoProcessorModal
+      v-if="workspaceStore.isVideoProcessorOpen"
+      :asset-id="workspaceStore.videoProcessorAssetId"
+      @close="workspaceStore.closeVideoProcessor"
+    />
   </div>
 </template>
 
@@ -31,6 +38,7 @@ import AppSidebar from '../views/WorkspacePage/AppSidebar.vue'
 import ChatCanvas from '../views/WorkspacePage/ChatCanvas.vue'
 import MainCanvas from '../views/WorkspacePage/MainCanvas.vue'
 import AssetManager from '../views/WorkspacePage/components/AssetManager.vue'
+import VideoProcessorModal from '../components/VideoProcessorModal.vue'
 
 const workspaceStore = useWorkspaceStore()
 
