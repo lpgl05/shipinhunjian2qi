@@ -44,6 +44,9 @@ const handleSave = (payload: { file?: File | null, assetId?: string | null, asse
   if (payload.assetId) {
     assetStore.ensureClipsFolder()
     assetStore.addClipAssets(payload.assetId, payload.results)
+    // 切换云盘视图至“视频片段”文件夹，方便用户查看
+    const clipsId = assetStore.ensureClipsFolder()
+    assetStore.selectFolder(clipsId)
     emit('close')
     return
   }

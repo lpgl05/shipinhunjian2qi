@@ -26,7 +26,7 @@
     <VideoProcessorModal
       v-if="workspaceStore.isVideoProcessorOpen"
       :asset-id="workspaceStore.videoProcessorAssetId"
-      @close="workspaceStore.closeVideoProcessor"
+      @close="() => { workspaceStore.closeVideoProcessor(); workspaceStore.openAssetModal(); }"
     />
   </div>
 </template>

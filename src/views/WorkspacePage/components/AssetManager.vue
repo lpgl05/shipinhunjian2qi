@@ -788,6 +788,8 @@ const handleVideoProcessing = () => {
   }
   // 打开视频处理模态框并携带选中视频ID
   workspaceStore.openVideoProcessorWithAsset(firstVideo.id)
+  // 为避免双层模态叠加影响交互，打开处理器时关闭云盘模态
+  workspaceStore.closeAssetModal()
 }
 
 // 键盘事件处理
