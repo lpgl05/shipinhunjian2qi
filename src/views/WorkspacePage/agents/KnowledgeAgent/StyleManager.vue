@@ -455,7 +455,7 @@
             class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white rounded-lg transition-all font-medium"
             @click="saveSystemStyleContent"
           >
-            保存
+            保存为我的风格
           </button>
         </div>
       </div>
@@ -601,12 +601,19 @@ const closeEditSystemStyleModal = () => {
 }
 
 const saveSystemStyleContent = () => {
-  const updatedStyle = {
-    ...editingStyleData.value,
-    content: editingStyleContent.value
+  // 将系统预设风格保存为用户的自定义风格
+  const newStyle = {
+    id: `my-style-${Date.now()}`,
+    name: `${editingStyleData.value.name}（我的版本）`,
+    description: editingStyleData.value.description,
+    color: editingStyleData.value.color || 'bg-purple-500',
+    content: editingStyleContent.value,
+    isMine: true,
+    createdAt: new Date().toISOString()
   }
-  emit('style-update', updatedStyle)
-  alert(`风格"${updatedStyle.name}"内容已更新！`)
+  
+  emit('style-create', newStyle)
+  alert(`已将"${editingStyleData.value.name}"保存为我的风格！`)
   closeEditSystemStyleModal()
 }
 
