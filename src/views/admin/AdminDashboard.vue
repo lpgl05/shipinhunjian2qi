@@ -16,21 +16,66 @@
       </div>
 
       <!-- 导航菜单 -->
-      <nav class="flex-1 p-4 space-y-2">
-        <button
-          v-for="item in menuItems"
-          :key="item.id"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
-          :class="[
-            activeMenu === item.id
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-400 hover:text-white hover:bg-gray-800'
-          ]"
-          @click="activeMenu = item.id"
-        >
-          <component :is="item.icon" :size="20" />
-          <span>{{ item.name }}</span>
-        </button>
+      <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <template v-for="item in menuItems" :key="item.id">
+          <!-- 一级菜单 -->
+          <div v-if="!item.children">
+            <button
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
+              :class="[
+                activeMenu === item.id
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              ]"
+              @click="activeMenu = item.id"
+            >
+              <component :is="item.icon" :size="20" />
+              <span>{{ item.name }}</span>
+            </button>
+          </div>
+          
+          <!-- 带二级菜单的一级菜单 -->
+          <div v-else>
+            <button
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
+              :class="[
+                expandedMenus.includes(item.id) || item.children.some((child: any) => child.id === activeMenu)
+                  ? 'text-white bg-gray-800'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              ]"
+              @click="toggleMenu(item.id)"
+            >
+              <component :is="item.icon" :size="20" />
+              <span class="flex-1 text-left">{{ item.name }}</span>
+              <ChevronDown 
+                :size="16" 
+                class="transition-transform"
+                :class="{ 'rotate-180': expandedMenus.includes(item.id) }"
+              />
+            </button>
+            
+            <!-- 二级菜单 -->
+            <div
+              v-show="expandedMenus.includes(item.id)"
+              class="ml-4 mt-1 space-y-1"
+            >
+              <button
+                v-for="child in item.children"
+                :key="child.id"
+                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-sm"
+                :class="[
+                  activeMenu === child.id
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                ]"
+                @click="activeMenu = child.id"
+              >
+                <component :is="child.icon" :size="18" />
+                <span>{{ child.name }}</span>
+              </button>
+            </div>
+          </div>
+        </template>
       </nav>
 
       <!-- 底部用户信息 -->
@@ -132,11 +177,11 @@
         <!-- 企业组织管理 -->
         <AdminOrganizationManagement v-if="activeMenu === 'organizations'" />
 
-        <!-- 风格模板管理 -->
-        <AdminStyleTemplate v-if="activeMenu === 'styles'" />
+        <!-- 风格系统模板管理 -->
+        <AdminStyleTemplate v-if="activeMenu === 'style-templates'" />
 
-        <!-- 前端配置 -->
-        <AdminFrontendConfig v-if="activeMenu === 'frontend'" />
+        <!-- 风格提示词配置 -->
+        <AdminFrontendConfig v-if="activeMenu === 'style-prompts'" />
 
         <!-- 通用知识库 -->
         <AdminKnowledgeBase v-if="activeMenu === 'knowledge'" />
@@ -168,7 +213,10 @@ import {
   Activity,
   Building2,
   Type,
-  Brain
+  Brain,
+  ChevronDown,
+  Sparkles,
+  MessageSquare
 } from 'lucide-vue-next'
 import AdminFrontendConfig from './AdminFrontendConfig.vue'
 import AdminKnowledgeBase from './AdminKnowledgeBase.vue'
@@ -180,28 +228,59 @@ const router = useRouter()
 
 const adminUser = ref('Admin')
 const activeMenu = ref('overview')
+const expandedMenus = ref<string[]>(['style-agent']) // 默认展开风格智能体
 
 const menuItems = [
   { id: 'overview', name: '概览', icon: LayoutDashboard },
   { id: 'users', name: '用户管理', icon: Users },
   { id: 'organizations', name: '企业组织', icon: Building2 },
-  { id: 'styles', name: '风格模板', icon: Type },
+  { 
+    id: 'style-agent', 
+    name: '风格智能体', 
+    icon: Sparkles,
+    children: [
+      { id: 'style-templates', name: '风格系统模板', icon: Type },
+      { id: 'style-prompts', name: '风格提示词', icon: MessageSquare }
+    ]
+  },
   { id: 'knowledge', name: '通用智能体', icon: Brain },
-  { id: 'frontend', name: '前端配置', icon: Palette },
   { id: 'settings', name: '系统设置', icon: Settings }
 ]
 
 const quickActions = [
   { id: '1', name: '用户管理', icon: Users, target: 'users' },
   { id: '2', name: '企业组织', icon: Building2, target: 'organizations' },
-  { id: '3', name: '风格模板', icon: Type, target: 'styles' },
-  { id: '4', name: '通用智能体', icon: Brain, target: 'knowledge' },
-  { id: '5', name: '前端配置', icon: Palette, target: 'frontend' },
+  { id: '3', name: '风格系统模板', icon: Type, target: 'style-templates' },
+  { id: '4', name: '风格提示词', icon: MessageSquare, target: 'style-prompts' },
+  { id: '5', name: '通用智能体', icon: Brain, target: 'knowledge' },
   { id: '6', name: '系统设置', icon: Settings, target: 'settings' }
 ]
 
+// 切换菜单展开/收起
+const toggleMenu = (menuId: string) => {
+  const index = expandedMenus.value.indexOf(menuId)
+  if (index > -1) {
+    expandedMenus.value.splice(index, 1)
+  } else {
+    expandedMenus.value.push(menuId)
+  }
+}
+
+// 获取当前菜单标题（包括二级菜单）
 const currentMenuTitle = computed(() => {
-  return menuItems.find(item => item.id === activeMenu.value)?.name || '后台管理'
+  // 先查找一级菜单
+  const topLevel = menuItems.find(item => item.id === activeMenu.value)
+  if (topLevel) return topLevel.name
+  
+  // 查找二级菜单
+  for (const item of menuItems) {
+    if (item.children) {
+      const child = item.children.find((c: any) => c.id === activeMenu.value)
+      if (child) return child.name
+    }
+  }
+  
+  return '后台管理'
 })
 
 const handleLogout = () => {
