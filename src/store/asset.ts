@@ -38,6 +38,7 @@ export const useAssetStore = defineStore('asset', () => {
   const viewMode = ref<'grid' | 'list'>('grid')
   const searchQuery = ref('')
   const selectedTag = ref<string>('')
+  const clipsFolderId = ref<string | null>(null)
   
   // 示例文件夹结构
   const folders = ref<Folder[]>([
@@ -312,6 +313,58 @@ export const useAssetStore = defineStore('asset', () => {
     }
   }
 
+  // 确保存在“视频片段”文件夹，返回其ID
+  const ensureClipsFolder = (): string => {
+    if (clipsFolderId.value) {
+      const exists = getFolderById(clipsFolderId.value)
+      if (exists) return clipsFolderId.value
+    }
+
+    // 默认将“视频片段”创建在“视频素材”下（id: '2'）
+    const targetParentId = '2'
+    const existing = getFolderById('clips')
+    if (!existing) {
+      addFolder({
+        id: 'clips',
+        name: '视频片段',
+        parentId: targetParentId,
+        children: [],
+        assets: []
+      })
+    }
+    clipsFolderId.value = 'clips'
+    return clipsFolderId.value
+  }
+
+  // 根据AI识别结果为指定视频创建片段资产并保存到“视频片段”文件夹
+  const addClipAssets = (sourceAssetId: string, results: Array<{ time: string; type: string; description?: string; confidence?: number }>) => {
+    const source = assets.value.find(a => a.id === sourceAssetId)
+    if (!source) return
+    const folderId = ensureClipsFolder()
+
+    results.forEach(result => {
+      const clipId = `clip-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      const name = `${source.name} - 片段 ${result.time}`
+      const size = Math.max(Math.floor((source.size || 5_000_000) * 0.1), 1_000_000)
+      assets.value.push({
+        id: clipId,
+        name,
+        type: 'video',
+        size,
+        url: source.url,
+        thumbnail: source.thumbnail,
+        uploadTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        folderId,
+        duration: undefined,
+        tags: ['视频片段', '高光', result.type],
+        aiTags: [
+          { name: result.type, score: (result.confidence ?? 0.9), category: result.type as any }
+        ],
+        aiTaggingStatus: 'completed'
+      })
+    })
+  }
+
   return {
     showAssetManager,
     currentFolder,
@@ -320,6 +373,7 @@ export const useAssetStore = defineStore('asset', () => {
     viewMode,
     searchQuery,
     selectedTag,
+    clipsFolderId,
     folders,
     assets,
     currentAssets,
@@ -342,6 +396,8 @@ export const useAssetStore = defineStore('asset', () => {
     getFolderById,
     moveAssetToFolder,
     addAITags,
-    setAITaggingStatus
+    setAITaggingStatus,
+    ensureClipsFolder,
+    addClipAssets
   }
 })

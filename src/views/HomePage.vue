@@ -25,7 +25,7 @@
             <div class="relative user-menu-container">
               <button 
                 class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                @click="showUserMenu = !showUserMenu"
+                @click.stop="showUserMenu = !showUserMenu"
               >
                 <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full flex items-center justify-center">
                   <span class="text-sm font-medium text-white">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
@@ -51,7 +51,7 @@
                     <!-- 主题切换 -->
                     <button
                       class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      @click="handleThemeToggle"
+                      @click.stop="handleThemeToggle"
                     >
                       <Palette :size="18" />
                       <span class="flex-1">主题</span>
@@ -60,13 +60,24 @@
                       </span>
                     </button>
                     
+                    <!-- 后台管理系统 -->
+                    <a
+                      href="/admin/login"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <Shield :size="18" />
+                      <span>后台管理系统</span>
+                    </a>
+                    
                     <!-- 分隔线 -->
                     <div class="my-1 border-t border-gray-200 dark:border-gray-700"></div>
                     
                     <!-- 退出账号 -->
                     <button
                       class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      @click="handleLogout"
+                      @click.stop="handleLogout"
                     >
                       <LogOut :size="18" />
                       <span>退出账号</span>
@@ -254,7 +265,8 @@ import {
   Workflow,
   ChevronDown,
   Palette,
-  LogOut
+  LogOut,
+  Shield
 } from 'lucide-vue-next'
 import AgentCard from '../components/AgentCard.vue'
 import { useAuthStore } from '../store/auth'

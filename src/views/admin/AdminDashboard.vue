@@ -126,17 +126,20 @@
           </div>
         </div>
 
+        <!-- 用户管理 -->
+        <AdminUserManagement v-if="activeMenu === 'users'" />
+
+        <!-- 企业组织管理 -->
+        <AdminOrganizationManagement v-if="activeMenu === 'organizations'" />
+
+        <!-- 风格模板管理 -->
+        <AdminStyleTemplate v-if="activeMenu === 'styles'" />
+
         <!-- 前端配置 -->
         <AdminFrontendConfig v-if="activeMenu === 'frontend'" />
 
         <!-- 通用知识库 -->
         <AdminKnowledgeBase v-if="activeMenu === 'knowledge'" />
-
-        <!-- 用户管理 -->
-        <div v-if="activeMenu === 'users'" class="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h2 class="text-lg font-bold text-white mb-4">用户管理</h2>
-          <p class="text-gray-400">用户管理功能（演示）</p>
-        </div>
 
         <!-- 系统设置 -->
         <div v-if="activeMenu === 'settings'" class="bg-gray-900 border border-gray-800 rounded-xl p-6">
@@ -162,10 +165,16 @@ import {
   User,
   FileText,
   BookOpen,
-  Activity
+  Activity,
+  Building2,
+  Type,
+  Brain
 } from 'lucide-vue-next'
 import AdminFrontendConfig from './AdminFrontendConfig.vue'
 import AdminKnowledgeBase from './AdminKnowledgeBase.vue'
+import AdminUserManagement from './AdminUserManagement.vue'
+import AdminOrganizationManagement from './AdminOrganizationManagement.vue'
+import AdminStyleTemplate from './AdminStyleTemplate.vue'
 
 const router = useRouter()
 
@@ -174,17 +183,21 @@ const activeMenu = ref('overview')
 
 const menuItems = [
   { id: 'overview', name: '概览', icon: LayoutDashboard },
-  { id: 'frontend', name: '前端配置', icon: Palette },
-  { id: 'knowledge', name: '通用知识库', icon: Database },
   { id: 'users', name: '用户管理', icon: Users },
+  { id: 'organizations', name: '企业组织', icon: Building2 },
+  { id: 'styles', name: '风格模板', icon: Type },
+  { id: 'knowledge', name: '通用智能体', icon: Brain },
+  { id: 'frontend', name: '前端配置', icon: Palette },
   { id: 'settings', name: '系统设置', icon: Settings }
 ]
 
 const quickActions = [
-  { id: '1', name: '前端配置', icon: Palette, target: 'frontend' },
-  { id: '2', name: '知识库管理', icon: Database, target: 'knowledge' },
-  { id: '3', name: '用户管理', icon: Users, target: 'users' },
-  { id: '4', name: '系统设置', icon: Settings, target: 'settings' }
+  { id: '1', name: '用户管理', icon: Users, target: 'users' },
+  { id: '2', name: '企业组织', icon: Building2, target: 'organizations' },
+  { id: '3', name: '风格模板', icon: Type, target: 'styles' },
+  { id: '4', name: '通用智能体', icon: Brain, target: 'knowledge' },
+  { id: '5', name: '前端配置', icon: Palette, target: 'frontend' },
+  { id: '6', name: '系统设置', icon: Settings, target: 'settings' }
 ]
 
 const currentMenuTitle = computed(() => {

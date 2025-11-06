@@ -27,6 +27,17 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const isAssetModalOpen = ref(false)
   
   /**
+   * AI视频处理模态框是否打开
+   */
+  const isVideoProcessorOpen = ref(false)
+
+  /**
+   * 当前正在处理的云盘视频素材ID
+   * 当从云盘选择素材并点击“AI视频处理”时，用于把该素材传递给处理弹窗
+   */
+  const videoProcessorAssetId = ref<string | null>(null)
+  
+  /**
    * 当前对话会话ID
    */
   const currentSessionId = ref<string | null>(null)
@@ -93,6 +104,29 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   }
   
   /**
+   * 打开AI视频处理模态框
+   */
+  const openVideoProcessor = () => {
+    isVideoProcessorOpen.value = true
+  }
+
+  /**
+   * 打开AI视频处理，并指定处理的素材ID
+   */
+  const openVideoProcessorWithAsset = (assetId: string) => {
+    videoProcessorAssetId.value = assetId
+    isVideoProcessorOpen.value = true
+  }
+  
+  /**
+   * 关闭AI视频处理模态框
+   */
+  const closeVideoProcessor = () => {
+    isVideoProcessorOpen.value = false
+    videoProcessorAssetId.value = null
+  }
+  
+  /**
    * 切换AI云盘模态框
    */
   const toggleAssetModal = () => {
@@ -119,6 +153,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     layoutMode,
     activeAgent,
     isAssetModalOpen,
+    isVideoProcessorOpen,
+    videoProcessorAssetId,
     currentSessionId,
     chatPanelCollapsed,
     
@@ -134,7 +170,9 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     closeAssetModal,
     toggleAssetModal,
     startNewSession,
-    toggleChatPanel
+    toggleChatPanel,
+    openVideoProcessor,
+    openVideoProcessorWithAsset,
+    closeVideoProcessor
   }
 })
-

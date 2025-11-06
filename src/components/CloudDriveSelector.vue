@@ -20,6 +20,13 @@
             <Upload :size="18" />
             上传文档
           </button>
+          <button
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
+            @click="$emit('ai-process')"
+          >
+            <Sparkles :size="18" />
+            AI视频处理
+          </button>
         </div>
       </div>
 
@@ -88,7 +95,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Search, FileText, FileType, File as FileIcon, Upload } from 'lucide-vue-next'
+import { Search, FileText, FileType, File as FileIcon, Upload, Sparkles } from 'lucide-vue-next'
 
 interface CloudFile {
   id: string
@@ -107,6 +114,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'confirm': [fileIds: string[]]
   'upload': []
+  'ai-process': []
 }>()
 
 const searchQuery = ref('')
