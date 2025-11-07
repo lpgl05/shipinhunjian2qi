@@ -11,6 +11,12 @@ const router = createRouter({
       meta: { requiresGuest: true }
     },
     {
+      path: '/register',
+      name: 'register',
+      component: () => import('../views/RegisterPage.vue'),
+      meta: { requiresGuest: true }
+    },
+    {
       path: '/',
       name: 'home',
       component: () => import('../views/HomePage.vue'),
