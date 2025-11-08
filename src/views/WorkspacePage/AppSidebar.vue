@@ -98,7 +98,7 @@ import {
   Star,
   Shield,
   Settings, 
-  User 
+  User
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useWorkspaceStore } from '../../store/workspace'

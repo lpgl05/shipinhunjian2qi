@@ -63,7 +63,7 @@ export const useHistoryStore = defineStore('history', () => {
   /**
    * 添加历史记录
    */
-  const addRecord = (record: Omit<HistoryRecord, 'id' | 'timestamp'>) => {
+  const addRecord = (record: Omit<HistoryRecord, 'id' | 'timestamp'>): HistoryRecord => {
     const newRecord: HistoryRecord = {
       id: `history_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date(),
@@ -73,6 +73,8 @@ export const useHistoryStore = defineStore('history', () => {
     
     // 持久化到 localStorage
     saveToLocalStorage()
+    
+    return newRecord
   }
   
   /**

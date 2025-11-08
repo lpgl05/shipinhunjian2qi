@@ -96,12 +96,90 @@
       </main>
     </div>
   </div>
+
+  <!-- 视频预览模态框 -->
+  <TransitionRoot appear :show="showVideoPreview && previewVideo" as="template">
+    <Dialog as="div" class="relative z-50">
+      <TransitionChild
+        as="template"
+        enter="duration-300 ease-out"
+        enter-from="opacity-0"
+        enter-to="opacity-100"
+        leave="duration-200 ease-in"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+      >
+        <div class="fixed inset-0 bg-black bg-opacity-25" @click="showVideoPreview = false" />
+      </TransitionChild>
+
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
+          <TransitionChild
+            as="template"
+            enter="duration-300 ease-out"
+            enter-from="opacity-0 scale-95"
+            enter-to="opacity-100 scale-100"
+            leave="duration-200 ease-in"
+            leave-from="opacity-100 scale-100"
+            leave-to="opacity-0 scale-95"
+          >
+            <DialogPanel
+              class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-gray-800 dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all border border-gray-700"
+            >
+              <DialogTitle
+                as="h3"
+                class="text-lg font-medium leading-6 text-gray-50 mb-4 flex items-center justify-between"
+              >
+                <span>{{ previewVideo?.title }}</span>
+                <button
+                  class="text-gray-400 hover:text-gray-200 transition-colors"
+                  @click="showVideoPreview = false"
+                >
+                  <X :size="24" />
+                </button>
+              </DialogTitle>
+
+              <div v-if="previewVideo" class="space-y-4">
+                <!-- 视频预览 -->
+                <div class="bg-black rounded-lg overflow-hidden">
+                  <video
+                    :src="previewVideo.videoUrl"
+                    controls
+                    class="w-full aspect-video"
+                    preload="metadata"
+                  >
+                    您的浏览器不支持视频播放
+                  </video>
+                </div>
+
+                <!-- 视频信息 -->
+                <div v-if="previewVideo.duration" class="text-sm text-gray-400">
+                  时长: {{ formatVideoDuration(previewVideo.duration) }}
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-700">
+                  <button
+                    class="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
+                    @click="showVideoPreview = false"
+                  >
+                    关闭
+                  </button>
+                </div>
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </div>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { MessageSquare, FileText, Clock, MoreVertical, Film } from 'lucide-vue-next'
+import { MessageSquare, FileText, Clock, MoreVertical, Film, X, Play } from 'lucide-vue-next'
+import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import AppSidebar from './WorkspacePage/AppSidebar.vue'
 import { useHistoryStore } from '../store/history'
 import type { HistoryRecord } from '../store/history'
@@ -127,10 +205,29 @@ const handleSwitchAgent = (type: 'video-mixer' | 'style-imitation') => {
   historyStore.setActiveAgentType(type)
 }
 
+// 视频预览相关状态
+const showVideoPreview = ref(false)
+const previewVideo = ref<{
+  videoUrl: string
+  title: string
+  duration?: number
+} | null>(null)
+
 /**
  * 点击历史记录项
  */
 const handleRecordClick = (record: HistoryRecord) => {
+  // 如果是高光时刻生成的视频，显示预览
+  if (record.metadata?.source === 'highlight-moments' && record.metadata?.videoUrl) {
+    previewVideo.value = {
+      videoUrl: record.metadata.videoUrl,
+      title: record.title,
+      duration: record.metadata.duration
+    }
+    showVideoPreview.value = true
+    return
+  }
+  
   if (record.agentType === 'video-mixer') {
     // 跳转到视频混剪智能体的结果页面
     router.push({
@@ -184,6 +281,15 @@ const getIcon = (type: HistoryRecord['type']) => {
     default:
       return Clock
   }
+}
+
+/**
+ * 格式化视频时长
+ */
+const formatVideoDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 /**
