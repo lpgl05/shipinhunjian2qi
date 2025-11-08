@@ -211,7 +211,7 @@
             :disabled="isLoading || !isPhoneFormValid"
           >
             <Loader2 v-if="isLoading" :size="18" class="animate-spin" />
-            <span v-else>登录/注册</span>
+            <span v-else>登录</span>
           </button>
 
           <!-- 企业登录 -->
@@ -219,6 +219,11 @@
             <button class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
               切换企业成员登录
             </button>
+          </div>
+
+          <!-- 去注册链接 -->
+          <div class="text-center mt-4">
+            <button type="button" class="text-blue-400 hover:text-blue-300 text-sm transition-colors" @click="router.push('/register')">没有账号？去注册</button>
           </div>
         </form>
 
@@ -277,6 +282,11 @@
             <Loader2 v-if="isLoading" :size="18" class="animate-spin" />
             <span v-else>登录</span>
           </button>
+
+          <!-- 去注册链接 -->
+          <div class="text-center mt-4">
+            <button type="button" class="text-blue-400 hover:text-blue-300 text-sm transition-colors" @click="router.push('/register')">没有账号？去注册</button>
+          </div>
         </form>
 
         <!-- 其他登录方式 -->

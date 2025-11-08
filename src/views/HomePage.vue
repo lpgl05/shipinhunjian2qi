@@ -96,7 +96,7 @@
             </button>
             <button 
               class="px-6 py-2 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200"
-              @click="handleLogin"
+              @click="handleRegister"
             >
               免费注册
             </button>
@@ -388,6 +388,11 @@ const handleAgentClick = (agent: any) => {
 // 处理登录
 const handleLogin = () => {
   router.push('/login')
+}
+
+// 处理注册
+const handleRegister = () => {
+  router.push('/register')
 }
 
 // 处理登出
