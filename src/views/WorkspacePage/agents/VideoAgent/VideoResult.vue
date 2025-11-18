@@ -33,15 +33,6 @@
           </button>
         </div>
 
-        <!-- 返回修改 -->
-        <button
-          class="px-5 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-all flex items-center gap-2"
-          @click="$emit('backToEdit')"
-        >
-          <Edit :size="18" />
-          <span>返回修改</span>
-        </button>
-
         <!-- 一键下载全部 -->
         <button
           class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white rounded-lg font-medium hover:brightness-110 transform hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2"
@@ -229,7 +220,6 @@
 import { ref } from 'vue'
 import { 
   Check, 
-  Edit, 
   Download, 
   Play, 
   Share2, 
