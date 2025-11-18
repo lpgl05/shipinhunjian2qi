@@ -6,7 +6,7 @@
       <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
         <div class="flex items-center gap-3">
           <h3 class="text-lg font-semibold text-gray-50">视频参数配置</h3>
-          <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">步骤 1/4</span>
+          <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">步骤 1/5</span>
         </div>
         <div class="flex items-center gap-2">
           <!-- 保存模板按钮 -->
@@ -106,6 +106,20 @@
                 />
               </div>
               <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">视频生成数量</label>
+                <div class="flex items-center gap-3">
+                  <input
+                    v-model.number="config.videoCount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    placeholder="默认3个"
+                    class="input-primary flex-1"
+                  />
+                  <span class="text-sm text-gray-400 whitespace-nowrap">最多100个</span>
+                </div>
+              </div>
+              <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">视频时长 ({{ config.duration }}秒)</label>
                 <input
                   v-model="config.duration"
@@ -168,66 +182,523 @@
           </div>
         </div>
 
-        <!-- 字幕配置 -->
-        <div v-if="activeSheet === 'subtitle'" class="p-6 space-y-6">
+        <!-- 标题配置 -->
+        <div v-if="activeSheet === 'title'" class="p-6 space-y-6">
+          <!-- 全局配置 -->
+          <div class="space-y-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+            <h5 class="text-sm font-medium text-blue-400 flex items-center gap-2">
+              <Heading :size="16" />
+              <span>主副标题样式设置</span>
+            </h5>
+            
+            <div class="grid grid-cols-3 gap-4">
+              <!-- 标题位置 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">标题位置</label>
+                <select v-model="config.titlePosition" class="input-primary">
+                  <option value="top">顶部</option>
+                  <option value="center">中间</option>
+                  <option value="bottom">底部</option>
+                  <option value="custom">自定义</option>
+                </select>
+              </div>
+              
+              <!-- 主副标题间距 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">主副标题间距</label>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="config.titleSpacing"
+                    type="number"
+                    class="input-primary flex-1"
+                  />
+                  <span class="text-sm text-gray-400">px</span>
+                </div>
+              </div>
+              
+              <!-- 对齐方式 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">对齐方式</label>
+                <select v-model="config.titleAlignment" class="input-primary">
+                  <option value="left">左对齐</option>
+                  <option value="center">居中</option>
+                  <option value="right">右对齐</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 主标题配置 -->
           <div class="space-y-4">
             <div class="flex items-center justify-between">
-              <label class="text-sm font-medium text-gray-300">启用AI字幕</label>
+              <label class="text-sm font-medium text-blue-400 flex items-center gap-2">
+                <Heading :size="16" />
+                <span>主标题</span>
+              </label>
               <Switch
-                v-model="config.enableSubtitles"
-                :class="config.enableSubtitles ? 'bg-blue-600' : 'bg-gray-700'"
+                v-model="config.enableMainTitle"
+                :class="config.enableMainTitle ? 'bg-blue-600' : 'bg-gray-700'"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
               >
-                <span class="sr-only">启用AI字幕</span>
+                <span class="sr-only">启用主标题</span>
                 <span
-                  :class="config.enableSubtitles ? 'translate-x-6' : 'translate-x-1'"
+                  :class="config.enableMainTitle ? 'translate-x-6' : 'translate-x-1'"
                   class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
                 />
               </Switch>
             </div>
 
-            <div v-if="config.enableSubtitles" class="space-y-4">
+            <div v-if="config.enableMainTitle" class="space-y-4">
+              <!-- 主标题文本 -->
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">字幕样式</label>
-                <div class="flex gap-2 flex-wrap">
-                  <button
-                    v-for="style in subtitleStyles"
-                    :key="style.value"
-                    class="btn-option"
-                    :class="{ 'active': config.subtitleStyle === style.value }"
-                    @click="config.subtitleStyle = style.value"
-                  >
-                    {{ style.label }}
-                  </button>
+                <label class="block text-sm font-medium text-gray-300 mb-2">标题文本</label>
+                <input
+                  v-model="config.mainTitle"
+                  type="text"
+                  placeholder="输入主标题文本"
+                  class="input-primary"
+                />
+              </div>
+
+              <!-- 字间距和字体大小 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字间距</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="config.mainTitleLetterSpacing"
+                      type="number"
+                      class="input-primary flex-1"
+                    />
+                    <span class="text-sm text-gray-400">px</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体大小</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="config.mainTitleSize"
+                      type="number"
+                      class="input-primary flex-1"
+                    />
+                    <span class="text-sm text-gray-400">px</span>
+                  </div>
                 </div>
               </div>
+
+              <!-- 颜色和字体 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">颜色</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="config.mainTitleColor"
+                      type="color"
+                      class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                    />
+                    <input
+                      v-model="config.mainTitleColor"
+                      type="text"
+                      class="input-primary flex-1"
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体</label>
+                  <select v-model="config.mainTitleFont" class="input-primary">
+                    <option value="思源黑体Heavy">思源黑体Heavy</option>
+                    <option value="PingFang SC">PingFang SC</option>
+                    <option value="Microsoft YaHei">Microsoft YaHei</option>
+                    <option value="Heiti SC">黑体</option>
+                    <option value="STSong">宋体</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 副标题配置 -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-green-400 flex items-center gap-2">
+                <Heading :size="16" />
+                <span>副标题</span>
+              </label>
+              <Switch
+                v-model="config.enableSubTitle"
+                :class="config.enableSubTitle ? 'bg-blue-600' : 'bg-gray-700'"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              >
+                <span class="sr-only">启用副标题</span>
+                <span
+                  :class="config.enableSubTitle ? 'translate-x-6' : 'translate-x-1'"
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                />
+              </Switch>
+            </div>
+
+            <div v-if="config.enableSubTitle" class="space-y-4">
+              <!-- 副标题文本 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">标题文本</label>
+                <input
+                  v-model="config.subTitle"
+                  type="text"
+                  placeholder="输入副标题文本"
+                  class="input-primary"
+                />
+              </div>
+
+              <!-- 字间距和字体大小 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字间距</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="config.subTitleLetterSpacing"
+                      type="number"
+                      class="input-primary flex-1"
+                    />
+                    <span class="text-sm text-gray-400">px</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体大小</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="config.subTitleSize"
+                      type="number"
+                      class="input-primary flex-1"
+                    />
+                    <span class="text-sm text-gray-400">px</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 颜色和字体 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">颜色</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="config.subTitleColor"
+                      type="color"
+                      class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                    />
+                    <input
+                      v-model="config.subTitleColor"
+                      type="text"
+                      class="input-primary flex-1"
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体</label>
+                  <select v-model="config.subTitleFont" class="input-primary">
+                    <option value="思源黑体Heavy">思源黑体Heavy</option>
+                    <option value="PingFang SC">PingFang SC</option>
+                    <option value="Microsoft YaHei">Microsoft YaHei</option>
+                    <option value="Heiti SC">黑体</option>
+                    <option value="STSong">宋体</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 字幕配置 -->
+        <div v-if="activeSheet === 'subtitle'" class="p-6 space-y-4">
+          <!-- 字幕样式设置标题 -->
+          <div class="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+            <h5 class="text-sm font-medium text-green-400 flex items-center gap-2">
+              <Type :size="16" />
+              <span>字幕样式设置</span>
+            </h5>
+          </div>
+
+          <!-- 基础配置折叠面板 -->
+          <div class="border border-gray-700 rounded-lg overflow-hidden">
+            <button
+              class="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition-colors"
+              @click="subtitleSections.basic = !subtitleSections.basic"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-1 h-4 bg-green-500 rounded"></div>
+                <span class="text-sm font-medium text-gray-200">基础配置</span>
+              </div>
+              <component :is="subtitleSections.basic ? ChevronUp : ChevronDown" :size="18" class="text-gray-400" />
+            </button>
+            <div v-show="subtitleSections.basic" class="p-4 bg-gray-800/50 space-y-4">
+              <!-- 字幕颜色 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">字幕颜色</label>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model="config.subtitleColor"
+                    type="color"
+                    class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                  />
+                  <input
+                    v-model="config.subtitleColor"
+                    type="text"
+                    class="input-primary flex-1"
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+              </div>
+
+              <!-- 字幕位置 -->
               <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">字幕位置</label>
-                <div class="flex gap-2 flex-wrap mb-3">
-                  <button
-                    v-for="position in subtitlePositions"
-                    :key="position.value"
-                    class="btn-option"
-                    :class="{ 'active': config.subtitlePosition === position.value }"
-                    @click="config.subtitlePosition = position.value"
-                  >
-                    {{ position.label }}
-                  </button>
+                <select v-model="config.subtitlePosition" class="input-primary">
+                  <option value="template1">模板位置1（横屏视频）</option>
+                  <option value="template2">模板位置2（竖屏视频）</option>
+                  <option value="top">顶部</option>
+                  <option value="center">中间</option>
+                  <option value="bottom">底部</option>
+                  <option value="custom">自定义</option>
+                </select>
+              </div>
+
+              <!-- 字体大小和字体 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体大小</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="config.subtitleSize"
+                      type="number"
+                      class="input-primary flex-1"
+                    />
+                    <span class="text-sm text-gray-400">px</span>
+                  </div>
                 </div>
-                <button
-                  class="w-full px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm mb-3"
-                  @click="showFontLibraryModal = true"
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体</label>
+                  <select v-model="config.subtitleFont" class="input-primary">
+                    <option value="思源黑体Heavy">思源黑体Heavy</option>
+                    <option value="PingFang SC">PingFang SC</option>
+                    <option value="Microsoft YaHei">Microsoft YaHei</option>
+                    <option value="Heiti SC">黑体</option>
+                    <option value="STSong">宋体</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 字体描边颜色和字体描边宽度 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体描边颜色</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="config.subtitleStrokeColor"
+                      type="color"
+                      class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                    />
+                    <input
+                      v-model="config.subtitleStrokeColor"
+                      type="text"
+                      class="input-primary flex-1"
+                      placeholder="#000000"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字体描边宽度</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="config.subtitleStrokeWidth"
+                      type="number"
+                      class="input-primary flex-1"
+                    />
+                    <span class="text-sm text-gray-400">px</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 字幕阴影深度 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">字幕阴影深度</label>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="config.subtitleShadowDepth"
+                    type="number"
+                    class="input-primary flex-1"
+                  />
+                  <span class="text-sm text-gray-400">px</span>
+                </div>
+              </div>
+
+              <!-- 字幕背景颜色和字幕背景透明度 -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字幕背景颜色</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="config.subtitleBackgroundColor"
+                      type="color"
+                      class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                    />
+                    <input
+                      v-model="config.subtitleBackgroundColor"
+                      type="text"
+                      class="input-primary flex-1"
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">字幕背景透明度</label>
+                  <input
+                    v-model.number="config.subtitleBackgroundOpacity"
+                    type="number"
+                    min="0"
+                    max="100"
+                    class="input-primary"
+                    placeholder="0-100"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 花字折叠面板 -->
+          <div class="border border-gray-700 rounded-lg overflow-hidden">
+            <button
+              class="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition-colors"
+              @click="subtitleSections.fancy = !subtitleSections.fancy"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-1 h-4 bg-yellow-500 rounded"></div>
+                <span class="text-sm font-medium text-gray-200">花字</span>
+              </div>
+              <component :is="subtitleSections.fancy ? ChevronUp : ChevronDown" :size="18" class="text-gray-400" />
+            </button>
+            <div v-show="subtitleSections.fancy" class="p-4 bg-gray-800/50">
+              <button
+                class="w-full px-4 py-3 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
+                @click="showFontLibraryModal = true"
+              >
+                <Type :size="18" />
+                <span>打开花字字体库</span>
+              </button>
+              <p class="text-xs text-gray-500 mt-2 text-center">选择花字样式，让字幕更生动</p>
+            </div>
+          </div>
+
+          <!-- 贴纸折叠面板 -->
+          <div class="border border-gray-700 rounded-lg overflow-hidden">
+            <button
+              class="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition-colors"
+              @click="subtitleSections.sticker = !subtitleSections.sticker"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-1 h-4 bg-blue-500 rounded"></div>
+                <span class="text-sm font-medium text-gray-200">贴纸</span>
+              </div>
+              <component :is="subtitleSections.sticker ? ChevronUp : ChevronDown" :size="18" class="text-gray-400" />
+            </button>
+            <div v-show="subtitleSections.sticker" class="p-4 bg-gray-800/50">
+              <button
+                class="w-full px-4 py-3 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
+                @click="showStickerLibraryModal = true"
+              >
+                <Layers :size="18" />
+                <span>打开贴纸库</span>
+              </button>
+              <p class="text-xs text-gray-500 mt-2 text-center">添加贴纸装饰，丰富字幕效果</p>
+            </div>
+          </div>
+
+          <!-- 关键字折叠面板 -->
+          <div class="border border-gray-700 rounded-lg overflow-hidden">
+            <button
+              class="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition-colors"
+              @click="subtitleSections.keyword = !subtitleSections.keyword"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-1 h-4 bg-orange-500 rounded"></div>
+                <span class="text-sm font-medium text-gray-200">关键字</span>
+              </div>
+              <component :is="subtitleSections.keyword ? ChevronUp : ChevronDown" :size="18" class="text-gray-400" />
+            </button>
+            <div v-show="subtitleSections.keyword" class="p-4 bg-gray-800/50 space-y-4">
+              <!-- 启用关键字高亮 -->
+              <div class="flex items-center justify-between p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <Sparkles :size="16" class="text-orange-400" />
+                  <label class="text-sm font-medium text-gray-200">启用关键字高亮</label>
+                </div>
+                <Switch
+                  v-model="config.enableKeywordHighlight"
+                  :class="config.enableKeywordHighlight ? 'bg-orange-600' : 'bg-gray-700'"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                 >
-                  <Type :size="16" />
-                  <span>花字字体库</span>
-                </button>
-                <button
-                  class="w-full px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2 text-sm"
-                  @click="showStickerLibraryModal = true"
-                >
-                  <Layers :size="16" />
-                  <span>贴纸选择</span>
-                </button>
+                  <span class="sr-only">启用关键字高亮</span>
+                  <span
+                    :class="config.enableKeywordHighlight ? 'translate-x-6' : 'translate-x-1'"
+                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  />
+                </Switch>
+              </div>
+
+              <!-- 关键字配置 -->
+              <div v-if="config.enableKeywordHighlight" class="space-y-4">
+                <p class="text-xs text-gray-400">
+                  开启后，系统将在视频生成阶段自动提取关键字并突出显示
+                </p>
+
+                <!-- 关键字颜色 -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">关键字颜色</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model="config.keywordColor"
+                      type="color"
+                      class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                    />
+                    <input
+                      v-model="config.keywordColor"
+                      type="text"
+                      class="input-primary flex-1"
+                      placeholder="#FFD700"
+                    />
+                  </div>
+                </div>
+
+                <!-- 关键字背景颜色和透明度 -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">关键字背景颜色</label>
+                    <div class="flex items-center gap-2">
+                      <input
+                        v-model="config.keywordBackgroundColor"
+                        type="color"
+                        class="h-10 w-16 rounded cursor-pointer border-2 border-gray-600"
+                      />
+                      <input
+                        v-model="config.keywordBackgroundColor"
+                        type="text"
+                        class="input-primary flex-1"
+                        placeholder="#FF4500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">背景透明度</label>
+                    <input
+                      v-model.number="config.keywordBackgroundOpacity"
+                      type="number"
+                      min="0"
+                      max="100"
+                      class="input-primary"
+                      placeholder="0-100"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -388,7 +859,11 @@ import {
   Shield,
   Heart,
   Zap,
-  Drama
+  Drama,
+  Heading,
+  ChevronDown,
+  ChevronUp,
+  Sparkles
 } from 'lucide-vue-next'
 import SaveTemplateModal from './components/SaveTemplateModal.vue'
 import TemplateLibraryModal from './components/TemplateLibraryModal.vue'
@@ -406,14 +881,23 @@ import { useVideoStore } from '../../../../store/video'
 
 // Sheet配置
 const sheets = [
-  { id: 'template', name: '模板选择', icon: Palette },
-  { id: 'params', name: '参数配置', icon: Settings },
-  { id: 'subtitle', name: '字幕配置', icon: Type },
-  { id: 'voice', name: '音色配置', icon: Mic }
+  { id: 'template', name: '模板', icon: Palette },
+  { id: 'params', name: '基础', icon: Settings },
+  { id: 'title', name: '标题', icon: Heading },
+  { id: 'subtitle', name: '字幕', icon: Type },
+  { id: 'voice', name: '音色', icon: Mic }
 ]
 
 const activeSheet = ref('template')
 const selectedTemplate = ref<string | null>(null)
+
+// 字幕配置折叠状态
+const subtitleSections = reactive({
+  basic: false,      // 基础配置默认折叠
+  fancy: false,      // 花字默认折叠
+  sticker: false,    // 贴纸默认折叠
+  keyword: false     // 关键字默认折叠
+})
 
 // 初始化 videoStore
 const videoStore = useVideoStore()
@@ -422,6 +906,7 @@ const videoStore = useVideoStore()
 const config = reactive({
   aspectRatio: '9:16',
   title: '',
+  videoCount: 3,
   duration: 60,
   resolution: '1080p',
   fps: 30,
@@ -429,11 +914,41 @@ const config = reactive({
   transition: 'fade',
   enableSubtitles: true,
   subtitleStyle: 'modern',
-  subtitlePosition: 'bottom',
-  subtitleFont: '',
+  subtitlePosition: 'template1',
+  subtitleFont: '思源黑体Heavy',
   subtitleSticker: '',
+  subtitleColor: '#FFFFFF',
+  subtitleSize: 12,
+  subtitleStrokeColor: '#000000',
+  subtitleStrokeWidth: 0,
+  subtitleShadowDepth: 0,
+  subtitleBackgroundColor: '#FFFFFF',
+  subtitleBackgroundOpacity: 0,
+  // 关键字配置
+  enableKeywordHighlight: false,            // 启用关键字高亮
+  keywordColor: '#FFD700',                  // 关键字颜色
+  keywordBackgroundColor: '#FF4500',        // 关键字背景色
+  keywordBackgroundOpacity: 30,             // 关键字背景透明度
   voiceType: 'authoritative',
-  voiceSpeed: 1.0
+  voiceSpeed: 1.0,
+  // 标题配置
+  titlePosition: 'top',
+  titleSpacing: 11,
+  titleAlignment: 'center',
+  // 主标题配置
+  enableMainTitle: true,
+  mainTitle: '',
+  mainTitleFont: '思源黑体Heavy',
+  mainTitleLetterSpacing: -50,
+  mainTitleSize: 64,
+  mainTitleColor: '#FFFFFF',
+  // 副标题配置
+  enableSubTitle: false,
+  subTitle: '',
+  subTitleFont: '思源黑体Heavy',
+  subTitleLetterSpacing: -50,
+  subTitleSize: 64,
+  subTitleColor: '#FFFFFF'
 })
 
 // 选项数据
