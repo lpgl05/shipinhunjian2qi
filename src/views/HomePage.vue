@@ -74,6 +74,27 @@
                     <!-- 分隔线 -->
                     <div class="my-1 border-t border-gray-200 dark:border-gray-700"></div>
                     
+                    <!-- 设置 -->
+                    <button
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      @click.stop="handleSettings"
+                    >
+                      <Settings :size="18" />
+                      <span>设置</span>
+                    </button>
+                    
+                    <!-- 个人中心 -->
+                    <button
+                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      @click.stop="handleProfile"
+                    >
+                      <User :size="18" />
+                      <span>个人中心</span>
+                    </button>
+                    
+                    <!-- 分隔线 -->
+                    <div class="my-1 border-t border-gray-200 dark:border-gray-700"></div>
+                    
                     <!-- 退出账号 -->
                     <button
                       class="w-full flex items-center gap-3 px-4 py-3 text-left text-red-500 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -266,7 +287,9 @@ import {
   ChevronDown,
   Palette,
   LogOut,
-  Shield
+  Shield,
+  Settings,
+  User
 } from 'lucide-vue-next'
 import AgentCard from '../components/AgentCard.vue'
 import { useAuthStore } from '../store/auth'
@@ -393,6 +416,18 @@ const handleLogin = () => {
 // 处理注册
 const handleRegister = () => {
   router.push('/register')
+}
+
+// 处理设置
+const handleSettings = () => {
+  showUserMenu.value = false
+  router.push('/settings')
+}
+
+// 处理个人中心
+const handleProfile = () => {
+  showUserMenu.value = false
+  router.push('/profile')
 }
 
 // 处理登出
