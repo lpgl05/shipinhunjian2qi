@@ -226,6 +226,19 @@
                 </select>
               </div>
             </div>
+
+            <!-- 动画效果 -->
+            <div class="grid grid-cols-3 gap-4 mt-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">标题动画</label>
+                <select v-model="config.titleAnimation" class="input-primary">
+                  <option value="none">无</option>
+                  <option value="fade">淡入</option>
+                  <option value="slide-up">上滑进入</option>
+                  <option value="slide-down">下滑进入</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <!-- 主标题配置 -->
@@ -610,6 +623,45 @@
                 <span>打开贴纸库</span>
               </button>
               <p class="text-xs text-gray-500 mt-2 text-center">添加贴纸装饰，丰富字幕效果</p>
+
+              <!-- 当前贴纸与控制 -->
+              <div v-if="config.subtitleSticker" class="space-y-3 mt-2">
+                <!-- 当前选择预览 -->
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-gray-400">当前贴纸</span>
+                  <div class="px-2 py-1 rounded-lg bg-gray-700 text-gray-100 flex items-center gap-2">
+                    <span class="text-2xl leading-none">{{ stickerEmojiMap[config.subtitleSticker] || '✨' }}</span>
+                    <span class="text-xs text-gray-400">ID: {{ config.subtitleSticker }}</span>
+                  </div>
+                </div>
+
+                <!-- 位置与缩放控制 -->
+                <div class="grid grid-cols-3 gap-3">
+                  <!-- X（水平百分比） -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">水平位置 X (%)</label>
+                    <input v-model.number="config.stickerX" type="range" min="0" max="100" class="range-slider" />
+                    <input v-model.number="config.stickerX" type="number" min="0" max="100" class="input-primary mt-1" />
+                  </div>
+                  <!-- Y（垂直百分比） -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">垂直位置 Y (%)</label>
+                    <input v-model.number="config.stickerY" type="range" min="0" max="100" class="range-slider" />
+                    <input v-model.number="config.stickerY" type="number" min="0" max="100" class="input-primary mt-1" />
+                  </div>
+                  <!-- Scale（百分比） -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">大小 Scale (%)</label>
+                    <input v-model.number="config.stickerScale" type="range" min="10" max="200" class="range-slider" />
+                    <input v-model.number="config.stickerScale" type="number" min="10" max="200" class="input-primary mt-1" />
+                  </div>
+                </div>
+
+                <!-- 重置默认 -->
+                <div class="flex justify-end">
+                  <button class="px-3 py-1.5 bg-gray-700 text-gray-300 text-xs rounded-lg hover:bg-gray-600 transition-colors" @click="resetSticker()">重置默认</button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -777,31 +829,58 @@
             :class="config.aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-video'"
           >
             <!-- 预览内容 -->
-            <div class="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex flex-col items-center justify-center text-white">
-              <div class="text-center">
-                <h3 class="text-2xl font-bold mb-2">{{ config.title || '视频标题' }}</h3>
-                <p class="text-lg opacity-80">{{ config.aspectRatio === '9:16' ? '竖版视频' : '横版视频' }}</p>
-                <p class="text-sm opacity-60 mt-2">{{ config.duration }}秒 • {{ config.resolution }} • {{ config.fps }}fps</p>
-              </div>
-              
-              <!-- 字幕预览 -->
+            <div ref="previewRef" class="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg text-white relative overflow-hidden">
+              <!-- 标题预览（绝对定位，可选顶部/中间/底部；支持动画与双向绑定） -->
               <div
-                v-if="config.enableSubtitles"
-                class="absolute"
-                :class="config.subtitlePosition === 'top' ? 'top-4' : 'bottom-4'"
+                v-if="config.enableMainTitle || config.enableSubTitle"
+                class="absolute inset-x-4"
+                :class="titleContainerPositionClass"
               >
-                <div
-                  class="px-4 py-2 rounded-lg"
-                  :class="config.subtitleStyle === 'modern' ? 'bg-black/70' : 'bg-white/90 text-black'"
-                >
-                  字幕预览文本
+                <div :class="titleAlignmentClass" class="max-w-[92%] mx-auto">
+                  <!-- 主标题（contenteditable，双向数据绑定） -->
+                  <div
+                    v-if="config.enableMainTitle"
+                    ref="mainTitleRef"
+                    class="title-text title-h1 select-text"
+                    contenteditable="true"
+                    :style="mainTitleStyle"
+                    :class="[titleAnimationClass]"
+                    @input="onMainTitleInput"
+                  >{{ safeMainTitle }}</div>
+
+                  <!-- 副标题（contenteditable，双向数据绑定） -->
+                  <div
+                    v-if="config.enableSubTitle"
+                    ref="subTitleRef"
+                    class="mt-2 title-text title-h2 select-text"
+                    contenteditable="true"
+                    :style="subTitleStyle"
+                    :class="['opacity-90', titleAnimationClass]"
+                    @input="onSubTitleInput"
+                  >{{ safeSubTitle }}</div>
                 </div>
               </div>
+
+              <!-- 背景信息（非标题，仅作辅助预览说明） -->
+              <div class="absolute left-4 bottom-4 text-xs opacity-80">
+                <p>{{ config.aspectRatio === '9:16' ? '竖版视频' : '横版视频' }}</p>
+                <p class="mt-1">{{ config.duration }}秒 • {{ config.resolution }} • {{ config.fps }}fps</p>
+              </div>
+
+              <!-- 贴纸预览（div 贴纸，支持拖拽与缩放） -->
+              <div v-if="config.subtitleSticker" ref="stickerRef" class="absolute select-none touch-none will-change-transform" :style="stickerStyle" @pointerdown="onStickerPointerDown">
+                <span class="text-3xl leading-none">{{ stickerEmojiMap[config.subtitleSticker] || '✨' }}</span>
+                <!-- 右下角缩放手柄 -->
+                <div class="sticker-resize-handle" @pointerdown.stop="onResizePointerDown"></div>
+              </div>
+              
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    
 
     <!-- 保存模板模态框 -->
     <SaveTemplateModal
@@ -845,7 +924,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { Switch } from '@headlessui/vue'
 import {
   Save,
@@ -917,6 +996,10 @@ const config = reactive({
   subtitlePosition: 'template1',
   subtitleFont: '思源黑体Heavy',
   subtitleSticker: '',
+  // 贴纸位置与缩放（百分比）
+  stickerX: 50,
+  stickerY: 80,
+  stickerScale: 100,
   subtitleColor: '#FFFFFF',
   subtitleSize: 12,
   subtitleStrokeColor: '#000000',
@@ -933,22 +1016,23 @@ const config = reactive({
   voiceSpeed: 1.0,
   // 标题配置
   titlePosition: 'top',
-  titleSpacing: 11,
-  titleAlignment: 'center',
+  titleSpacing: 0,
+  titleAlignment: 'left',
+  titleAnimation: 'none',
   // 主标题配置
   enableMainTitle: true,
   mainTitle: '',
-  mainTitleFont: '思源黑体Heavy',
-  mainTitleLetterSpacing: -50,
-  mainTitleSize: 64,
-  mainTitleColor: '#FFFFFF',
+  mainTitleFont: '',
+  mainTitleLetterSpacing: 0,
+  mainTitleSize: 32,
+  mainTitleColor: '#333333',
   // 副标题配置
   enableSubTitle: false,
   subTitle: '',
-  subTitleFont: '思源黑体Heavy',
-  subTitleLetterSpacing: -50,
-  subTitleSize: 64,
-  subTitleColor: '#FFFFFF'
+  subTitleFont: '',
+  subTitleLetterSpacing: 0,
+  subTitleSize: 28,
+  subTitleColor: '#333333'
 })
 
 // 选项数据
@@ -1003,6 +1087,281 @@ const loadTemplate = (template: any) => {
 const deleteTemplate = (id: string) => {
   savedTemplates.value = savedTemplates.value.filter(t => t.id !== id)
 }
+
+
+/**
+ * 贴纸（div）配置与交互
+ */
+const stickerEmojiMap: Record<string, string> = {
+  heart: '❤️',
+  star: '✨',
+  smile: '😊',
+  fire: '🔥',
+  arrow: '➡️',
+  flag: '🚩',
+  sparkles: '💫',
+  check: '✅'
+}
+
+// 预览容器与贴纸元素引用
+const previewRef = ref<HTMLElement | null>(null)
+const stickerRef = ref<HTMLElement | null>(null)
+
+// 贴纸样式（基于百分比位置与缩放）
+const stickerStyle = computed(() => {
+  const scale = (config.stickerScale || 100) / 100
+  return {
+    left: `${config.stickerX}%`,
+    top: `${config.stickerY}%`,
+    transform: `translate(-50%, -50%) scale(${scale})`,
+    transition: 'transform 120ms ease, left 120ms ease, top 120ms ease'
+  } as Record<string, string>
+})
+
+// 拖拽与缩放状态
+let dragActive = false
+let resizeActive = false
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n))
+}
+
+// rAF 渲染（在频繁交互时更平滑）
+let rafId: number | null = null
+function scheduleRender() {
+  if (rafId != null) return
+  rafId = requestAnimationFrame(() => {
+    rafId = null
+    const el = stickerRef.value
+    if (!el) return
+    const scale = (config.stickerScale || 100) / 100
+    el.style.left = `${config.stickerX}%`
+    el.style.top = `${config.stickerY}%`
+    el.style.transform = `translate(-50%, -50%) scale(${scale})`
+  })
+}
+
+function onStickerPointerDown(e: PointerEvent) {
+  if (!previewRef.value) return
+  dragActive = true
+  const rect = previewRef.value.getBoundingClientRect()
+  const move = (ev: PointerEvent) => {
+    if (!dragActive) return
+    const xPercent = clamp(((ev.clientX - rect.left) / rect.width) * 100, 0, 100)
+    const yPercent = clamp(((ev.clientY - rect.top) / rect.height) * 100, 0, 100)
+    config.stickerX = Math.round(xPercent)
+    config.stickerY = Math.round(yPercent)
+    scheduleRender()
+  }
+  const up = () => {
+    dragActive = false
+    window.removeEventListener('pointermove', move)
+    window.removeEventListener('pointerup', up)
+  }
+  window.addEventListener('pointermove', move)
+  window.addEventListener('pointerup', up)
+}
+
+function onResizePointerDown(e: PointerEvent) {
+  if (!previewRef.value || !stickerRef.value) return
+  resizeActive = true
+  const rect = previewRef.value.getBoundingClientRect()
+  const startX = e.clientX
+  const startY = e.clientY
+  const initialScale = config.stickerScale
+  const diag = Math.sqrt(rect.width * rect.width + rect.height * rect.height)
+  const move = (ev: PointerEvent) => {
+    if (!resizeActive) return
+    const delta = Math.sqrt((ev.clientX - startX) ** 2 + (ev.clientY - startY) ** 2)
+    const deltaPercent = (delta / diag) * 200 // 大致映射到 0-200%
+    config.stickerScale = clamp(Math.round(initialScale + deltaPercent), 10, 200)
+    scheduleRender()
+  }
+  const up = () => {
+    resizeActive = false
+    window.removeEventListener('pointermove', move)
+    window.removeEventListener('pointerup', up)
+  }
+  window.addEventListener('pointermove', move)
+  window.addEventListener('pointerup', up)
+}
+
+// 持久化（仅贴纸相关字段）
+const STICKER_STORAGE_KEY = 'video_sticker_state_v1'
+let saveTimer: number | null = null
+function saveDebounced() {
+  if (saveTimer) clearTimeout(saveTimer)
+  saveTimer = window.setTimeout(() => {
+    const payload = {
+      subtitleSticker: config.subtitleSticker,
+      stickerX: config.stickerX,
+      stickerY: config.stickerY,
+      stickerScale: config.stickerScale
+    }
+    localStorage.setItem(STICKER_STORAGE_KEY, JSON.stringify(payload))
+    saveTimer = null
+  }, 250)
+}
+
+function loadStickerState() {
+  try {
+    const raw = localStorage.getItem(STICKER_STORAGE_KEY)
+    if (!raw) return
+    const s = JSON.parse(raw)
+    if (typeof s.subtitleSticker === 'string') config.subtitleSticker = s.subtitleSticker
+    if (typeof s.stickerX === 'number') config.stickerX = clamp(s.stickerX, 0, 100)
+    if (typeof s.stickerY === 'number') config.stickerY = clamp(s.stickerY, 0, 100)
+    if (typeof s.stickerScale === 'number') config.stickerScale = clamp(s.stickerScale, 10, 200)
+  } catch {}
+}
+
+watch(() => [config.subtitleSticker, config.stickerX, config.stickerY, config.stickerScale], saveDebounced, { deep: false })
+
+function resetSticker() {
+  config.stickerX = 50
+  config.stickerY = 80
+  config.stickerScale = 100
+  scheduleRender()
+}
+
+onMounted(() => {
+  loadStickerState()
+  scheduleRender()
+})
+
+
+/**
+ * 标题（主/副标题）样式与交互
+ */
+const mainTitleRef = ref<HTMLElement | null>(null)
+const subTitleRef = ref<HTMLElement | null>(null)
+
+// 安全文本（空值回退到默认）
+const safeMainTitle = computed(() => {
+  const t = (config.mainTitle || '').trim()
+  return t.length ? t : '视频标题'
+})
+const safeSubTitle = computed(() => {
+  const t = (config.subTitle || '').trim()
+  return t.length ? t : '副标题'
+})
+
+// 标题容器位置类（顶部/中间/底部）
+const titleContainerPositionClass = computed(() => {
+  switch (config.titlePosition) {
+    case 'top':
+      return 'top-6'
+    case 'center':
+      return 'top-1/2 -translate-y-1/2'
+    case 'bottom':
+      return 'bottom-6'
+    default:
+      return 'top-6'
+  }
+})
+
+// 对齐方式类
+const titleAlignmentClass = computed(() => {
+  switch (config.titleAlignment) {
+    case 'left':
+      return 'text-left'
+    case 'right':
+      return 'text-right'
+    default:
+      return 'text-center'
+  }
+})
+
+// 动画类
+const titleAnimationClass = computed(() => {
+  switch (config.titleAnimation) {
+    case 'fade':
+      return 'title-anim-fade'
+    case 'slide-up':
+      return 'title-anim-slide-up'
+    case 'slide-down':
+      return 'title-anim-slide-down'
+    default:
+      return ''
+  }
+})
+
+// 颜色合法性校验
+function isValidHexColor(v: string) {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v)
+}
+
+// 主标题样式
+const mainTitleStyle = computed(() => {
+  const hasSize = Number.isFinite(Number(config.mainTitleSize))
+  const spacing = clamp(config.mainTitleLetterSpacing ?? 0, -200, 200)
+  const color = isValidHexColor(config.mainTitleColor || '')
+    ? config.mainTitleColor!
+    : 'var(--title-color, #333333)'
+  return {
+    color,
+    fontFamily: config.mainTitleFont || 'var(--title-font-family, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif)',
+    fontSize: hasSize ? `${clamp(Number(config.mainTitleSize), 12, 150)}px` : 'var(--title-font-size-h1, 2rem)',
+    fontWeight: 'var(--title-font-weight, 600)',
+    letterSpacing: `${spacing}px`,
+    lineHeight: 'var(--title-line-height, 1.3)',
+    whiteSpace: 'var(--title-white-space, nowrap)',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    textDecoration: 'none'
+  } as Record<string, string>
+})
+
+// 副标题样式
+const subTitleStyle = computed(() => {
+  const hasSize = Number.isFinite(Number(config.subTitleSize))
+  const spacing = clamp(config.subTitleLetterSpacing ?? 0, -200, 200)
+  const color = isValidHexColor(config.subTitleColor || '')
+    ? config.subTitleColor!
+    : 'var(--title-color, #333333)'
+  const mt = (config.titleSpacing ?? 0)
+  return {
+    color,
+    fontFamily: config.subTitleFont || 'var(--title-font-family, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif)',
+    fontSize: hasSize ? `${clamp(Number(config.subTitleSize), 10, 120)}px` : 'var(--title-font-size-h2, 1.75rem)',
+    fontWeight: 'var(--title-font-weight, 600)',
+    letterSpacing: `${spacing}px`,
+    lineHeight: 'var(--title-line-height, 1.3)',
+    marginTop: mt ? `${clamp(Number(mt), 0, 100)}px` : 'var(--title-spacing, 0.5em)',
+    whiteSpace: 'var(--title-white-space, nowrap)',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    textDecoration: 'none'
+  } as Record<string, string>
+})
+
+// 双向绑定（在预览区编辑内容时，同步回配置）
+function sanitizeInlineText(el: HTMLElement | null) {
+  if (!el) return ''
+  // 只保留纯文本，去掉换行和多余空格
+  return el.innerText.replace(/\s+/g, ' ').trim()
+}
+
+function onMainTitleInput(e: Event) {
+  const t = sanitizeInlineText(e.target as HTMLElement)
+  // 适度限制长度，过长时自动截断
+  config.mainTitle = t.slice(0, 120)
+}
+
+function onSubTitleInput(e: Event) {
+  const t = sanitizeInlineText(e.target as HTMLElement)
+  config.subTitle = t.slice(0, 160)
+}
+
+// 参数范围校验与回退
+watch(() => config.mainTitleSize, (v) => { config.mainTitleSize = clamp(Number(v) || 32, 12, 150) })
+watch(() => config.subTitleSize, (v) => { config.subTitleSize = clamp(Number(v) || 28, 10, 120) })
+watch(() => config.titleSpacing, (v) => { config.titleSpacing = clamp(Number(v) || 0, 0, 100) })
+watch(() => config.mainTitleLetterSpacing, (v) => { config.mainTitleLetterSpacing = clamp(Number(v) || 0, -200, 200) })
+watch(() => config.subTitleLetterSpacing, (v) => { config.subTitleLetterSpacing = clamp(Number(v) || 0, -200, 200) })
+watch(() => config.mainTitleColor, (v) => { if (!isValidHexColor(String(v))) config.mainTitleColor = '#FFFFFF' })
+watch(() => config.subTitleColor, (v) => { if (!isValidHexColor(String(v))) config.subTitleColor = '#FFFFFF' })
+
 
 
 const handleSaveTemplate = (templateData: any) => {
@@ -1087,6 +1446,117 @@ const handleVoiceCloneClick = () => {
 
 .preview-frame {
   @apply w-full bg-gray-700 rounded-lg overflow-hidden relative;
+}
+
+/* 标题组件默认主题变量（便于后续通过主题/全局覆写） */
+.title-theme {
+  /* 字体与层级大小 */
+  --title-font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --title-font-size-h1: 2rem;   /* ~32px */
+  --title-font-size-h2: 1.75rem;/* ~28px */
+  --title-font-weight: 600;     /* 中等偏粗 */
+  --title-line-height: 1.3;     /* 1.2 - 1.5 推荐中值 */
+
+  /* 颜色与背景（在深色预览背景上使用浅色遮罩以保证对比度） */
+  --title-color: #333333;                   /* 深色文字，>=4.5:1 */
+  --title-bg: rgba(255,255,255,0.85);       /* 预览默认：浅色半透明，提高可读性 */
+
+  /* 间距布局 */
+  --title-padding-y: 0.5em;
+  --title-padding-x: 0;
+  --title-margin-bottom: 0.75em;
+  --title-text-align: left;
+  --title-spacing: 0.5em;                   /* 主副标题间距（在未显式设置时使用） */
+
+  /* 文本呈现 */
+  --title-white-space: nowrap;              /* 默认不换行 */
+  --title-mobile-decrease: 0.25rem;         /* 移动端字号适当缩小 */
+}
+
+/* 标题容器（适配默认主题变量） */
+.title-block {
+  background: var(--title-bg, rgba(255,255,255,0.85));
+  padding: var(--title-padding-y, 0.5em) var(--title-padding-x, 0);
+  margin-bottom: var(--title-margin-bottom, 0.75em);
+  text-align: var(--title-text-align, left);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  border-radius: 8px;
+}
+
+/* 标题文本默认行为 */
+.title-text {
+  color: var(--title-color, #333333);
+  white-space: var(--title-white-space, nowrap);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  font-family: var(--title-font-family, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif);
+  line-height: var(--title-line-height, 1.3);
+  font-weight: var(--title-font-weight, 600);
+}
+
+/* 层级对应默认字号（可被内联样式或配置覆盖） */
+.title-h1 { font-size: var(--title-font-size-h1, 2rem); }
+.title-h2 { font-size: var(--title-font-size-h2, 1.75rem); }
+
+/* 移动端字号适配 */
+@media (max-width: 640px) {
+  .title-h1 { font-size: calc(var(--title-font-size-h1, 2rem) - var(--title-mobile-decrease, 0.25rem)); }
+  .title-h2 { font-size: calc(var(--title-font-size-h2, 1.75rem) - var(--title-mobile-decrease, 0.25rem)); }
+}
+
+/* 贴纸缩放手柄样式 */
+.sticker-resize-handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  cursor: nwse-resize;
+}
+
+/* 文本自动截断/换行（多行省略） */
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 标题动画效果 */
+@keyframes titleFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.title-anim-fade {
+  animation: titleFadeIn 400ms ease-out both;
+}
+
+@keyframes titleSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.title-anim-slide-up {
+  animation: titleSlideUp 420ms ease-out both;
+}
+
+@keyframes titleSlideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.title-anim-slide-down {
+  animation: titleSlideDown 420ms ease-out both;
 }
 
 /* 自定义滚动条 */
