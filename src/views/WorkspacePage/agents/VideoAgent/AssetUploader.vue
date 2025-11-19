@@ -16,7 +16,7 @@
               :class="{ 'active': selected }"
             >
               <Video :size="18" />
-              <span>视频/图片</span>
+              <span>视频素材</span>
             </button>
           </Tab>
           <Tab v-slot="{ selected }" class="flex-1">
@@ -40,7 +40,7 @@
         </TabList>
 
         <TabPanels class="mt-6">
-          <!-- 视频/图片标签页 -->
+          <!-- 视频素材标签页（仅支持视频） -->
           <TabPanel>
             <div class="space-y-6">
               <!-- 拖拽上传区 -->
@@ -57,17 +57,24 @@
                 @click="triggerFileInput"
               >
                 <Upload :size="48" class="mx-auto mb-4 text-gray-500" />
+                <!-- 醒目标签：仅支持视频文件 -->
+                <div class="flex items-center justify-center mb-3">
+                  <span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded">
+                    仅支持视频文件
+                  </span>
+                </div>
                 <p class="text-lg font-medium text-gray-300 mb-2">
-                  拖拽文件到这里，或点击上传
+                  拖拽视频文件到这里，或点击上传
                 </p>
                 <p class="text-sm text-gray-500">
-                  支持 MP4, MOV, JPG, PNG 格式，单个文件不超过500MB
+                  仅支持视频素材上传；支持 MP4、MOV、AVI、MKV、FLV、WMV、WebM；建议分辨率不低于720p，码率不低于2Mbps，时长不超过5分钟；单个文件不超过500MB
                 </p>
+                <p v-if="uploadErrorMessage" class="text-sm text-red-400 mt-2">{{ uploadErrorMessage }}</p>
                 <input
                   ref="fileInputRef"
                   type="file"
                   multiple
-                  accept="video/*,image/*"
+                  accept=".mp4,.mov,.avi,.mkv,.flv,.wmv,.webm"
                   class="hidden"
                   @change="handleFileSelect"
                 />
@@ -374,6 +381,8 @@ const workspaceStore = useWorkspaceStore()
 
 // 拖拽状态
 const isDragging = ref(false)
+// 错误提示信息
+const uploadErrorMessage = ref<string>('')
 
 // 文件输入引用
 const fileInputRef = ref<HTMLInputElement>()
@@ -433,12 +442,33 @@ const handleDrop = (event: DragEvent) => {
 
 // 处理文件
 const handleFiles = (files: File[]) => {
+  uploadErrorMessage.value = ''
+
+  const allowedExts = ['mp4','mov','avi','mkv','flv','wmv','webm']
+
   files.forEach(file => {
+    const nameLower = file.name.toLowerCase()
+    const ext = nameLower.split('.').pop() || ''
+    const isVideoMime = file.type.startsWith('video')
+    const isAllowedExt = allowedExts.includes(ext)
+    const isImageMime = file.type.startsWith('image')
+
+    if (isImageMime || (!isVideoMime && !isAllowedExt)) {
+      // 检测到图片或非支持的视频格式
+      uploadErrorMessage.value = '仅支持视频素材上传'
+      return
+    }
+
+    if (!(isVideoMime || isAllowedExt)) {
+      uploadErrorMessage.value = '仅支持视频素材上传'
+      return
+    }
+
     const fileData = {
       id: Date.now() + Math.random(),
       name: file.name,
       size: file.size,
-      type: file.type.startsWith('video') ? 'video' : 'image',
+      type: 'video',
       url: URL.createObjectURL(file) // 创建预览URL
     }
     uploadedFiles.value.push(fileData)
